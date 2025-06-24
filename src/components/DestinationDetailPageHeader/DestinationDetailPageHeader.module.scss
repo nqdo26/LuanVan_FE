@@ -135,3 +135,33 @@
         }
     }
 }
+
+@media (max-width: 767px) {
+    .title {
+        font-size: 24px;
+    }
+
+    .location-name,
+    .location-icon {
+        font-size: 14px;
+    }
+
+    .rating {
+        font-size: 16px;
+    }
+
+    .review-count {
+        font-size: 14px;
+    }
+
+    .review-btn {
+        font-size: 13px;
+    }
+
+    .badge {
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+
+    
+}

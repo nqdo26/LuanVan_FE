@@ -5,17 +5,17 @@
 
 .inner {
     margin: 50px 0;
-    display: flex; 
-    flex-direction: column; 
+    display: flex;
+    flex-direction: column;
     gap: 50px;
-    align-items: center; 
+    align-items: center;
     width: 100%;
 }
 
-
 .title {
     text-align: center;
-    font-size: 5rem;
+    /* Fluid typography */
+    font-size: clamp(2.5rem, 5vw, 5rem);
 }
 
 .search-bar {
@@ -27,7 +27,7 @@
 
 .carousel {
     width: 70%;
-    min-width: 300px
+    min-width: 300px;
 }
 
 .chatbox-intro {
@@ -35,12 +35,26 @@
     min-width: 300px;
 }
 
-.carousel {
+.category {
     width: 70%;
     min-width: 300px;
 }
 
-.category {
-    width: 70%;
-    min-width: 300px;
+@media (max-width: 768px) {
+    .inner {
+        margin: 30px 0;
+        gap: 30px;
+    }
+
+    .title {
+        font-size: 2.5rem;
+    }
+
+    .search-bar,
+    .carousel,
+    .chatbox-intro,
+    .category {
+        width: 90%;
+        min-width: 0;
+    }
 }

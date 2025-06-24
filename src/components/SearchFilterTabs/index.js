@@ -1,7 +1,7 @@
 import classNames from 'classnames/bind';
 import styles from './SearchFilterTabs.module.scss';
-import SearchBarInSearchPage from '../SearchBarInSearchPage';
 import CustomTitle from '../CustomTitle';
+import SearchBar from '../SearchBar';
 
 const cx = classNames.bind(styles);
 
@@ -12,7 +12,7 @@ function SearchFilterTabs() {
                 <div className={cx('header')}>
                     <CustomTitle title={'Khám phá địa điểm & hành trình'} size={35} />
                     <div className={cx('search-bar')}>
-                        <SearchBarInSearchPage />
+                        <SearchBar />
                     </div>
                 </div>
             </div>

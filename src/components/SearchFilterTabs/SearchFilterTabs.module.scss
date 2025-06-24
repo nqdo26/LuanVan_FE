@@ -12,7 +12,7 @@
 
 .inner {
     margin-top: 30px;
-    width: 61.3%;
+    width: 65%;
     display: flex;
     flex-direction: column;
     gap: 30px;
@@ -75,5 +75,15 @@
 :global {
     .ant-tabs-nav {
         margin-bottom: 0 !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .inner {
+        width: 100%;
+    }
+
+    .search-bar {
+        width: 90%;
     }
 }

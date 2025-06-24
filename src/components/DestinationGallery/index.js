@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Image} from 'antd';
+import { Card, Image } from 'antd';
 import classNames from 'classnames/bind';
 import styles from './DestinationGallery.module.scss';
 import { CameraOutlined } from '@ant-design/icons';
@@ -68,7 +68,7 @@ const DestinationGallery = ({ type }) => {
             </div>
 
             <GalleryModal
-                detinationName= "Wimi-Factory"
+                detinationName="Wimi-Factory"
                 visible={visible}
                 onClose={() => setVisible(false)}
                 categories={categories}

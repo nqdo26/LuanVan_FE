@@ -1,3 +1,5 @@
+/* Carousel.module.scss */
+
 .title {
     margin-bottom: 20px;
     font-size: 2.7rem;
@@ -14,9 +16,10 @@
 }
 
 .carousel-items {
-    margin: 5px 0px;
-    width: 91% !important;
-    min-width: 254px !important;
+    margin: 5px 0;
+    /* bỏ width/min-width cứng để flexibly trên mobile */
+    width: auto !important;
+    min-width: 0 !important;
 }
 
 .customArrow {
@@ -37,5 +40,24 @@
 
     &:hover {
         background-color: rgba(0, 0, 0, 0.8);
+    }
+}
+
+
+:global(.slick-slide) {
+    display: flex;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    :global(.slick-slide) {
+     
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+
+    .carousel-items {
+        margin: 0;
+        padding: 0 10px; 
     }
 }

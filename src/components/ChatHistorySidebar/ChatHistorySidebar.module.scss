@@ -1,0 +1,37 @@
+.sidebar {
+    background: #ffffff;
+    border-right: 1px solid #e9e9e9;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-radius: 16px 0 0 16px;
+}
+.header {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #f0f0f0;
+}
+.title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+}
+.list {
+    overflow-y: auto;
+    margin: 0;
+    padding: 8px 0;
+    list-style: none;
+}
+.item {
+    padding: 10px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    &:hover {
+        background: #d8d8d8;
+    }
+    &.active {
+        background: #d8d8d8;
+    }
+}

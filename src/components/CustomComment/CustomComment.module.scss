@@ -257,3 +257,70 @@
         margin-bottom: 20px;
     }
 }
+
+@media (max-width: 767px) {
+    .title {
+        font-size: 18px;
+    }
+    .rating-title {
+        margin-bottom: 12px;
+        font-size: 16px;
+    }
+    .custom-comment-sidebar {
+        width: 100%;
+    }
+    .custom-comment-rating {
+        font-size: 18px;
+    }
+    .rating {
+        font-size: 18px;
+    }
+    .rating-levels .rating-title {
+        font-size: 12px;
+    }
+    .total-review {
+        font-size: 13px;
+    }
+    .custom-comment-filter {
+        font-size: 13px;
+    }
+    .write-review-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+    .custom-comment-select {
+        width: 100%;
+        font-size: 13px;
+    }
+    .custom-comment-item {
+        font-size: 13px;
+    }
+    .custom-comment-author {
+        font-size: 14px;
+    }
+    .custom-comment-title {
+        font-size: 14px;
+    }
+    .custom-comment-visit-date {
+        font-size: 13px;
+    }
+    .custom-comment-text {
+        font-size: 13px;
+    }
+    .custom-comment-create-at {
+        font-size: 12px;
+    }
+    .view-details-btn {
+        font-size: 13px;
+    }
+    .list-time-open-item {
+        font-size: 14px;
+    }
+    .like-btn {
+        font-size: 14px;
+        padding: 8px;
+    }
+    .like-count {
+        font-size: 12px;
+    }
+}

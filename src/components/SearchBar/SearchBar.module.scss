@@ -2,6 +2,7 @@
     display: flex;
     align-items: center;
     width: 100%;
+    min-width: 200px;
     height: 55px;
     padding: 0 4px;
     border-radius: 50px;
@@ -16,8 +17,6 @@
     &:focus-within {
         border-color: var(--primary-color);
         box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
-
-
 
         .search-button {
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
@@ -76,5 +75,27 @@
         font-size: 14px;
         font-weight: 600;
         color: #ffffff;
+    }
+}
+
+/* Responsive adjustments for small screens */
+@media (max-width: 768px) {
+    .search-button {
+        padding: 12px 12px;
+        font-size: 12px;
+        p {
+            font-size: 12px;
+            font-weight: 500;
+            color: #ffffff;
+        }
+    }
+
+    .search-icon {
+        padding: 10px;
+        font-size: 18px;
+    }
+
+    .search-input {
+        font-size: 14px;
     }
 }

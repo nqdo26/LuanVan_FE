@@ -1,8 +1,7 @@
-import { List } from 'antd';
-import classNames from 'classnames/bind';
 import { useState } from 'react';
-import { Button } from 'antd';
+import { List, Drawer } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
+import classNames from 'classnames/bind';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import styles from './Search.module.scss';
@@ -13,59 +12,57 @@ import DestinationCard from '~/components/DestinationCard';
 
 const cx = classNames.bind(styles);
 
-const destinations = [
-    { id: 1, title: 'Destination 1' },
-    { id: 2, title: 'Destination 2' },
-    { id: 3, title: 'Destination 3' },
-    { id: 4, title: 'Destination 4' },
-    { id: 5, title: 'Destination 5' },
-    { id: 6, title: 'Destination 6' },
-    { id: 7, title: 'Destination 7' },
-    { id: 8, title: 'Destination 8' },
-    { id: 9, title: 'Destination 9' },
-    { id: 10, title: 'Destination 10' },
-    { id: 11, title: 'Destination 10' },
-    { id: 12, title: 'Destination 10' },
-    { id: 13, title: 'Destination 10' },
-    { id: 14, title: 'Destination 10' },
-    { id: 15, title: 'Destination 10' },
-    { id: 16, title: 'Destination 10' },
-    { id: 17, title: 'Destination 10' },
-];
+const destinations = Array.from({ length: 17 }, (_, i) => ({
+    id: i + 1,
+    title: `Destination ${i + 1}`,
+}));
 
 const contentVariants = {
     hidden: { opacity: 0, x: -20 },
     visible: {
         opacity: 1,
         x: 0,
-        transition: {
-            duration: 0.1,
-            ease: 'easeOut',
-            delay: 0.1,
-        },
+        transition: { duration: 0.1, ease: 'easeOut', delay: 0.1 },
     },
 };
 
-function Search() {
-    const [showSidebar, setShowSidebar] = useState(false);
+export default function Search() {
+    const [drawerOpen, setDrawerOpen] = useState(false);
 
     return (
         <div className={cx('wrapper')}>
             <div className={cx('filtertab')}>
                 <SearchFilterTabs className={cx('nav')} searchTitle="Wimi Factory" />
             </div>
+
             <div className={cx('inner-wrapper')}>
                 <div className={cx('inner')}>
-                    <Button
+        
+                    <button
                         className={cx('sidebar-toggle')}
                         icon={<MenuOutlined />}
-                        onClick={() => setShowSidebar(!showSidebar)}
+                        onClick={() => setDrawerOpen(true)}
                     >
                         Bộ lọc
-                    </Button>
+                    </button>
+
+          
                     <div className={cx('sidebar')}>
                         <SearchSidebar />
                     </div>
+
+
+                    <Drawer
+                        title="Bộ lọc"
+                        placement="top"
+                        open={drawerOpen}
+                        onClose={() => setDrawerOpen(false)}
+                        bodyStyle={{ paddingTop: 550, overflow: 'auto' }}
+                        height="70vh"
+                    >
+                        <SearchSidebar />
+                    </Drawer>
+
                     <div className={cx('content-wrapper')}>
                         <AnimatePresence mode="wait">
                             <motion.div
@@ -82,9 +79,13 @@ function Search() {
                                     <List
                                         grid={{ gutter: 18, xs: 1, sm: 2, md: 3, lg: 3, xl: 3 }}
                                         dataSource={destinations}
-                                        pagination={{ pageSize: 15 }}
+                                        pagination={{
+                                            pageSize: 9,
+                                            className: cx('pagination'),
+                                        }}
                                         renderItem={(item) => (
                                             <List.Item
+                                                key={item.id}
                                                 style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
                                             >
                                                 <DestinationCard title={item.title} />
@@ -100,5 +101,3 @@ function Search() {
         </div>
     );
 }
-
-export default Search;
