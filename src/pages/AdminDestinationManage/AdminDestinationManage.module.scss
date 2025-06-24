@@ -1,0 +1,125 @@
+.wrapper {
+    width: 100%;
+    margin: 64px auto 30px auto;
+    padding: 30px 20px 30px 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.inner {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.title {
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.section-1 {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+}
+
+.section-1-items {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.small-card {
+    width: 180px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #e7e7e7;
+    gap: 10px;
+    align-items: flex-start;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.small-card-title {
+    font-size: 14px;
+    min-height: 18px;
+    display: flex;
+    align-items: center;
+}
+
+.small-card-value {
+    font-size: 30px;
+    font-weight: 600;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+}
+
+.table-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.table-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+    .inner {
+        width: 95%;
+    }
+
+    .section-1-items {
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+    }
+    .small-card {
+        width: 46%;
+        min-width: 160px;
+    }
+}
+
+@media (max-width: 600px) {
+    .inner {
+        width: 100%;
+        padding: 0 8px;
+    }
+    .section-1 {
+        gap: 15px;
+        padding: 0 2px;
+    }
+    .section-1-items {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    .small-card {
+        width: 100%;
+        min-width: unset;
+        box-sizing: border-box;
+        padding: 14px;
+    }
+    .small-card-title {
+        font-size: 13px;
+    }
+    .small-card-value {
+        font-size: 24px;
+        min-height: 28px;
+    }
+}

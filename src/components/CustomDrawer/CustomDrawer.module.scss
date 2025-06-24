@@ -1,0 +1,103 @@
+/* src/components/CustomDrawer/CustomDrawer.module.scss */
+
+.drawer-inner {
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px;
+}
+
+.drawer-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.drawer-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.drawer-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.drawer-label {
+    font-size: 16px;
+    font-weight: 500;
+    color: #000;
+}
+
+.drawer-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 18px 24px;
+    background: #fff;
+}
+
+.drawer-button {
+    padding: 16px 32px;
+    height: 50px;
+    border: none;
+    border-radius: 100px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+
+    &:hover {
+        color: #505050 !important;
+    }
+
+    &:active {
+        color: #505050 !important;
+    }
+}
+
+.button-add {
+    background-color: black;
+    color: white;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: #505050 !important;
+        color: white !important;
+    }
+
+    &:active {
+        background-color: #505050 !important;
+        color: white !important;
+    }
+}
+
+:global(.ant-picker) {
+    height: 50px !important;
+    border: 1.5px solid #ccc !important;
+    box-shadow: none !important;
+    transition: border-color 0.2s ease;
+
+    &:focus,
+    &.ant-picker-focused {
+        box-shadow: none !important;
+        outline: none !important;
+    }
+}
+
+:global(.ant-picker-open) {
+    border: 1.5px solid #000000 !important;
+    box-shadow: none !important;
+}
+
+:global(.ant-input) {
+    padding: 8px 12px;
+    border: 1.5px solid #ccc !important;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+        border-color: black !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+}

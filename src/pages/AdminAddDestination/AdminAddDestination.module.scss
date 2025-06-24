@@ -1,0 +1,40 @@
+.wrapper {
+    width: 100%;
+    margin: 64px auto 30px auto;
+    padding: 30px 10px;
+    display: flex;
+    justify-content: center;
+}
+.inner {
+    width: 70%;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 24px 0 rgba(0, 0, 0, 0.09);
+    padding: 32px 28px;
+}
+.title {
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    text-align: center;
+}
+@media (max-width: 900px) {
+    .inner {
+        width: 97%;
+        padding: 16px 8px;
+    }
+}
+@media (max-width: 600px) {
+    .inner {
+        padding: 10px 2px;
+        max-width: 100%;
+        border-radius: 8px;
+    }
+    .title {
+        font-size: 23px;
+    }
+}

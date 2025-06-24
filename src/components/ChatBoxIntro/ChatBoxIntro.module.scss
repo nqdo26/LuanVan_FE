@@ -1,0 +1,28 @@
+.wrapper {
+    background-color: rgba(253, 96, 80, 0.1);
+    width: 100%;
+    padding: 20px;
+}
+
+.button {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.button:hover {
+    background: linear-gradient(45deg, rgba(188, 60, 133, 0.8), rgba(253, 96, 80, 0.8));
+    box-shadow: 0px 4px 10px rgba(188, 60, 133, 0.3);
+    transform: scale(1.05);
+}
+
+.ai-img {
+    height: 50px;
+    width: auto;
+}

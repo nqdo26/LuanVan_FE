@@ -1,0 +1,128 @@
+.drawer {
+    border-radius: 14px 0 0 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.drawer-header {
+    padding: 44px 24px;
+}
+
+.drawer-inner {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 20px;
+}
+
+.drawer-title {
+    font-size: 30px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 25px;
+}
+
+.drawer-group {
+    margin-bottom: 20px;
+}
+
+.drawer-label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    font-size: 15px;
+    color: #333;
+}
+
+.drawer-input {
+    width: 100%;
+    height: 50px;
+    padding: 15px;
+    background-color: #e5e5e5;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    border: 1px solid #ccc;
+
+    &:hover {
+        border: 1px solid #000 !important;
+    }
+
+    &:focus {
+        border: 1px solid #000 !important;
+    }
+}
+
+.drawer-search {
+    border-radius: 100px;
+}
+
+.drawer-search-result {
+    margin-top: 20px;
+    border-top: 1px solid #ccc;
+}
+
+.result-list {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.drawer-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 18px 24px;
+    background: #fff;
+}
+
+.drawer-button {
+    height: 50px;
+    border: none;
+    border-radius: 100px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+
+    &:hover {
+        color: #505050 !important;
+    }
+
+    &:active {
+        color: #505050 !important;
+    }
+}
+
+.button-add {
+    background-color: black;
+    color: white;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: #505050 !important;
+        color: white !important;
+    }
+
+    &:active {
+        background-color: #505050 !important;
+        color: white !important;
+    }
+}
+
+:global {
+    .ant-drawer-header {
+        padding: 35px 24px !important;
+    }
+
+    .ant-input-affix-wrapper:focus,
+    .ant-input-affix-wrapper-focused {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+
+    .ant-input:focus {
+        border-color: #000 !important;
+        box-shadow: none !important;
+    }
+
+    .ant-input-affix-wrapper > input.ant-input {
+        border: none !important;
+    }
+}

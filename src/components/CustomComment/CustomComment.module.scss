@@ -1,0 +1,259 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.title-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+}
+
+.title {
+    font-size: 23px;
+    font-weight: 500;
+}
+
+.rating-title {
+    margin-bottom: 20px;
+}
+
+.custom-comment {
+    display: flex;
+    gap: 50px;
+}
+
+.custom-comment-sidebar {
+    width: 300px;
+}
+
+.custom-comment-rating {
+    display: flex;
+    flex-direction: row;
+    font-size: 20px;
+    font-weight: 500;
+    gap: 5px;
+}
+
+.rating {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.rating-levels {
+    margin-top: 20px;
+    .ant-progress {
+        margin-bottom: 10px;
+    }
+}
+
+.rating-level-item {
+    display: flex;
+    align-items: center;
+    width: auto;
+
+    .rating-title {
+        flex: 1;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .progress {
+        flex: 2;
+    }
+}
+
+.custom-comment-rating {
+    font-size: 22px;
+}
+
+.rating {
+    font-size: 22px;
+}
+
+.total-review {
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+}
+
+.custom-comment-content {
+    flex: 1;
+}
+
+.custom-comment-filter {
+    gap: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.write-review-btn {
+    background-color: #ffffff;
+    color: #000;
+    border: 1px solid #ddd;
+    padding: 10px 15px;
+    border-radius: 1000px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #000000 !important;
+    }
+    &:active {
+        background-color: #000000 !important;
+    }
+}
+
+.custom-comment-select {
+    width: 150px;
+}
+
+.custom-comment-item {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.custom-comment-avatar {
+    margin-right: 8px;
+}
+
+.custom-comment-author {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.rating-and-reaction {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.reaction {
+    display: flex;
+    align-items: center;
+    gap: 0px !important;
+}
+
+.like-btn {
+    padding: 10px;
+    border-radius: 10000px;
+    font-size: 16px;
+    cursor: pointer;
+    gap: 2px;
+}
+
+.more-btn {
+    border-radius: 10000px;
+}
+
+.like-count {
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.reaction {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.custom-comment-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+.custom-comment-visit-date {
+    font-size: 15px;
+    color: #333;
+    font-weight: normal;
+    margin-bottom: 10px;
+}
+
+.custom-comment-text {
+    font-size: 15px;
+    color: #494949;
+}
+
+.custom-comment-create-at {
+    font-size: 14px;
+    color: #999;
+    margin-top: 10px;
+}
+
+.view-details-btn {
+    margin-top: 15px;
+    color: #000;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.rating-details {
+    margin-top: 10px;
+}
+
+.rating-details td {
+    padding-right: 10px;
+}
+
+.rating-label {
+    color: #494949;
+}
+
+.comment-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+
+    .comment-image {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    }
+}
+
+:global {
+    .ant-select-focused .ant-select-selector,
+    .ant-select-selector:focus,
+    .ant-select-selector:active {
+        border-color: black !important;
+        box-shadow: none !important;
+    }
+
+    .ant-select-selector:hover {
+        border-color: black !important;
+    }
+
+    .ant-dropdown-menu-item {
+        padding: 20px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+
+        &:hover {
+            color: red !important;
+        }
+    }
+}
+
+@media (max-width: 1000px) {
+    .custom-comment {
+        flex-direction: column;
+    }
+
+    .custom-comment-sidebar,
+    .custom-comment-content {
+        width: 100%;
+    }
+
+    .custom-comment-sidebar {
+        margin-bottom: 20px;
+    }
+}

@@ -1,0 +1,41 @@
+.title {
+    margin-bottom: 20px;
+    font-size: 2.7rem;
+    font-weight: 600;
+}
+
+.carousel {
+    height: auto;
+    width: 100%;
+    min-width: 330px;
+    position: relative;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.carousel-items {
+    margin: 5px 0px;
+    width: 91% !important;
+    min-width: 254px !important;
+}
+
+.customArrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+}

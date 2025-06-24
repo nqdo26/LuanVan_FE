@@ -1,0 +1,137 @@
+.destination-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: white;
+    width: 100%;
+}
+
+.title-save {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.title {
+    font-size: 33px;
+    font-weight: 600;
+}
+
+.action {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+
+    button {
+        border-radius: 100px;
+        background: white;
+        border: 1px solid #ddd;
+        color: black;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        &:hover {
+            background: black !important;
+            color: white !important;
+            border: 1px solid black !important;
+        }
+    }
+}
+
+.review-section {
+    display: flex;
+    justify-content: space-between;
+}
+
+.rating-location {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.rating {
+    font-size: 18px;
+    color: #ffd900;
+}
+
+.review-count {
+    font-size: 16px;
+    color: #333;
+}
+
+.location {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.location-name,
+.location-icon {
+    font-size: 16px;
+    color: #2e7d32;
+    cursor: pointer;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.review-btn {
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #000000;
+    cursor: pointer;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.badge-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 5px 0px 5px 0px;
+    max-height: 54px;
+    overflow: hidden;
+}
+
+.badge {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    white-space: nowrap;
+}
+
+.location-section {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #333;
+
+    .icon {
+        color: black;
+    }
+
+    .write-review {
+        color: #0073bb;
+        cursor: pointer;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}

@@ -1,0 +1,232 @@
+.wrapper {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+}
+
+.header {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.avatar-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.info {
+    .name {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 4px;
+    }
+
+    .username {
+        color: gray;
+        font-size: 14px;
+    }
+}
+
+.stats {
+    display: flex;
+    gap: 30px;
+    margin-top: 16px;
+    justify-content: flex-start;
+
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        strong {
+            font-size: 16px;
+        }
+
+        span {
+            font-size: 14px;
+            color: gray;
+        }
+    }
+}
+
+.edit-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.modal-body {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.password-button {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0 10px 0;
+
+    p {
+        color: #2e7d32;
+        font-weight: 600;
+        cursor: pointer;
+        transition: text-decoration 0.3s ease;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .wrapper {
+        padding: 16px;
+        gap: 16px;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .avatar-section {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .avatar {
+        width: 60px;
+        height: 60px;
+    }
+
+    .info {
+        text-align: center;
+
+        .name {
+            font-size: 18px;
+        }
+
+        .username {
+            font-size: 13px;
+            color: #555555;
+        }
+    }
+
+    .stats {
+        gap: 20px;
+        justify-content: center;
+        display: flex;
+        flex-direction: row;
+
+        .stat-item {
+            strong {
+                font-size: 14px;
+            }
+            span {
+                font-size: 12px;
+            }
+        }
+    }
+
+    .edit-icon {
+        top: 10px;
+        right: 10px;
+        height: 20px !important;
+    }
+
+    .password-button {
+        margin: 16px 0;
+
+        p {
+            font-size: 14px;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .wrapper {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .avatar-section {
+        gap: 10px;
+    }
+
+    .avatar {
+        width: 50px;
+        height: 50px;
+    }
+
+    .info {
+        text-align: center;
+
+        .name {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .username {
+            font-size: 11px;
+            color: #666666;
+        }
+    }
+
+    .stats {
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+
+        .stat-item {
+            strong {
+                font-size: 13px;
+            }
+            span {
+                font-size: 11px;
+            }
+        }
+    }
+
+    .edit-icon {
+        top: 10px;
+        right: 10px;
+        height: 15px !important;
+    }
+
+    .password-button {
+        margin: 14px 0;
+
+        p {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2e7d32;
+        }
+    }
+}

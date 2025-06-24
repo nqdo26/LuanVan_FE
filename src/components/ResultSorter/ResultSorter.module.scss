@@ -1,0 +1,28 @@
+.wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.results {
+    font-size: 14px;
+    font-weight: 400;
+    color: #000000;
+}
+  
+.sortContainer {
+    display: flex;
+    align-items: center;
+}
+  
+.sortLabel {
+    margin-right: 8px;
+    font-weight: 400;
+    font-size: 14px;
+    color: #000000;
+}
+  
+.sortSelect {
+    min-width: 200px;
+}
+  

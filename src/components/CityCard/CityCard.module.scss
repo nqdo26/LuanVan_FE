@@ -1,0 +1,48 @@
+.place-card {
+    width: 100%;
+    max-width: 175px;
+    border-radius: 5px;
+    overflow: hidden;
+    transition: transform 0.3s ease-in-out;
+    
+    &:hover {
+        transform: scale(1.05);
+    }
+}
+
+.custom-card {
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+
+
+.image-container {
+    position: relative;
+}
+
+.card-image {
+    width: 100%;
+    height: 235px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.card-title {
+    position: absolute;
+    bottom: 0px;
+    left: 40%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 2.3rem;
+    font-weight: bold;
+    padding: 8px 12px;
+    width: 80%;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;  
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+   
+}

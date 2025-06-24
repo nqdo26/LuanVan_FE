@@ -1,0 +1,32 @@
+.scroll-wrapper {
+    overflow: auto;
+    max-height: 100%;
+    position: relative;
+
+    // Ẩn scrollbar mặc định mọi lúc
+    scrollbar-width: none; // Firefox
+    -ms-overflow-style: none; // IE/Edge
+    &::-webkit-scrollbar {
+        display: none; // Chrome/Safari
+    }
+
+    // Hiện scrollbar tùy chỉnh khi hover hoặc scroll
+    &:hover,
+    &:has(:not(:last-child)) {
+        scrollbar-width: thin;
+        -ms-overflow-style: auto;
+        &::-webkit-scrollbar {
+            display: block;
+            width: 6px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+    }
+}

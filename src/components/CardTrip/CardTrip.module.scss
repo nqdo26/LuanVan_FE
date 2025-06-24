@@ -1,0 +1,227 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    &.selected {
+        border: 2px solid #1890ff;
+        box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+        background-color: #e6f7ff;
+        transition: border 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    }
+}
+
+.time {
+    margin-top: 4px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.note {
+    font-size: 14px;
+    color: #555;
+}
+
+.card {
+    display: flex;
+    gap: 16px;
+    border: 1px solid #d9d9d9;
+    border-radius: 10px;
+    padding: 16px;
+    width: 100%;
+    cursor: pointer;
+    transition: box-shadow 0.25s ease, border 0.25s ease, background-color 0.25s ease;
+}
+
+.card.selected {
+    transform: scale(1.02);
+    border-color: #1890ff;
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+    background-color: #e6f7ff;
+    transition: border 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
+}
+
+.image {
+    width: 120px;
+    height: 120px;
+    border-radius: 6px;
+    object-fit: cover;
+
+    @media (max-width: 600px) {
+        display: none;
+    }
+}
+
+.info {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.title {
+    font-weight: 600;
+    font-size: 18px;
+    color: #111;
+}
+
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rating-text {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #555;
+}
+
+.starts {
+    font-size: 20px;
+}
+
+.badge-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 5px 0px 5px 0px;
+    max-height: 54px;
+    overflow: hidden;
+}
+
+.badge {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    white-space: nowrap;
+}
+
+.location {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    color: #555;
+}
+
+.action {
+    position: relative;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background-color: #f2f2f2;
+    }
+}
+
+.menu {
+    position: absolute;
+    top: 28px;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 8px 0;
+    z-index: 10;
+    width: 140px;
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 14px;
+        cursor: pointer;
+        font-size: 14px;
+        gap: 6px;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: #f5f5f5;
+        }
+
+        &.delete {
+            color: #e74c3c;
+
+            &:hover {
+                background-color: #ffeaea;
+            }
+        }
+    }
+}
+
+.drawer-inner {
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px;
+}
+.drawer-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.drawer-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.drawer-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 18px 24px;
+    background: #fff;
+}
+
+.drawer-button {
+    padding: 16px 32px;
+    height: 50px;
+    border: none;
+    border-radius: 100px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+
+    &:hover {
+        color: #505050 !important;
+    }
+
+    &:active {
+        color: #505050 !important;
+    }
+}
+
+.button-add {
+    background-color: black;
+    color: white;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: #505050 !important;
+        color: white !important;
+    }
+
+    &:active {
+        background-color: #505050 !important;
+        color: white !important;
+    }
+}

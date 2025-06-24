@@ -1,0 +1,30 @@
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.inner {
+    margin: 100px 0;
+    display: flex;
+    flex-direction: row;
+    width: 70%;
+}
+
+.side-bar {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 40px;
+    border-right: 1px solid #e0e0e0;
+    padding-right: 50px;
+}
+
+.content {
+    display: flex;
+    flex: 3;
+    padding-left: 50px;
+}
+
+

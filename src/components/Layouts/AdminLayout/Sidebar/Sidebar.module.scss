@@ -1,0 +1,24 @@
+.wrapper {
+    height: 100%;
+    background-color: white;
+}
+
+.logout-section {
+    width: 100%;
+}
+
+.action {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-button {
+    width: 80%;
+    height: auto;
+    margin: 0 auto;
+    color: white;
+}

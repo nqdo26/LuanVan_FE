@@ -1,0 +1,137 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    background-color: #ececec;
+}
+
+.filtertab {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.inner-wrapper {
+    margin-top: 20px;
+    width: 61.1%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    margin-bottom: 50px;
+}
+
+.inner {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+    gap: 24px;
+}
+
+
+.sidebar {
+    width: 23%;
+    min-width: 260px;
+    align-self: flex-start;
+    transition: transform 0.3s ease-in-out;
+}
+
+
+@media (max-width: 767px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 80%;
+        height: 100vh;
+        background: white;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+        z-index: 100;
+        transform: translateX(-100%);
+    }
+    .sidebar.show {
+        transform: translateX(0);
+    }
+}
+
+
+.content-wrapper {
+    width: 77%;
+    display: flex;
+    justify-content: center;
+}
+
+.content {
+    width: 100%;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+
+.result-sorter {
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+.result-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 18px;
+    justify-content: center;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.sidebar-toggle {
+    display: none;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 1023px) {
+    .inner-wrapper {
+        width: 90%;
+    }
+    .inner {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .sidebar {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+    .content-wrapper {
+        width: 100%;
+    }
+}
+
+@media (max-width: 767px) {
+    .filtertab {
+        flex-direction: column;
+        height: auto;
+        padding: 10px;
+    }
+    .sidebar-toggle {
+        display: block;
+    }
+    .sidebar {
+        display: none;
+    }
+    .result-list {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}

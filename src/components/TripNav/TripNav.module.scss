@@ -1,0 +1,38 @@
+.nav-container {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 12px;
+    border: 1px solid #ccc;
+    border-radius: 999px;
+    background-color: #fff;
+    font-weight: 500;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+
+    &:hover {
+        background-color: #000000;
+        color: #fff;
+    }
+    &.selected {
+        background-color: #000;
+        color: #fff;
+    }
+}
+
+.icon {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+}
+
+.dropdown-icon {
+    font-size: 12px;
+}

@@ -1,0 +1,69 @@
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.title {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.dynamic-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+.dynamic-item {
+    background: #f6f9ff;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    padding: 7px 13px;
+    margin-bottom: 2px;
+    font-size: 15px;
+    color: #246;
+    position: relative;
+    .remove {
+        margin-left: 8px;
+        color: #ee4444;
+        font-size: 18px;
+        cursor: pointer;
+        user-select: none;
+        font-weight: bold;
+    }
+}
+.input-add {
+    padding: 7px 12px;
+    border-radius: 7px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    background: #f9f9f9;
+    &:focus {
+        border: 1px solid #000000;
+    }
+}
+.add-btn {
+    background: #000000;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 20px;
+    font-weight: 600;
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+    transition: background 0.22s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:hover {
+        background: #646464;
+    }
+}
+@media (max-width: 600px) {
+    .dynamic-item {
+        font-size: 13px;
+        padding: 6px 8px;
+    }
+}

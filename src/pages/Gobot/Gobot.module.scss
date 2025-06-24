@@ -1,0 +1,166 @@
+.intro {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 85vh;
+    width: 100%;
+    font-size: 26px;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.intro-icon {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    gap: 30px;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+}
+
+.chat-wrapper {
+    padding: 15px;
+    padding-bottom: 0px;
+    margin: 50px auto;
+    width: 80%;
+    height: 75vh;
+    align-items: center;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background-color: #fff;
+}
+
+.header {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: 600;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    background-clip: text;
+    -webkit-background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+}
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+    overflow: hidden;
+    flex: 1;
+    align-items: center;
+}
+
+.message-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.gobot {
+    flex-direction: row;
+}
+
+.user {
+    flex-direction: row-reverse;
+}
+
+.avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: #eee;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    object-fit: cover;
+    user-select: none;
+}
+
+.message-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+:global {
+    .cs-button.cs-button--attachment {
+        display: none !important;
+    }
+
+    .cs-message__content {
+        font-size: 14px !important;
+        padding: 13px !important;
+        background-color: rgb(255, 255, 255) !important;
+        color: rgb(0, 0, 0) !important;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+
+        margin-bottom: 10px !important;
+    }
+
+    .cs-message-input.message-input {
+        margin-top: 30px !important;
+        margin-bottom: 30px !important;
+        display: flex !important;
+        align-items: center !important;
+        background-color: #ffffffdd !important;
+        width: 90% !important;
+
+        border-radius: 16px !important;
+        padding: 12px 16px !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 6px 20px rgba(0, 0, 0, 0.08), 0 10px 40px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .cs-message-input__content-editor-wrapper {
+        padding: 15px;
+        background-color: rgb(255, 255, 255);
+    }
+
+    .cs-message-input__content-editor {
+        background-color: rgb(255, 255, 255) !important;
+        font-size: 14px !important;
+        color: rgb(0, 0, 0) !important;
+    }
+
+    .cs-button.cs-button--send {
+        color: rgb(255, 0, 0) !important;
+        border-radius: 1000px !important;
+        font-weight: 600 !important;
+    }
+
+    .cs-typing-indicator__text {
+        color: black !important;
+    }
+
+    .cs-typing-indicator__dot {
+        background-color: black !important;
+    }
+}
