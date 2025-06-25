@@ -5,12 +5,12 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
-import styles from './CustomCarousel.module.scss';
+import styles from './CityCarousel.module.scss';
 import classNames from 'classnames/bind';
 
 const cx = classNames.bind(styles);
 
-function CustomCarousel({ title, card, number }) {
+function CityCarousel({ title, card, number }) {
     const prevRef = useRef(null);
     const nextRef = useRef(null);
 
@@ -36,10 +36,10 @@ function CustomCarousel({ title, card, number }) {
                         swiper.navigation.update();
                     }}
                     breakpoints={{
-                        1200: { slidesPerView: 4 },
-                        900: { slidesPerView: 2 },
-                        600: { slidesPerView: 2 },
-                        0: { slidesPerView: 1 },
+                        1200: { slidesPerView: 7 },
+                        900: { slidesPerView: 4 },
+                        600: { slidesPerView: 3 },
+                        0: { slidesPerView: 2 },
                     }}
                 >
                     {Array.from({ length: 8 }).map((_, i) => (
@@ -56,4 +56,4 @@ function CustomCarousel({ title, card, number }) {
     );
 }
 
-export default CustomCarousel;
+export default CityCarousel;

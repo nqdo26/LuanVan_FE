@@ -9,6 +9,7 @@ import CustomCarousel from '~/components/CustomCarousel';
 import DestinationCard from '~/components/DestinationCard';
 import Category from '~/components/Category';
 import CityCard from '~/components/CityCard';
+import CityCarousel from '~/components/CityCarousel';
 
 const cx = classNames.bind(styles);
 
@@ -16,28 +17,28 @@ function Home() {
     return (
         <div className={cx('wrapper')}>
             <div className={cx('inner')}>
-                <p className={cx('deployment-notice')}>
-                    🚀 Trang web đang trong quá trình hoàn thiện
-                </p>
+                <p className={cx('deployment-notice')}>🚀 Trang web đang trong quá trình hoàn thiện</p>
                 <CustomTitle title={'Where to?'} size={55} />
 
                 <div className={cx('search-bar')}>
                     <SearchBar />
                 </div>
-                <div className={cx('carousel')}>
+                <div className={cx('carousel1')}>
                     <ImageCarousel />
-                </div>
-                <div className={cx('chatbox-intro')}>
-                    <ChatBoxIntro />
-                </div>
-                <div className={cx('carousel')}>
-                    <CustomCarousel title="Điểm đến phổ biến" number={4} card={<DestinationCard />} />
                 </div>
                 <div className={cx('category')}>
                     <Category />
                 </div>
+
                 <div className={cx('carousel')}>
-                    <CustomCarousel
+                    <CustomCarousel title="Điểm đến phổ biến" number={4} card={<DestinationCard />} />
+                </div>
+                <div className={cx('chatbox-intro')}>
+                    <ChatBoxIntro />
+                </div>
+
+                <div className={cx('carousel')}>
+                    <CityCarousel
                         title="Địa điểm tiếp theo"
                         number={6}
                         card={<CityCard title="Bà Rịa Vũng Tàu Lao" />}

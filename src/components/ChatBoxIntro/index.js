@@ -31,7 +31,7 @@ function ChatBoxIntro() {
                     Gobot - Trợ lý du lịch AI của bạn!
                 </h2>
                 <p style={{ color: '#666', margin: '10px 0 20px' }}>
-                    Bạn đang bối rối không biết đi đâu? Để Roberto Carlos giúp bạn lên lịch trình{' '}
+                    Bạn đang bối rối không biết đi đâu? Để Gobot giúp bạn lên lịch trình{' '}
                     <strong>"xịn sò"</strong> chỉ trong vài giây! 😉
                 </p>
 
