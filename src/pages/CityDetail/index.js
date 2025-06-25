@@ -7,7 +7,7 @@ import WeatherInfo from '~/components/WeatherInfo';
 import CitySideBar from '~/components/CitySideBar';
 import ResultSorter from '~/components/ResultSorter';
 import DestinationCard from '~/components/DestinationCard';
-import { List } from 'antd';
+
 
 const cx = classNames.bind(styles);
 
@@ -65,16 +65,13 @@ function CityDetail() {
                                 <ResultSorter />
                             </div>
                             <div className={cx('items')}>
-                                <List
-                                    grid={{ gutter: 20, xs: 2, sm: 2, md: 3, lg: 3, xl: 3 }}
-                                    dataSource={destinations}
-                                    pagination={{ pageSize: 15 }}
-                                    renderItem={(item) => (
-                                        <List.Item style={{ width: '100%' }}>
+                                <div className={cx('result-list')}>
+                                    {destinations.map((item) => (
+                                        <div key={item.id} className={cx('result-list-item')}>
                                             <DestinationCard title={item.title} />
-                                        </List.Item>
-                                    )}
-                                />
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>

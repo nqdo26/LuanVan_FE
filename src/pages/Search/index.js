@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { List, Drawer } from 'antd';
+import { useState, useEffect } from 'react';
+import { Drawer } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import classNames from 'classnames/bind';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -28,6 +28,15 @@ const contentVariants = {
 
 export default function Search() {
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     return (
         <div className={cx('wrapper')}>
@@ -37,7 +46,6 @@ export default function Search() {
 
             <div className={cx('inner-wrapper')}>
                 <div className={cx('inner')}>
-        
                     <button
                         className={cx('sidebar-toggle')}
                         icon={<MenuOutlined />}
@@ -46,18 +54,16 @@ export default function Search() {
                         Bộ lọc
                     </button>
 
-          
                     <div className={cx('sidebar')}>
                         <SearchSidebar />
                     </div>
-
 
                     <Drawer
                         title="Bộ lọc"
                         placement="top"
                         open={drawerOpen}
                         onClose={() => setDrawerOpen(false)}
-                        bodyStyle={{ paddingTop: 550, overflow: 'auto' }}
+                        bodyStyle={isMobile ? { paddingTop: 438, overflow: 'auto' } : { paddingTop: 0 }}
                         height="70vh"
                     >
                         <SearchSidebar />
@@ -76,22 +82,11 @@ export default function Search() {
                                     <ResultSorter />
                                 </div>
                                 <div className={cx('result-list')}>
-                                    <List
-                                        grid={{ gutter: 18, xs: 1, sm: 2, md: 3, lg: 3, xl: 3 }}
-                                        dataSource={destinations}
-                                        pagination={{
-                                            pageSize: 9,
-                                            className: cx('pagination'),
-                                        }}
-                                        renderItem={(item) => (
-                                            <List.Item
-                                                key={item.id}
-                                                style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
-                                            >
-                                                <DestinationCard title={item.title} />
-                                            </List.Item>
-                                        )}
-                                    />
+                                    {destinations.map((item) => (
+                                        <div key={item.id} className={cx('result-list-item')}>
+                                            <DestinationCard title={item.title} />
+                                        </div>
+                                    ))}
                                 </div>
                             </motion.div>
                         </AnimatePresence>
