@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import classNames from 'classnames/bind';
 import { motion } from 'framer-motion';
 import styles from './CityDetail.module.scss';
@@ -7,7 +8,6 @@ import WeatherInfo from '~/components/WeatherInfo';
 import CitySideBar from '~/components/CitySideBar';
 import ResultSorter from '~/components/ResultSorter';
 import DestinationCard from '~/components/DestinationCard';
-
 
 const cx = classNames.bind(styles);
 
@@ -24,6 +24,12 @@ const destinations = [
 ];
 
 function CityDetail() {
+    // Pagination state
+    const pageSize = 6;
+    const [currentPage, setCurrentPage] = useState(1);
+    const totalPages = Math.ceil(destinations.length / pageSize);
+    const pagedDestinations = destinations.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -66,11 +72,28 @@ function CityDetail() {
                             </div>
                             <div className={cx('items')}>
                                 <div className={cx('result-list')}>
-                                    {destinations.map((item) => (
+                                    {pagedDestinations.map((item) => (
                                         <div key={item.id} className={cx('result-list-item')}>
                                             <DestinationCard title={item.title} />
                                         </div>
                                     ))}
+                                </div>
+                                <div className={cx('pagination')}>
+                                    <button
+                                        disabled={currentPage === 1}
+                                        onClick={() => setCurrentPage(currentPage - 1)}
+                                    >
+                                        {'<'}
+                                    </button>
+                                    <span>
+                                        {currentPage} / {totalPages}
+                                    </span>
+                                    <button
+                                        disabled={currentPage === totalPages}
+                                        onClick={() => setCurrentPage(currentPage + 1)}
+                                    >
+                                        {'>'}
+                                    </button>
                                 </div>
                             </div>
                         </div>

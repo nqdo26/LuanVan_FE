@@ -30,6 +30,12 @@ export default function Search() {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
+    // PAGINATION state
+    const pageSize = 9;
+    const [currentPage, setCurrentPage] = useState(1);
+    const totalPages = Math.ceil(destinations.length / pageSize);
+    const pagedDestinations = destinations.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
     useEffect(() => {
         const handleResize = () => {
             setIsMobile(window.innerWidth <= 768);
@@ -37,6 +43,10 @@ export default function Search() {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [drawerOpen]);
 
     return (
         <div className={cx('wrapper')}>
@@ -82,11 +92,28 @@ export default function Search() {
                                     <ResultSorter />
                                 </div>
                                 <div className={cx('result-list')}>
-                                    {destinations.map((item) => (
+                                    {pagedDestinations.map((item) => (
                                         <div key={item.id} className={cx('result-list-item')}>
                                             <DestinationCard title={item.title} />
                                         </div>
                                     ))}
+                                </div>
+                                <div className={cx('pagination')}>
+                                    <button
+                                        disabled={currentPage === 1}
+                                        onClick={() => setCurrentPage(currentPage - 1)}
+                                    >
+                                        {'<'}
+                                    </button>
+                                    <span>
+                                        Trang {currentPage} / {totalPages}
+                                    </span>
+                                    <button
+                                        disabled={currentPage === totalPages}
+                                        onClick={() => setCurrentPage(currentPage + 1)}
+                                    >
+                                        {'>'}
+                                    </button>
                                 </div>
                             </motion.div>
                         </AnimatePresence>

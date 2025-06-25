@@ -140,7 +140,7 @@ function Gobot() {
         setIsTyping(true);
         setChatHistory((h) => h.map((c) => (c.id === activeChatId ? { ...c, messages: newMsgs } : c)));
         setTimeout(() => {
-            const botReply = { message: 'Con cặc đéo', sender: 'Gobot' };
+            const botReply = { message: 'Hehe', sender: 'Gobot' };
             setMessages((prev) => [...prev, botReply]);
             setChatHistory((h) =>
                 h.map((c) => (c.id === activeChatId ? { ...c, messages: [...c.messages, botReply] } : c)),
