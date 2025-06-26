@@ -1,14 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import classNames from 'classnames/bind';
 import { motion } from 'framer-motion';
 import styles from './AdminUserManage.module.scss';
 import { Button, Table, Switch, Popconfirm, message, notification } from 'antd';
 import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import { getUsersApi, updateUserAdminApi, deleteUserApi } from '~/utils/api';
+import { AuthContext } from '~/components/Context/auth.context';
+
 
 const cx = classNames.bind(styles);
 
 function AdminUserManage() {
+    const { auth } = useContext(AuthContext);
+    const currentUserId = auth?.user?.id; // id của user đang đăng nhập
+
     const [users, setUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 7;
@@ -33,7 +38,6 @@ function AdminUserManage() {
         fetchUser();
     }, []);
 
-    // Cấp/hủy quyền admin
     const handleToggleAdmin = async (record) => {
         setActionLoading((prev) => ({ ...prev, [record._id]: true }));
         try {
@@ -62,7 +66,6 @@ function AdminUserManage() {
         setActionLoading((prev) => ({ ...prev, [record._id]: false }));
     };
 
-    // Xóa user
     const handleDeleteUser = async (record) => {
         setActionLoading((prev) => ({ ...prev, [record._id]: true }));
         try {
@@ -85,7 +88,6 @@ function AdminUserManage() {
         setActionLoading((prev) => ({ ...prev, [record._id]: false }));
     };
 
-    // Xem thông tin user (tuỳ chỉnh, hiện chỉ alert)
     const handleAccessUser = (record) => {
         alert(`Truy cập người dùng: ${record.fullName}`);
     };
@@ -99,7 +101,7 @@ function AdminUserManage() {
         },
         {
             title: 'Tên tài khoản',
-            dataIndex: 'userName',
+            dataIndex: 'email',
         },
         {
             title: 'Họ tên',
@@ -122,45 +124,60 @@ function AdminUserManage() {
         {
             title: 'Quản trị',
             key: 'admin',
-            render: (record) => (
-                <Popconfirm
-                    title={`Bạn có chắc muốn ${record.isAdmin ? 'hủy quyền' : 'cấp quyền'} quản trị cho tài khoản này?`}
-                    onConfirm={() => handleToggleAdmin(record)}
-                    okText="Đồng ý"
-                    cancelText="Hủy"
-                >
-                    <Switch
-                        checked={record.isAdmin}
-                        loading={!!actionLoading[record._id]}
-                        disabled={!!actionLoading[record._id]}
-                    />
-                </Popconfirm>
-            ),
+            render: (record) => {
+                const isCurrentUser = record._id === currentUserId;
+                return (
+                    <Popconfirm
+                        title={`Bạn có chắc muốn ${
+                            record.isAdmin ? 'hủy quyền' : 'cấp quyền'
+                        } quản trị cho tài khoản này?`}
+                        onConfirm={() => handleToggleAdmin(record)}
+                        okText="Đồng ý"
+                        cancelText="Hủy"
+                        disabled={isCurrentUser}
+                    >
+                        <Switch
+                            checked={record.isAdmin}
+                            loading={!!actionLoading[record._id]}
+                            disabled={!!actionLoading[record._id] || isCurrentUser}
+                        />
+                    </Popconfirm>
+                );
+            },
             width: 100,
         },
         {
             title: 'Tùy chọn',
             key: 'action',
-            render: (record) => (
-                <div style={{ display: 'flex', gap: 10 }}>
-                    <Popconfirm
-                        title="Bạn có chắc chắn muốn xóa tài khoản này?"
-                        onConfirm={() => handleDeleteUser(record)}
-                        okText="Đồng ý"
-                        cancelText="Hủy"
-                    >
+            render: (record) => {
+                const isCurrentUser = record._id === currentUserId;
+                return (
+                    <div style={{ display: 'flex', gap: 10 }}>
+                        <Popconfirm
+                            title="Bạn có chắc chắn muốn xóa tài khoản này?"
+                            onConfirm={() => handleDeleteUser(record)}
+                            okText="Đồng ý"
+                            cancelText="Hủy"
+                            disabled={isCurrentUser}
+                        >
+                            <Button
+                                danger
+                                icon={<DeleteOutlined />}
+                                loading={!!actionLoading[record._id]}
+                                disabled={!!actionLoading[record._id] || isCurrentUser}
+                            />
+                        </Popconfirm>
                         <Button
-                            danger
-                            icon={<DeleteOutlined />}
-                            loading={!!actionLoading[record._id]}
-                            disabled={!!actionLoading[record._id]}
-                        />
-                    </Popconfirm>
-                    <Button type="primary" icon={<EyeOutlined />} onClick={() => handleAccessUser(record)}>
-                        Xem
-                    </Button>
-                </div>
-            ),
+                            type="primary"
+                            icon={<EyeOutlined />}
+                            onClick={() => handleAccessUser(record)}
+                            disabled={isCurrentUser}
+                        >
+                            Xem
+                        </Button>
+                    </div>
+                );
+            },
             width: 160,
         },
     ];

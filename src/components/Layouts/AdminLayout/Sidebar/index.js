@@ -29,14 +29,20 @@ function Sidebar() {
             key: 'users-manage',
             label: 'Quản lý tài khoản người dùng',
             icon: <UserOutlined />,
-            path: '/admin/users-manage',
+            path: '/admin/users-management',
         },
-        { key: 'cities', label: 'Danh sách thành phố', icon: <EnvironmentOutlined />, path: '/admin/places-manage' },
+        { key: 'cities', label: 'Danh sách thành phố', icon: <EnvironmentOutlined />, path: '/admin/citys-management' },
         {
             key: 'destinations',
             label: 'Danh sách địa điểm',
             icon: <GlobalOutlined />,
-            path: '/admin/destinations-manage',
+            path: '/admin/destinations-management',
+        },
+        {
+            key: 'categories',
+            label: 'Danh mục',
+            icon: <GlobalOutlined />,
+            path: '/admin/categories-management',
         },
     ];
     const selectedKey = menuItems.find((item) => item.path === location.pathname)?.key;

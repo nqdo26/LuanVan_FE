@@ -34,4 +34,77 @@ const updateUserAdminApi = (userId, isAdmin) => {
     return axios.patch(URL_API, { isAdmin });
 };
 
-export { createUserApi, getAccountApi, getUsersApi, deleteUserApi, loginApi, updateUserAdminApi };
+//TAG MANAGEMENT
+const createTagApi = (name, description) => {
+    const URL_API = '/v1/api/createTag';
+    const data = { name, description };
+    return axios.post(URL_API, data);
+};
+
+const getTagsApi = () => {
+    const URL_API = '/v1/api/tags';
+    return axios.get(URL_API);
+};
+
+const getTagByIdApi = (id) => {
+    const URL_API = `/v1/api/tags/${id}`;
+    return axios.get(URL_API);
+};
+
+const updateTagApi = (id, name, description) => {
+    const URL_API = `/v1/api/tags/${id}`;
+    const data = { name, description };
+    return axios.put(URL_API, data);
+};
+
+const deleteTagApi = (id) => {
+    const URL_API = `/v1/api/tags/${id}`;
+    return axios.delete(URL_API);
+};
+
+//CITY TYPE MANAGEMENT
+const createCityTypeApi = (title) => {
+    const URL_API = '/v1/api/createCityType';
+    const data = { title };
+    return axios.post(URL_API, data);
+};
+
+const getCityTypesApi = () => {
+    const URL_API = '/v1/api/cityTypes';
+    return axios.get(URL_API);
+};
+
+const getCityTypeByIdApi = (id) => {
+    const URL_API = `/v1/api/cityTypes/${id}`;
+    return axios.get(URL_API);
+};
+
+const updateCityTypeApi = (id, title) => {
+    const URL_API = `/v1/api/cityTypes/${id}`;
+    const data = { title };
+    return axios.put(URL_API, data);
+};
+
+const deleteCityTypeApi = (id) => {
+    const URL_API = `/v1/api/cityTypes/${id}`;
+    return axios.delete(URL_API);
+};
+
+export {
+    createUserApi,
+    getAccountApi,
+    getUsersApi,
+    deleteUserApi,
+    loginApi,
+    updateUserAdminApi,
+    createTagApi,
+    getTagsApi,
+    getTagByIdApi,
+    updateTagApi,
+    deleteTagApi,
+    createCityTypeApi,
+    getCityTypesApi,
+    getCityTypeByIdApi,
+    updateCityTypeApi,
+    deleteCityTypeApi,
+};

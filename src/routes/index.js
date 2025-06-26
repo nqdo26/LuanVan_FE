@@ -5,6 +5,7 @@ import { AdminLayout } from '~/components/Layouts';
 import AddTrip from '~/pages/AddTrip';
 import Admin from '~/pages/Admin';
 import AdminAddDestination from '~/pages/AdminAddDestination';
+import AdminCategoriesManage from '~/pages/AdminCategoriesManage';
 import AdminDestinationManage from '~/pages/AdminDestinationManage';
 import AdminPlaceManage from '~/pages/AdminPlaceManage';
 import AdminUserManage from '~/pages/AdminUserManage';
@@ -31,10 +32,11 @@ const publicRoutes = [
     { path: '/addtrip', component: AddTrip },
 
     { path: '/admin', component: Admin, layout: AdminLayout },
-    { path: '/admin/users-manage', component: AdminUserManage, layout: AdminLayout },
-    { path: '/admin/destinations-manage', component: AdminDestinationManage, layout: AdminLayout },
-    { path: '/admin/places-manage', component: AdminPlaceManage, layout: AdminLayout },
+    { path: '/admin/users-management', component: AdminUserManage, layout: AdminLayout },
+    { path: '/admin/destinations-management', component: AdminDestinationManage, layout: AdminLayout },
+    { path: '/admin/citys-management', component: AdminPlaceManage, layout: AdminLayout },
     { path: '/admin/add-destination', component: AdminAddDestination, layout: AdminLayout },
+    { path: '/admin/categories-management', component: AdminCategoriesManage, layout: AdminLayout },
 
     { path: '/destination/wimi-factory', component: DestinationDetails },
     { path: '/write-review', component: WriteReview },
