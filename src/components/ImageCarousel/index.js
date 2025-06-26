@@ -1,6 +1,4 @@
-import React, { useRef, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { useRef, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { EffectCreative, Autoplay } from 'swiper/modules';
 import 'swiper/css';
@@ -20,51 +18,55 @@ const carouselImages = [
 ];
 
 function ImageCarousel() {
-    const location = useLocation();
     const swiperRef = useRef(null);
+    const [imagesLoaded, setImagesLoaded] = useState(0);
+    const [firstSlideTriggered, setFirstSlideTriggered] = useState(false);
 
-    // Force restart autoplay every time route change or component mount
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (swiperRef.current && swiperRef.current.autoplay) {
-                swiperRef.current.autoplay.start();
-            }
-        }, 300); // Delay nhỏ để Swiper init xong đã
-        return () => clearTimeout(timer);
-    }, [location]);
+    const handleImgLoad = () => {
+        setImagesLoaded((prev) => prev + 1);
+        if (swiperRef.current) {
+            swiperRef.current.update();
+        }
+    };
+
+    React.useEffect(() => {
+        if (
+            imagesLoaded === carouselImages.length &&
+            swiperRef.current &&
+            !firstSlideTriggered
+        ) {
+
+            swiperRef.current.slideNext(1000); 
+            setFirstSlideTriggered(true);
+        }
+    }, [imagesLoaded, firstSlideTriggered]);
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="flex justify-center"
-        >
+        <div className="flex justify-center">
             <div className={cx('carousel-bg-wrapper')}>
                 <div className={cx('carousel-container')}>
                     <Swiper
-                        onSwiper={(swiper) => (swiperRef.current = swiper)}
                         modules={[EffectCreative, Autoplay]}
                         effect="creative"
                         grabCursor
                         centeredSlides
                         slidesPerView={2.2}
                         loop
-                        speed={1000}
+                        speed={900}
                         autoplay={{
-                            delay: 2000,
+                            delay: 1500,
                             disableOnInteraction: false,
                         }}
                         creativeEffect={{
                             prev: {
                                 shadow: true,
                                 translate: ['-120%', 0, -500],
-                                scale: 0.75,
+                                scale: 0.8,
                             },
                             next: {
                                 shadow: true,
                                 translate: ['120%', 0, -500],
-                                scale: 0.75,
+                                scale: 0.8,
                             },
                         }}
                         breakpoints={{
@@ -73,18 +75,24 @@ function ImageCarousel() {
                             600: { slidesPerView: 1.1 },
                             0: { slidesPerView: 1 },
                         }}
+                        onSwiper={(swiper) => (swiperRef.current = swiper)}
                     >
-                        {carouselImages.map((image, index) => (
-                            <SwiperSlide key={index}>
+                        {carouselImages.map((image, idx) => (
+                            <SwiperSlide key={idx}>
                                 <div className={cx('carousel-item')}>
-                                    <img src={image.src} alt={image.alt} className={cx('carousel-image')} />
+                                    <img
+                                        src={image.src}
+                                        alt={image.alt}
+                                        className={cx('carousel-image')}
+                                        onLoad={handleImgLoad}
+                                    />
                                 </div>
                             </SwiperSlide>
                         ))}
                     </Swiper>
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
 }
 

@@ -7,7 +7,6 @@ import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import { getUsersApi, updateUserAdminApi, deleteUserApi } from '~/utils/api';
 import { AuthContext } from '~/components/Context/auth.context';
 
-
 const cx = classNames.bind(styles);
 
 function AdminUserManage() {
