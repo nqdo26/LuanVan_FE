@@ -17,70 +17,60 @@ import {
 const cx = classNames.bind(styles);
 
 function AdminCategoriesManage() {
-    // State for tags
+    // Tag state
     const [tags, setTags] = useState([]);
     const [loadingTags, setLoadingTags] = useState(false);
 
-    // State for city types
+    // City Type state (REAL)
     const [cityTypes, setCityTypes] = useState([]);
     const [loadingCityTypes, setLoadingCityTypes] = useState(false);
-
-    // Modal control
-    const [isTagModalOpen, setIsTagModalOpen] = useState(false);
-    const [editingTag, setEditingTag] = useState(null);
     const [isCityTypeModalOpen, setIsCityTypeModalOpen] = useState(false);
     const [editingCityType, setEditingCityType] = useState(null);
+
+    // Modal Tag
+    const [isTagModalOpen, setIsTagModalOpen] = useState(false);
+    const [editingTag, setEditingTag] = useState(null);
 
     const [form] = Form.useForm();
     const [cityTypeForm] = Form.useForm();
 
-    // Fetch tags
-    const fetchTags = async () => {
-        setLoadingTags(true);
-        try {
-            const res = await getTagsApi();
-            let dataArr = [];
-            // Trường hợp API trả về array
-            if (Array.isArray(res)) {
-                dataArr = res;
-            }
-            // Trường hợp API trả về object chứa array trong data field
-            else if (res && Array.isArray(res.data)) {
-                dataArr = res.data;
-            }
-            setTags(dataArr);
-        } catch (e) {
-            setTags([]);
-            message.error('Lỗi khi lấy danh sách Tag!');
-        }
-        setLoadingTags(false);
-    };
-
-    // Fetch city types
-    const fetchCityTypes = async () => {
-        setLoadingCityTypes(true);
-        try {
-            const res = await getCityTypesApi();
-            let dataArr = [];
-            if (Array.isArray(res)) {
-                dataArr = res;
-            } else if (res && Array.isArray(res.data)) {
-                dataArr = res.data;
-            }
-            setCityTypes(dataArr);
-        } catch (e) {
-            setCityTypes([]);
-            message.error('Lỗi khi lấy danh sách City Type!');
-        }
-        setLoadingCityTypes(false);
-    };
-
+    // Fetch data
     useEffect(() => {
         fetchTags();
         fetchCityTypes();
     }, []);
 
-    // -------- Tag handlers --------
+    const fetchTags = async () => {
+        setLoadingTags(true);
+        try {
+            const res = await getTagsApi();
+            let dataArr = [];
+            if (Array.isArray(res)) dataArr = res;
+            else if (res && Array.isArray(res.data)) dataArr = res.data;
+            setTags(dataArr);
+        } catch {
+            setTags([]);
+            message.error('Lỗi khi lấy danh sách Thẻ!');
+        }
+        setLoadingTags(false);
+    };
+
+    const fetchCityTypes = async () => {
+        setLoadingCityTypes(true);
+        try {
+            const res = await getCityTypesApi();
+            let dataArr = [];
+            if (Array.isArray(res)) dataArr = res;
+            else if (res && Array.isArray(res.data)) dataArr = res.data;
+            setCityTypes(dataArr);
+        } catch {
+            setCityTypes([]);
+            message.error('Lỗi khi lấy danh sách Loại thành phố!');
+        }
+        setLoadingCityTypes(false);
+    };
+
+    // Tag handlers
     const handleAddTag = () => {
         setEditingTag(null);
         form.resetFields();
@@ -89,38 +79,52 @@ function AdminCategoriesManage() {
 
     const handleEditTag = (record) => {
         setEditingTag(record);
-        form.setFieldsValue(record);
+        form.setFieldsValue({ title: record.title });
         setIsTagModalOpen(true);
     };
 
     const handleDeleteTag = async (record) => {
         try {
             await deleteTagApi(record._id);
-            message.success('Xóa Tag thành công!');
+            message.success('Xóa Thẻ thành công!');
             fetchTags();
         } catch {
-            message.error('Xóa Tag thất bại!');
+            message.error('Xóa Thẻ thất bại!');
         }
     };
 
     const handleTagModalOk = async () => {
         try {
             const values = await form.validateFields();
+            const title = values.title.trim();
+            let res;
             if (editingTag) {
-                await updateTagApi(editingTag._id, values.name, values.description);
-                message.success('Cập nhật Tag thành công!');
+                res = await updateTagApi(editingTag._id, title);
+                if (res && res.EC === 0) {
+                    message.success('Cập nhật Thẻ thành công!');
+                } else if (res.EC === 1) {
+                    message.error('Thẻ đã tồn tại');
+                } else {
+                    message.error(res?.EM || 'Xóa Thẻ thất bại!');
+                }
             } else {
-                await createTagApi(values.name, values.description);
-                message.success('Thêm Tag mới thành công!');
+                res = await createTagApi(title);
+                if (res && res.EC === 0) {
+                    message.success('Thêm Tag mới thành công!');
+                } else if (res.EC === 1) {
+                    message.error('Thẻ đã tồn tại');
+                } else {
+                    message.error(res?.EM || 'Xóa Thẻ thất bại!');
+                }
             }
             setIsTagModalOpen(false);
             fetchTags();
-        } catch (err) {
-            // ignore
+        } catch {
+            message.error('Vui lòng kiểm tra lại thông tin!');
         }
     };
 
-    // -------- City Type handlers --------
+    // CityType handlers (REAL)
     const handleAddCityType = () => {
         setEditingCityType(null);
         cityTypeForm.resetFields();
@@ -135,32 +139,50 @@ function AdminCategoriesManage() {
 
     const handleDeleteCityType = async (record) => {
         try {
-            await deleteCityTypeApi(record._id);
-            message.success('Xóa City Type thành công!');
-            fetchCityTypes();
+            const res = await deleteCityTypeApi(record._id);
+            if (res && res.EC === 0) {
+                message.success('Xóa danh mục thành công!');
+                fetchCityTypes();
+            } else {
+                message.error(res?.EM || 'Xóa danh mục thất bại!');
+            }
         } catch {
-            message.error('Xóa City Type thất bại!');
+            message.error('Lỗi hệ thống!');
         }
     };
 
     const handleCityTypeModalOk = async () => {
         try {
             const values = await cityTypeForm.validateFields();
+            const title = values.title.trim();
+            let res;
             if (editingCityType) {
-                await updateCityTypeApi(editingCityType._id, values.title);
-                message.success('Cập nhật City Type thành công!');
+                res = await updateCityTypeApi(editingCityType._id, title);
+                if (res && res.EC === 0) {
+                    message.success('Cập nhật danh mục thành công!');
+                } else if (res.EC === 1) {
+                    message.error('Danh mục đã tồn tại');
+                } else {
+                    message.error(res?.EM || 'Xóa danh mục thất bại!');
+                }
             } else {
-                await createCityTypeApi(values.title);
-                message.success('Thêm City Type mới thành công!');
+                res = await createCityTypeApi(title);
+                if (res && res.EC === 0) {
+                    message.success('Thêm danh mục thành công!');
+                } else if (res.EC === 1) {
+                    message.error('Danh mục đã tồn tại');
+                } else {
+                    message.error(res?.EM || 'Xóa danh mục thất bại!');
+                }
             }
             setIsCityTypeModalOpen(false);
             fetchCityTypes();
-        } catch (err) {
-            // ignore
+        } catch {
+            message.error('Vui lòng kiểm tra lại thông tin!');
         }
     };
 
-    // -------- Table columns --------
+    // Table columns
     const tagColumns = [
         {
             title: 'STT',
@@ -168,12 +190,22 @@ function AdminCategoriesManage() {
             width: 60,
         },
         {
-            title: 'Tên Tag',
+            title: 'ID',
+            dataIndex: '_id',
+            width: 200,
+            ellipsis: true,
+            render: (id) => <span style={{ fontFamily: 'monospace', fontSize: 13 }}>{id}</span>,
+        },
+        {
+            title: 'Tiêu đề',
             dataIndex: 'title',
         },
         {
-            title: 'Mô tả',
-            dataIndex: 'description',
+            title: 'Số địa điểm có thẻ',
+            dataIndex: 'destinationsCount',
+            align: 'center',
+            width: 140,
+            render: (count) => count ?? 0,
         },
         {
             title: 'Tùy chọn',
@@ -203,8 +235,22 @@ function AdminCategoriesManage() {
             width: 60,
         },
         {
-            title: 'Tên loại thành phố',
+            title: 'ID',
+            dataIndex: '_id',
+            width: 200,
+            ellipsis: true,
+            render: (id) => <span style={{ fontFamily: 'monospace', fontSize: 13 }}>{id}</span>,
+        },
+        {
+            title: 'Tiêu đề',
             dataIndex: 'title',
+        },
+        {
+            title: 'Số thành phố',
+            dataIndex: 'cityCount',
+            align: 'center',
+            width: 140,
+            render: (count) => count ?? 0,
         },
         {
             title: 'Tùy chọn',
@@ -214,7 +260,7 @@ function AdminCategoriesManage() {
                         Sửa
                     </Button>
                     <Popconfirm
-                        title="Bạn có chắc chắn muốn xóa loại này?"
+                        title="Xác nhận xóa?"
                         onConfirm={() => handleDeleteCityType(record)}
                         okText="Đồng ý"
                         cancelText="Hủy"
@@ -240,18 +286,18 @@ function AdminCategoriesManage() {
                     <div className={cx('section-1-items')}>
                         <div className={cx('small-card')}>
                             <p className={cx('small-card-title')}>Thẻ:</p>
-                            <p className={cx('small-card-value')}> {Array.isArray(tags) ? tags.length : 0}</p>
+                            <p className={cx('small-card-value')}>{Array.isArray(tags) ? tags.length : 0}</p>
                         </div>
                         <div className={cx('small-card')}>
-                            <p className={cx('small-card-title')}>Loại thành phố:</p>
-                            <p className={cx('small-card-value')}> {Array.isArray(cityTypes) ? cityTypes.length : 0}</p>
+                            <p className={cx('small-card-title')}>Danh mục thành phố:</p>
+                            <p className={cx('small-card-value')}>{Array.isArray(cityTypes) ? cityTypes.length : 0}</p>
                         </div>
                     </div>
                 </div>
                 <div className={cx('section-2')} style={{ marginBottom: 32 }}>
-                    <h2 style={{ marginBottom: 12 }}>Danh sách Tag địa điểm</h2>
+                    <h2 style={{ marginBottom: 12 }}>Danh sách Thẻ</h2>
                     <Button type="primary" onClick={handleAddTag} style={{ marginBottom: 14 }}>
-                        Thêm Tag mới
+                        Thêm Thẻ mới
                     </Button>
                     <Table
                         loading={loadingTags}
@@ -263,9 +309,9 @@ function AdminCategoriesManage() {
                     />
                 </div>
                 <div className={cx('section-2')}>
-                    <h2 style={{ marginBottom: 12 }}>Danh sách Loại thành phố</h2>
+                    <h2 style={{ marginBottom: 12 }}>Danh mục thành phố</h2>
                     <Button type="primary" onClick={handleAddCityType} style={{ marginBottom: 14 }}>
-                        Thêm City Type mới
+                        Thêm Danh mục mới
                     </Button>
                     <Table
                         loading={loadingCityTypes}
@@ -277,9 +323,9 @@ function AdminCategoriesManage() {
                     />
                 </div>
             </div>
-
+            {/* Tag Modal */}
             <Modal
-                title={editingTag ? 'Chỉnh sửa Tag' : 'Thêm Tag mới'}
+                title={editingTag ? 'Chỉnh sửa Thẻ' : 'Thêm Thẻ mới'}
                 open={isTagModalOpen}
                 onOk={handleTagModalOk}
                 onCancel={() => setIsTagModalOpen(false)}
@@ -289,20 +335,16 @@ function AdminCategoriesManage() {
             >
                 <Form form={form} layout="vertical">
                     <Form.Item
-                        name="name"
-                        label="Tên Tag"
-                        rules={[{ required: true, message: 'Tên tag không được để trống!' }]}
+                        name="title"
+                        label="Tiêu đề"
+                        rules={[{ required: true, message: 'Tiêu đề không được để trống!' }]}
                     >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item name="description" label="Mô tả">
                         <Input />
                     </Form.Item>
                 </Form>
             </Modal>
-
             <Modal
-                title={editingCityType ? 'Chỉnh sửa City Type' : 'Thêm City Type mới'}
+                title={editingCityType ? 'Chỉnh sửa Danh mục' : 'Thêm Danh mục mới'}
                 open={isCityTypeModalOpen}
                 onOk={handleCityTypeModalOk}
                 onCancel={() => setIsCityTypeModalOpen(false)}
@@ -313,8 +355,8 @@ function AdminCategoriesManage() {
                 <Form form={cityTypeForm} layout="vertical">
                     <Form.Item
                         name="title"
-                        label="Tên loại thành phố"
-                        rules={[{ required: true, message: 'Tên loại thành phố không được để trống!' }]}
+                        label="Tiêu đề"
+                        rules={[{ required: true, message: 'Tiêu đề không thể để trống!' }]}
                     >
                         <Input />
                     </Form.Item>
