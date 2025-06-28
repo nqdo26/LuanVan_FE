@@ -27,18 +27,25 @@
     padding-left: 0px;
 }
 
+.logo-icon {
+    height: 32px;
+    width: 32px;
+    object-fit: cover;
+    transition: transform 0.3s ease-in-out;
+
+    &:hover {
+        transform: scale(1.05);
+    }
+}
+
 .title {
     font-size: 25px;
     font-weight: 500;
-    background: linear-gradient(90deg, rgba(188, 60, 133, 1) 0%, rgba(253, 96, 80, 1) 100%);
+    background: linear-gradient(135deg, #64c5ff 0%, #1c1f4a 100%);
+
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-}
-
-.logo img {
-    height: 100%;
-    padding: 7px;
 }
 
 .menu {
@@ -85,8 +92,8 @@
 }
 
 .logo {
-    padding: 0px !important;
-    height: 35px !important;
+    display: flex;
+    gap: 4px;
 }
 
 @media (max-width: 768px) {
@@ -124,7 +131,7 @@
 }
 
 .login {
-    background: linear-gradient(90deg, rgba(188, 60, 133, 1) 0%, rgba(253, 96, 80, 1) 100%);
+    background: linear-gradient(135deg, #64c5ff 0%, #1c1f4a 100%);
     color: #ffffff;
 }
 

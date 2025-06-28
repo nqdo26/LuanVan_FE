@@ -89,7 +89,7 @@ function AddTrip() {
                         </div>
                     </div>
 
-                    <div style={{ backgroundColor: '#dcc8ff' }} className={cx('option-item')}>
+                    <div style={{ backgroundColor: '#0B1D51' }} className={cx('option-item')}>
                         <div className={cx('option-inner')}>
                             <img alt="error" src="/addtrip-img2.png" className={cx('option-img')} />
                             <p className={cx('option-title')}>Để AI hỗ trợ bạn</p>

@@ -30,13 +30,8 @@ function ImageCarousel() {
     };
 
     React.useEffect(() => {
-        if (
-            imagesLoaded === carouselImages.length &&
-            swiperRef.current &&
-            !firstSlideTriggered
-        ) {
-
-            swiperRef.current.slideNext(1000); 
+        if (imagesLoaded === carouselImages.length && swiperRef.current && !firstSlideTriggered) {
+            swiperRef.current.slideNext(1000);
             setFirstSlideTriggered(true);
         }
     }, [imagesLoaded, firstSlideTriggered]);
@@ -54,7 +49,7 @@ function ImageCarousel() {
                         loop
                         speed={900}
                         autoplay={{
-                            delay: 1500,
+                            delay: 1800,
                             disableOnInteraction: false,
                         }}
                         creativeEffect={{

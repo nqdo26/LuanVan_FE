@@ -168,7 +168,7 @@ function Header() {
         <AntHeader className={cx('wrapper')}>
             <Flex justify="space-between" className={cx('inner')}>
                 <div className={cx('logo')} onClick={() => handleNavigate('')}>
-                    <img src="/logo.png" alt="documan" />
+                    <img className={cx('logo-icon')} src="/logo.png" alt="GoOhNo" />
                     <span className={cx('title')}>GoOhNo</span>
                 </div>
 

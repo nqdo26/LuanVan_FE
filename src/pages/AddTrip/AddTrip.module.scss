@@ -106,9 +106,11 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    background-color: #c9ffeb;
+    background: #8cbdeb;
+    color: #fff; /* Cho text trắng dễ đọc trên nền đậm */
     border-radius: 10px;
     margin-bottom: 20px;
+    border: none;
 }
 
 .option-inner {
@@ -145,7 +147,7 @@
     text-align: center;
     font-size: 30px;
     font-weight: 600;
-    color: #000;
+    color: #ffffff;
 
     @media (max-width: 768px) {
         font-size: 24px;
@@ -161,7 +163,7 @@
     width: 80%;
     font-size: 15px;
     line-height: 1.6;
-    color: #000;
+    color: #ffffff;
 
     @media (max-width: 768px) {
         font-size: 14px;
@@ -177,8 +179,8 @@
     margin-top: 30px;
     width: 60%;
     height: 50px;
-    background-color: #5aca5e;
-    color: white;
+    background-color: #0b1d51;
+    color: rgb(255, 255, 255);
     border: none;
     border-radius: 100px;
     cursor: pointer;
@@ -187,7 +189,8 @@
     transition: all 0.2s ease;
 
     &:hover {
-        background-color: #4cae4f !important;
+        background-color: #0b1d51 !important;
+
         transform: scale(1.02);
     }
 
@@ -210,10 +213,10 @@
 }
 
 .button-ai {
-    background-color: #655aca;
+    background-color: #8cbdeb;
 
     &:hover {
-        background-color: #5849df !important;
+        background-color: #8cbdeb!important;
         transform: scale(1.02);
     }
 
