@@ -78,6 +78,32 @@ const deleteCityTypeApi = (id) => {
     return axios.delete(URL_API);
 };
 
+//City MANAGEMENT
+const createCityApi = (cityData) => {
+    const URL_API = '/v1/api/city';
+    const formData = new FormData();
+
+    formData.append('title', cityData.title);
+    formData.append('description', cityData.description);
+    if (cityData.type) formData.append('type', cityData.type);
+
+    cityData.images.forEach((file) => {
+        formData.append('images', file.originFileObj || file);
+    });
+
+    formData.append('weather', JSON.stringify(cityData.weather));
+
+    if (cityData.info?.length > 0) {
+        formData.append('info', JSON.stringify(cityData.info));
+    }
+
+    return axios.post(URL_API, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+};
+
 export {
     createUserApi,
     getAccountApi,
@@ -93,4 +119,5 @@ export {
     getCityTypesApi,
     updateCityTypeApi,
     deleteCityTypeApi,
+    createCityApi,
 };
