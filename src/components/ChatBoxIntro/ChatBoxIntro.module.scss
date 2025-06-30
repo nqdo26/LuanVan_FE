@@ -1,5 +1,5 @@
 .wrapper {
-    background: linear-gradient(45deg, rgba(100, 197, 255, 0.5), rgba(28, 31, 74, 0.55));
+    background: #d1eeff;
 
     width: 100%;
     padding: 20px;
@@ -18,7 +18,7 @@
 }
 
 .button:hover {
-    background: linear-gradient(135deg, var(--secondary-color) 100%, var(--primary-color) 0%);
+    background: #0070b1;
     box-shadow: 0px 4px 10px rgba(100, 197, 255, 0.18);
     transform: scale(1.05);
 }

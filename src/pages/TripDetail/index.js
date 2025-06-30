@@ -3,7 +3,7 @@ import styles from './TripDetail.module.scss';
 import { motion } from 'framer-motion';
 import TripHeader from '~/components/TripHeader';
 import CityInfo from '~/components/CityInfo';
-import { List, Tabs } from 'antd';
+import { Tabs } from 'antd';
 import DestinationCard from '~/components/DestinationCard';
 import TripNav from '~/components/TripNav';
 import { useState } from 'react';
@@ -23,6 +23,9 @@ const destinations = [
     { id: 4, title: 'Destination 4' },
     { id: 5, title: 'Destination 5' },
     { id: 6, title: 'Destination 6' },
+    { id: 7, title: 'Destination 4' },
+    { id: 8, title: 'Destination 5' },
+    { id: 9, title: 'Destination 6' },
 ];
 
 const scrollToSection = (id) => {
@@ -32,6 +35,11 @@ const scrollToSection = (id) => {
 function TripDetail() {
     const [activeTab, setActiveTab] = useState('trip');
     const [selectedIndexes, setSelectedIndexes] = useState([]);
+
+    const pageSize = 6;
+    const [currentPage, setCurrentPage] = useState(1);
+    const totalPages = Math.ceil(destinations.length / pageSize);
+    const pagedDestinations = destinations.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     const trip = {
         title: 'Hành trình Đà Lạt 4 ngày',
@@ -92,19 +100,30 @@ function TripDetail() {
                                     onToggle={handleToggle}
                                 />
                                 <div className={cx('suggest-list')}>
-                                    <List
-                                        grid={{ gutter: 18, xs: 1, sm: 2, md: 3, lg: 3, xl: 4 }}
-                                        dataSource={destinations}
-                                        pagination={{ pageSize: 6 }}
-                                        renderItem={(item) => (
-                                            <List.Item style={{ }}>
-                                                <DestinationCard
-                                                    className={cx('destination-card')}
-                                                    title={item.title}
-                                                />
-                                            </List.Item>
-                                        )}
-                                    />
+                                    <div className={cx('result-list')}>
+                                        {pagedDestinations.map((item) => (
+                                            <div key={item.id} className={cx('result-list-item')}>
+                                                <DestinationCard title={item.title} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className={cx('pagination')}>
+                                        <button
+                                            disabled={currentPage === 1}
+                                            onClick={() => setCurrentPage(currentPage - 1)}
+                                        >
+                                            {'<'}
+                                        </button>
+                                        <span>
+                                            Trang {currentPage} / {totalPages}
+                                        </span>
+                                        <button
+                                            disabled={currentPage === totalPages}
+                                            onClick={() => setCurrentPage(currentPage + 1)}
+                                        >
+                                            {'>'}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         )}

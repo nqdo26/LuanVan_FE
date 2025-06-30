@@ -100,7 +100,7 @@ function Sidebar() {
                         <div className={cx('action')}>
                             <motion.div whileHover={{ scale: 1.07 }} whileTap={{ scale: 0.98 }}>
                                 <Button
-                                    style={{ backgroundColor: '#1890ff', color: 'white', width: '200px' }}
+                                    style={{ backgroundColor: '#8cbdeb', color: 'black', width: '200px' }}
                                     onClick={handleAddCity}
                                 >
                                     <PlusOutlined /> Thêm thành phố mới
@@ -108,7 +108,7 @@ function Sidebar() {
                             </motion.div>
                             <motion.div whileHover={{ scale: 1.07 }} whileTap={{ scale: 0.98 }}>
                                 <Button
-                                    style={{ backgroundColor: '#52c41a', color: 'white', width: '200px' }}
+                                    style={{ backgroundColor: '#0B1D51', color: 'white', width: '200px' }}
                                     onClick={handleAddDestination}
                                 >
                                     <PlusOutlined /> Thêm địa điểm mới

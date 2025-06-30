@@ -353,16 +353,6 @@ function Header() {
                         />
                         <div style={{ display: 'flex', gap: '10px' }}>
                             <Button
-                                className={cx('register-button')}
-                                type="primary"
-                                block
-                                style={{ flex: 1 }}
-                                loading={registerLoading}
-                                onClick={handleRegisterSubmit}
-                            >
-                                Đăng ký
-                            </Button>
-                            <Button
                                 block
                                 style={{ flex: 1 }}
                                 onClick={() => {
@@ -372,6 +362,16 @@ function Header() {
                                 className={cx('back-button')}
                             >
                                 Trở về đăng nhập
+                            </Button>
+                            <Button
+                                className={cx('register-button')}
+                                type="primary"
+                                block
+                                style={{ flex: 1 }}
+                                loading={registerLoading}
+                                onClick={handleRegisterSubmit}
+                            >
+                                Đăng ký
                             </Button>
                         </div>
                     </div>
