@@ -12,11 +12,19 @@ import {
     createCityTypeApi,
     updateCityTypeApi,
     deleteCityTypeApi,
+    getDestinationTypesApi,
+    createDestinationTypeApi,
+    updateDestinationTypeApi,
+    deleteDestinationTypeApi,
 } from '~/utils/api';
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 
 const cx = classNames.bind(styles);
 
 function AdminCategoriesManage() {
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 5;
+
     // Tag state
     const [tags, setTags] = useState([]);
     const [loadingTags, setLoadingTags] = useState(false);
@@ -27,17 +35,25 @@ function AdminCategoriesManage() {
     const [isCityTypeModalOpen, setIsCityTypeModalOpen] = useState(false);
     const [editingCityType, setEditingCityType] = useState(null);
 
+    // Destination Type state
+    const [destinationTypes, setDestinationTypes] = useState([]);
+    const [loadingDestinationTypes, setLoadingDestinationTypes] = useState(false);
+    const [isDestinationTypeModalOpen, setIsDestinationTypeModalOpen] = useState(false);
+    const [editingDestinationType, setEditingDestinationType] = useState(null);
+
     // Modal Tag
     const [isTagModalOpen, setIsTagModalOpen] = useState(false);
     const [editingTag, setEditingTag] = useState(null);
 
     const [form] = Form.useForm();
     const [cityTypeForm] = Form.useForm();
+    const [destinationTypeForm] = Form.useForm();
 
     // Fetch data
     useEffect(() => {
         fetchTags();
         fetchCityTypes();
+        fetchDestinationTypes();
     }, []);
 
     const fetchTags = async () => {
@@ -68,6 +84,21 @@ function AdminCategoriesManage() {
             message.error('Lỗi khi lấy danh sách Loại thành phố!');
         }
         setLoadingCityTypes(false);
+    };
+
+    const fetchDestinationTypes = async () => {
+        setLoadingDestinationTypes(true);
+        try {
+            const res = await getDestinationTypesApi();
+            let dataArr = [];
+            if (Array.isArray(res)) dataArr = res;
+            else if (res && Array.isArray(res.data)) dataArr = res.data;
+            setDestinationTypes(dataArr);
+        } catch {
+            setDestinationTypes([]);
+            message.error('Lỗi khi lấy danh sách Loại địa điểm!');
+        }
+        setLoadingDestinationTypes(false);
     };
 
     // Tag handlers
@@ -182,6 +213,64 @@ function AdminCategoriesManage() {
         }
     };
 
+    // DestinationType handlers
+    const handleAddDestinationType = () => {
+        setEditingDestinationType(null);
+        destinationTypeForm.resetFields();
+        setIsDestinationTypeModalOpen(true);
+    };
+
+    const handleEditDestinationType = (record) => {
+        setEditingDestinationType(record);
+        destinationTypeForm.setFieldsValue(record);
+        setIsDestinationTypeModalOpen(true);
+    };
+
+    const handleDeleteDestinationType = async (record) => {
+        try {
+            const res = await deleteDestinationTypeApi(record._id);
+            if (res && res.EC === 0) {
+                message.success('Xóa loại địa điểm thành công!');
+                fetchDestinationTypes();
+            } else {
+                message.error(res?.EM || 'Xóa loại địa điểm thất bại!');
+            }
+        } catch {
+            message.error('Lỗi hệ thống!');
+        }
+    };
+
+    const handleDestinationTypeModalOk = async () => {
+        try {
+            const values = await destinationTypeForm.validateFields();
+            const title = values.title.trim();
+            let res;
+            if (editingDestinationType) {
+                res = await updateDestinationTypeApi(editingDestinationType._id, title);
+                if (res && res.EC === 0) {
+                    message.success('Cập nhật loại địa điểm thành công!');
+                } else if (res.EC === 1) {
+                    message.error('Loại địa điểm đã tồn tại');
+                } else {
+                    message.error(res?.EM || 'Cập nhật loại địa điểm thất bại!');
+                }
+            } else {
+                res = await createDestinationTypeApi(title);
+                if (res && res.EC === 0) {
+                    message.success('Thêm loại địa điểm thành công!');
+                } else if (res.EC === 1) {
+                    message.error('Loại địa điểm đã tồn tại');
+                } else {
+                    message.error(res?.EM || 'Thêm loại địa điểm thất bại!');
+                }
+            }
+            setIsDestinationTypeModalOpen(false);
+            fetchDestinationTypes();
+        } catch {
+            message.error('Vui lòng kiểm tra lại thông tin!');
+        }
+    };
+
     // Table columns
     const tagColumns = [
         {
@@ -210,9 +299,9 @@ function AdminCategoriesManage() {
         {
             title: 'Tùy chọn',
             render: (record) => (
-                <div style={{ display: 'flex', gap: 10 }}>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center' }}>
                     <Button type="primary" onClick={() => handleEditTag(record)}>
-                        Sửa
+                        <EditOutlined />
                     </Button>
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xóa tag này?"
@@ -220,7 +309,9 @@ function AdminCategoriesManage() {
                         okText="Đồng ý"
                         cancelText="Hủy"
                     >
-                        <Button danger>Xóa</Button>
+                        <Button danger>
+                            <DeleteOutlined />
+                        </Button>
                     </Popconfirm>
                 </div>
             ),
@@ -255,9 +346,9 @@ function AdminCategoriesManage() {
         {
             title: 'Tùy chọn',
             render: (record) => (
-                <div style={{ display: 'flex', gap: 10 }}>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center' }}>
                     <Button type="primary" onClick={() => handleEditCityType(record)}>
-                        Sửa
+                        <EditOutlined />
                     </Button>
                     <Popconfirm
                         title="Xác nhận xóa?"
@@ -265,7 +356,56 @@ function AdminCategoriesManage() {
                         okText="Đồng ý"
                         cancelText="Hủy"
                     >
-                        <Button danger>Xóa</Button>
+                        <Button danger>
+                            <DeleteOutlined />
+                        </Button>
+                    </Popconfirm>
+                </div>
+            ),
+            width: 140,
+        },
+    ];
+
+    const destinationTypeColumns = [
+        {
+            title: 'STT',
+            render: (_, __, idx) => idx + 1,
+            width: 60,
+        },
+        {
+            title: 'ID',
+            dataIndex: '_id',
+            width: 200,
+            ellipsis: true,
+            render: (id) => <span style={{ fontFamily: 'monospace', fontSize: 13 }}>{id}</span>,
+        },
+        {
+            title: 'Tiêu đề',
+            dataIndex: 'title',
+        },
+        {
+            title: 'Số địa điểm',
+            dataIndex: 'destinationCount',
+            align: 'center',
+            width: 140,
+            render: (count) => count ?? 0,
+        },
+        {
+            title: 'Tùy chọn',
+            render: (record) => (
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center' }}>
+                    <Button type="primary" onClick={() => handleEditDestinationType(record)}>
+                        <EditOutlined />
+                    </Button>
+                    <Popconfirm
+                        title="Xác nhận xóa?"
+                        onConfirm={() => handleDeleteDestinationType(record)}
+                        okText="Đồng ý"
+                        cancelText="Hủy"
+                    >
+                        <Button danger>
+                            <DeleteOutlined />
+                        </Button>
                     </Popconfirm>
                 </div>
             ),
@@ -282,49 +422,105 @@ function AdminCategoriesManage() {
         >
             <div className={cx('inner')}>
                 <div className={cx('section-1')}>
-                    <h1 className={cx('title')}>Quản lý địa điểm</h1>
+                    <h1 className={cx('title')}>Quản lý danh mục</h1>
                     <div className={cx('section-1-items')}>
                         <div className={cx('small-card')}>
                             <p className={cx('small-card-title')}>Thẻ:</p>
                             <p className={cx('small-card-value')}>{Array.isArray(tags) ? tags.length : 0}</p>
                         </div>
                         <div className={cx('small-card')}>
-                            <p className={cx('small-card-title')}>Danh mục thành phố:</p>
+                            <p className={cx('small-card-title')}>Loại thành phố:</p>
                             <p className={cx('small-card-value')}>{Array.isArray(cityTypes) ? cityTypes.length : 0}</p>
+                        </div>
+                        <div className={cx('small-card')}>
+                            <p className={cx('small-card-title')}>Loại địa điểm:</p>
+                            <p className={cx('small-card-value')}>
+                                {Array.isArray(destinationTypes) ? destinationTypes.length : 0}
+                            </p>
                         </div>
                     </div>
                 </div>
                 <div className={cx('section-2')} style={{ marginBottom: 32 }}>
                     <h2 style={{ marginBottom: 12 }}>Danh sách Thẻ</h2>
-                    <Button type="primary" onClick={handleAddTag} style={{ marginBottom: 14 }}>
-                        Thêm Thẻ mới
+                    <Button
+                        className={cx('add-btn')}
+                        type="primary"
+                        onClick={handleAddTag}
+                        style={{ marginBottom: 14 }}
+                    >
+                        <PlusOutlined />
                     </Button>
                     <Table
+                        scroll={{ x: 768 }}
                         loading={loadingTags}
                         dataSource={Array.isArray(tags) ? tags : []}
                         columns={tagColumns}
                         rowKey="_id"
                         bordered
-                        pagination={false}
+                        pagination={{
+                            pageSize,
+                            current: currentPage,
+                            onChange: (page) => setCurrentPage(page),
+                            showSizeChanger: false,
+                        }}
                     />
                 </div>
                 <div className={cx('section-2')}>
                     <h2 style={{ marginBottom: 12 }}>Danh mục thành phố</h2>
-                    <Button type="primary" onClick={handleAddCityType} style={{ marginBottom: 14 }}>
-                        Thêm Danh mục mới
+                    <Button
+                        className={cx('add-btn')}
+                        type="primary"
+                        onClick={handleAddCityType}
+                        style={{ marginBottom: 14 }}
+                    >
+                        <PlusOutlined />
                     </Button>
                     <Table
+                        scroll={{ x: 768 }}
                         loading={loadingCityTypes}
                         dataSource={Array.isArray(cityTypes) ? cityTypes : []}
                         columns={cityTypeColumns}
                         rowKey="_id"
                         bordered
-                        pagination={false}
+                        pagination={{
+                            pageSize,
+                            current: currentPage,
+                            onChange: (page) => setCurrentPage(page),
+                            showSizeChanger: false,
+                        }}
+                    />
+                </div>
+                <div className={cx('section-2')}>
+                    <h2 style={{ marginBottom: 12 }}>Danh mục địa điểm</h2>
+                    <Button
+                        className={cx('add-btn')}
+                        type="primary"
+                        onClick={handleAddDestinationType}
+                        style={{ marginBottom: 14 }}
+                    >
+                        <PlusOutlined />
+                    </Button>
+                    <Table
+                        scroll={{ x: 768 }}
+                        loading={loadingDestinationTypes}
+                        dataSource={Array.isArray(destinationTypes) ? destinationTypes : []}
+                        columns={destinationTypeColumns}
+                        rowKey="_id"
+                        bordered
+                        pagination={{
+                            pageSize,
+                            current: currentPage,
+                            onChange: (page) => setCurrentPage(page),
+                            showSizeChanger: false,
+                        }}
                     />
                 </div>
             </div>
-            {/* Tag Modal */}
+
             <Modal
+                className={cx('admin-modal')}
+                width={300}
+                height={300}
                 title={editingTag ? 'Chỉnh sửa Thẻ' : 'Thêm Thẻ mới'}
                 open={isTagModalOpen}
                 onOk={handleTagModalOk}
@@ -344,6 +540,8 @@ function AdminCategoriesManage() {
                 </Form>
             </Modal>
             <Modal
+                className={cx('admin-modal')}
+                width={300}
                 title={editingCityType ? 'Chỉnh sửa Danh mục' : 'Thêm Danh mục mới'}
                 open={isCityTypeModalOpen}
                 onOk={handleCityTypeModalOk}
@@ -353,6 +551,27 @@ function AdminCategoriesManage() {
                 destroyOnClose
             >
                 <Form form={cityTypeForm} layout="vertical">
+                    <Form.Item
+                        name="title"
+                        label="Tiêu đề"
+                        rules={[{ required: true, message: 'Tiêu đề không thể để trống!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                </Form>
+            </Modal>
+            <Modal
+                className={cx('admin-modal')}
+                width={300}
+                title={editingDestinationType ? 'Chỉnh sửa Loại địa điểm' : 'Thêm Loại địa điểm mới'}
+                open={isDestinationTypeModalOpen}
+                onOk={handleDestinationTypeModalOk}
+                onCancel={() => setIsDestinationTypeModalOpen(false)}
+                okText="Lưu"
+                cancelText="Hủy"
+                destroyOnClose
+            >
+                <Form form={destinationTypeForm} layout="vertical">
                     <Form.Item
                         name="title"
                         label="Tiêu đề"

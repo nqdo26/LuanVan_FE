@@ -46,8 +46,6 @@ function Sidebar() {
         },
     ];
     const selectedKey = menuItems.find((item) => item.path === location.pathname)?.key;
-
-    // Navigation
     const handleOnclick = (e) => {
         const item = menuItems.find((item) => item.key === e.key);
         if (item) {
@@ -118,6 +116,7 @@ function Sidebar() {
                     )}
 
                     <Menu
+                        className={cx('menu')}
                         mode="inline"
                         items={menuItems}
                         onClick={handleOnclick}

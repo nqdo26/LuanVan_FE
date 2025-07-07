@@ -22,3 +22,30 @@
     margin: 0 auto;
     color: white;
 }
+
+.menu {
+    :global {
+        .ant-menu {
+            background-color: #f0f4ff !important;
+        }
+
+        .ant-menu-item {
+            color: #0b1d51 !important;
+        }
+
+        .ant-menu-item-selected {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: #ffffff !important;
+            font-weight: 600 !important;
+        }
+
+        .ant-menu-item:hover {
+            background-color: #e6f0ff !important;
+            color: #0b1d51 !important;
+        }
+
+        .ant-menu-item-icon {
+            color: #0b1d51 !important;
+        }
+    }
+}

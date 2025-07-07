@@ -167,6 +167,7 @@ function AdminDestinationManage() {
                 <div className={cx('table-wrapper')}>
                     <h1 className={cx('table-title')}>Danh sách địa điểm</h1>
                     <Table
+                        scroll={{ x: 768 }}
                         dataSource={data}
                         columns={columns}
                         bordered

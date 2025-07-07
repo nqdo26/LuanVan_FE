@@ -3,38 +3,20 @@ import classNames from 'classnames/bind';
 import styles from './StepBasicInfo.module.scss';
 import { X } from 'lucide-react';
 import { useEffect } from 'react';
+import { getTagsApi, getCitiesApi, getDestinationTypesApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
-
-const TYPE_OPTIONS = [
-    { value: 'restaurant', label: 'Nhà hàng' },
-    { value: 'tourist', label: 'Địa điểm tham quan' },
-];
-
-const TAG_OPTIONS = [
-    'Phong cảnh đẹp',
-    'Không gian lớn',
-    'Thức ăn ngon',
-    'Giá hợp lý',
-    'Phục vụ chuyên nghiệp',
-    'Gần trung tâm',
-    'Thích hợp gia đình',
-];
-
-const CITY_OPTIONS = [
-    { value: 'hcm', label: 'Hồ Chí Minh' },
-    { value: 'hn', label: 'Hà Nội' },
-    { value: 'dn', label: 'Đà Nẵng' },
-    { value: 'ct', label: 'Cần Thơ' },
-    { value: 'hue', label: 'Huế' },
-];
 
 function StepBasicInfo({ defaultData, onNext }) {
     const [form, setForm] = useState(defaultData);
     const [tagDropdownOpen, setTagDropdownOpen] = useState(false);
+    const [tags, setTags] = useState([]);
+    const [cities, setCities] = useState([]);
+    const [destinationTypes, setDestinationTypes] = useState([]);
+    const [loading, setLoading] = useState(true);
     const tagRef = useRef();
 
-    useEffect (() => {
+    useEffect(() => {
         function handleClickOutside(e) {
             if (tagRef.current && !tagRef.current.contains(e.target)) {
                 setTagDropdownOpen(false);
@@ -44,6 +26,37 @@ function StepBasicInfo({ defaultData, onNext }) {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        fetchTagsAndCities();
+    }, []);
+
+    const fetchTagsAndCities = async () => {
+        try {
+            setLoading(true);
+            const [tagsResponse, citiesResponse, destinationTypesResponse] = await Promise.all([
+                getTagsApi(),
+                getCitiesApi(),
+                getDestinationTypesApi(),
+            ]);
+
+            if (tagsResponse && tagsResponse.EC === 0) {
+                setTags(tagsResponse.data);
+            }
+
+            if (citiesResponse && citiesResponse.EC === 0) {
+                setCities(citiesResponse.data);
+            }
+
+            if (destinationTypesResponse && destinationTypesResponse.EC === 0) {
+                setDestinationTypes(destinationTypesResponse.data);
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
@@ -52,7 +65,7 @@ function StepBasicInfo({ defaultData, onNext }) {
     const handleTagToggle = (tag) => {
         setForm((prev) => ({
             ...prev,
-            tags: prev.tags.includes(tag) ? prev.tags.filter((t) => t !== tag) : [...prev.tags, tag],
+            tags: prev.tags.includes(tag.title) ? prev.tags.filter((t) => t !== tag.title) : [...prev.tags, tag.title],
         }));
     };
 
@@ -77,27 +90,25 @@ function StepBasicInfo({ defaultData, onNext }) {
                         placeholder="Nhập tên địa điểm"
                     />
                 </div>
-                <div className={cx('form-group')}>
-                    <label htmlFor="aiDescription">Mô tả AI</label>
-                    <textarea
-                        id="aiDescription"
-                        name="aiDescription"
-                        value={form.aiDescription}
-                        onChange={handleChange}
-                        placeholder="Mô tả ngắn về địa điểm"
-                        rows={3}
-                    />
-                </div>
             </div>
             <div className={cx('form-row')}>
                 <div className={cx('form-group')}>
                     <label htmlFor="type">Loại địa điểm</label>
                     <select id="type" name="type" value={form.type} onChange={handleChange}>
-                        {TYPE_OPTIONS.map((opt) => (
-                            <option value={opt.value} key={opt.value}>
-                                {opt.label}
-                            </option>
-                        ))}
+                        <option className={cx('placeholder')} value="">
+                            Chọn loại địa điểm
+                        </option>
+                        {loading ? (
+                            <option disabled>Đang tải...</option>
+                        ) : destinationTypes.length > 0 ? (
+                            destinationTypes.map((type) => (
+                                <option value={type._id} key={type._id}>
+                                    {type.title}
+                                </option>
+                            ))
+                        ) : (
+                            <option disabled>Không có loại địa điểm nào</option>
+                        )}
                     </select>
                 </div>
                 <div className={cx('form-group')} ref={tagRef} style={{ position: 'relative' }}>
@@ -115,7 +126,8 @@ function StepBasicInfo({ defaultData, onNext }) {
                                     className={cx('tag-item', 'selected')}
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleTagToggle(tag);
+                                        const tagObj = tags.find((t) => t.title === tag);
+                                        if (tagObj) handleTagToggle(tagObj);
                                     }}
                                 >
                                     {tag}
@@ -128,16 +140,22 @@ function StepBasicInfo({ defaultData, onNext }) {
                     </div>
                     {tagDropdownOpen && (
                         <div className={cx('tag-dropdown-menu')}>
-                            {TAG_OPTIONS.map((tag) => (
-                                <div
-                                    key={tag}
-                                    className={cx('dropdown-item', form.tags.includes(tag) && 'active')}
-                                    onClick={() => handleTagToggle(tag)}
-                                >
-                                    <span>{tag}</span>
-                                    {form.tags.includes(tag) && <span className={cx('tick')}>✓</span>}
-                                </div>
-                            ))}
+                            {loading ? (
+                                <div className={cx('dropdown-item')}>Đang tải...</div>
+                            ) : tags.length > 0 ? (
+                                tags.map((tag) => (
+                                    <div
+                                        key={tag._id}
+                                        className={cx('dropdown-item', form.tags.includes(tag.title) && 'active')}
+                                        onClick={() => handleTagToggle(tag)}
+                                    >
+                                        <span>{tag.title}</span>
+                                        {form.tags.includes(tag.title) && <span className={cx('tick')}>✓</span>}
+                                    </div>
+                                ))
+                            ) : (
+                                <div className={cx('dropdown-item')}>Không có thẻ nào</div>
+                            )}
                         </div>
                     )}
                 </div>
@@ -157,11 +175,20 @@ function StepBasicInfo({ defaultData, onNext }) {
                 <div className={cx('form-group')}>
                     <label htmlFor="city">Thành phố</label>
                     <select id="city" name="city" value={form.city} onChange={handleChange}>
-                        {CITY_OPTIONS.map((opt) => (
-                            <option value={opt.value} key={opt.value}>
-                                {opt.label}
-                            </option>
-                        ))}
+                        <option className={cx('placeholder')} value="">
+                            Chọn thành phố
+                        </option>
+                        {loading ? (
+                            <option disabled>Đang tải...</option>
+                        ) : cities.length > 0 ? (
+                            cities.map((city) => (
+                                <option value={city._id} key={city._id}>
+                                    {city.name}
+                                </option>
+                            ))
+                        ) : (
+                            <option disabled>Không có thành phố nào</option>
+                        )}
                     </select>
                 </div>
             </div>

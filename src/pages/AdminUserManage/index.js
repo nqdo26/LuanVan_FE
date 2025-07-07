@@ -151,7 +151,13 @@ function AdminUserManage() {
             render: (record) => {
                 const isCurrentUser = record._id === currentUserId;
                 return (
-                    <div style={{ display: 'flex', gap: 10 }}>
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center' }}>
+                        <Button
+                            type="primary"
+                            icon={<EyeOutlined />}
+                            onClick={() => handleAccessUser(record)}
+                            disabled={isCurrentUser}
+                        ></Button>
                         <Popconfirm
                             title="Bạn có chắc chắn muốn xóa tài khoản này?"
                             onConfirm={() => handleDeleteUser(record)}
@@ -166,14 +172,6 @@ function AdminUserManage() {
                                 disabled={!!actionLoading[record._id] || isCurrentUser}
                             />
                         </Popconfirm>
-                        <Button
-                            type="primary"
-                            icon={<EyeOutlined />}
-                            onClick={() => handleAccessUser(record)}
-                            disabled={isCurrentUser}
-                        >
-                            Xem
-                        </Button>
                     </div>
                 );
             },
@@ -205,6 +203,7 @@ function AdminUserManage() {
                 <div className={cx('table-wrapper')}>
                     <h1 className={cx('table-title')}>Danh sách tài khoản người dùng</h1>
                     <Table
+                        scroll={{ x: 768 }}
                         loading={loading}
                         dataSource={users}
                         columns={columns}

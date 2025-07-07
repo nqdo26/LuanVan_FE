@@ -78,6 +78,29 @@ const deleteCityTypeApi = (id) => {
     return axios.delete(URL_API);
 };
 
+//DESTINATION TYPE MANAGEMENT
+const createDestinationTypeApi = (title) => {
+    const URL_API = '/v1/api/destinationType';
+    const data = { title };
+    return axios.post(URL_API, data);
+};
+
+const getDestinationTypesApi = () => {
+    const URL_API = '/v1/api/destinationTypes';
+    return axios.get(URL_API);
+};
+
+const updateDestinationTypeApi = (id, title) => {
+    const URL_API = `/v1/api/destinationTypes/${id}`;
+    const data = { title };
+    return axios.put(URL_API, data);
+};
+
+const deleteDestinationTypeApi = (id) => {
+    const URL_API = `/v1/api/destinationTypes/${id}`;
+    return axios.delete(URL_API);
+};
+
 //City MANAGEMENT
 const createCityApi = (cityData) => {
     const URL_API = '/v1/api/city';
@@ -206,6 +229,10 @@ export {
     getCityTypesApi,
     updateCityTypeApi,
     deleteCityTypeApi,
+    createDestinationTypeApi,
+    getDestinationTypesApi,
+    updateDestinationTypeApi,
+    deleteDestinationTypeApi,
     createCityApi,
     getCitiesApi,
     getCityByIdApi,

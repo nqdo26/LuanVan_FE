@@ -10,7 +10,6 @@
     width: 70%;
     display: flex;
     flex-direction: column;
-    gap: 30px;
 }
 
 .title {
@@ -77,6 +76,58 @@
     font-size: 20px;
     font-weight: 600;
     margin-bottom: 20px;
+}
+
+.admin-modal {
+    :global {
+        .ant-modal {
+            border-radius: 12px;
+        }
+
+        .ant-modal-content {
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            padding: 0 !important;
+        }
+
+        .ant-modal-header {
+            background-color: #f6f9fc;
+            border-bottom: 1px solid #e6eaf0;
+            border-radius: 12px 12px 0 0;
+            padding: 16px 24px;
+        }
+
+        .ant-modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        .ant-modal-body {
+            padding-top: 16px;
+        }
+
+        .ant-form-item-label > label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .ant-input {
+            border-radius: 8px;
+            padding: 8px 12px;
+        }
+
+        .ant-modal-footer {
+            padding: 10px 24px 16px;
+            background-color: #fafafa;
+            border-top: 1px solid #eaeaea;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .ant-btn-default {
+            border-radius: 6px;
+        }
+    }
 }
 
 @media (max-width: 900px) {

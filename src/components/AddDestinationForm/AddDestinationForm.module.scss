@@ -1,0 +1,50 @@
+.form-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    color: #1890ff;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 24px 0 16px;
+    color: #262626;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 8px;
+}
+
+.opening-hours-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.day-label {
+    min-width: 100px;
+    font-weight: 500;
+}
+
+.upload-section {
+    margin-top: 16px;
+}
+
+.upload-item {
+    margin-bottom: 16px;
+}
+
+.form-actions {
+    margin-top: 32px;
+    text-align: center;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 24px;
+}

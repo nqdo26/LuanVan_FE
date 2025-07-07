@@ -23,7 +23,7 @@ function AdminPlaceManage() {
         try {
             setLoading(true);
             const response = await getCitiesApi();
-    
+
             if (response && response.EC === 0) {
                 setCities(response.data);
             } else {
