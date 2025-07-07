@@ -12,6 +12,7 @@ import AdminPlaceManage from '~/pages/AdminPlaceManage';
 import AdminUserManage from '~/pages/AdminUserManage';
 import CityDetail from '~/pages/CityDetail';
 import DestinationDetails from '~/pages/DestinationDetails';
+import EditCity from '~/pages/EditCity';
 import Gobot from '~/pages/Gobot';
 import Home from '~/pages/Home';
 import MyTrip from '~/pages/MyTrip';
@@ -28,10 +29,8 @@ const privateRoutes = [{ path: '/', component: Home }];
 const publicRoutes = [
     { path: '/', component: Home },
     { path: 'search', component: Search },
-
     { path: '/profile', component: Profile },
     { path: '/addtrip', component: AddTrip },
-
     { path: '/admin', component: Admin, layout: AdminLayout },
     { path: '/admin/users-management', component: AdminUserManage, layout: AdminLayout },
     { path: '/admin/destinations-management', component: AdminDestinationManage, layout: AdminLayout },
@@ -39,10 +38,10 @@ const publicRoutes = [
     { path: '/admin/add-destination', component: AdminAddDestination, layout: AdminLayout },
     { path: '/admin/add-city', component: AdminAddCity, layout: AdminLayout },
     { path: '/admin/categories-management', component: AdminCategoriesManage, layout: AdminLayout },
-
+    { path: '/admin/city/edit/:id', component: EditCity },
     { path: '/destination/wimi-factory', component: DestinationDetails },
     { path: '/write-review', component: WriteReview },
-    { path: 'city/hehe', component: CityDetail },
+    { path: 'city/:id', component: CityDetail },
     { path: '/add-trip', component: AddTrip },
     { path: '/trip-detail/:id', component: TripDetail },
     { path: '/my-trip', component: MyTrip },

@@ -6,12 +6,14 @@ import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
-function CityCard({ title }) {
+function CityCard({ city }) {
     const navigate = useNavigate();
     const handleClick = () => {
-        navigate('/city/hehe');
-        window.scrollTo(0, 0); 
+        navigate(`/city/${city?.slug}`);
+        window.scrollTo(0, 0);
     };
+
+    const cityImage = city?.images?.[0];
 
     return (
         <div className={cx('place-card')}>
@@ -28,12 +30,8 @@ function CityCard({ title }) {
                 }}
             >
                 <div className={cx('image-container')}>
-                    <img
-                        alt={title}
-                        src="/wimi2-img.png"
-                        className={cx('card-image')}
-                    />
-                    <div className={cx('card-title')}>{title}</div>
+                    <img alt={city?.name || 'City view'} src={cityImage} className={cx('card-image')} />
+                    <div className={cx('card-title')}>{city.name}</div>
                 </div>
             </Card>
         </div>

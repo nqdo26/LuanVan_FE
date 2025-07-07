@@ -1,5 +1,5 @@
+import React, { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
-
 import styles from './Home.module.scss';
 import CustomTitle from '~/components/CustomTitle';
 import SearchBar from '~/components/SearchBar';
@@ -8,12 +8,33 @@ import ChatBoxIntro from '~/components/ChatBoxIntro';
 import CustomCarousel from '~/components/CustomCarousel';
 import DestinationCard from '~/components/DestinationCard';
 import Category from '~/components/Category';
-import CityCard from '~/components/CityCard';
 import CityCarousel from '~/components/CityCarousel';
+import { getCitiesApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
 
 function Home() {
+    const [cities, setCities] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        fetchCities();
+    }, []);
+
+    const fetchCities = async () => {
+        try {
+            setLoading(true);
+            const response = await getCitiesApi();
+            console.log('Cities response:', response);
+            if (response && response.EC === 0) {
+                setCities(response.data);
+            }
+        } catch (error) {
+            console.error('Error fetching cities:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
     return (
         <div className={cx('wrapper')}>
             <div className={cx('inner')}>
@@ -38,11 +59,7 @@ function Home() {
                 </div>
 
                 <div className={cx('carousel')}>
-                    <CityCarousel
-                        title="Địa điểm tiếp theo"
-                        number={6}
-                        card={<CityCard title="Bà Rịa Vũng Tàu Lao" />}
-                    />
+                    <CityCarousel title="Địa điểm tiếp theo" number={6} cities={cities} loading={loading} />
                 </div>
             </div>
         </div>

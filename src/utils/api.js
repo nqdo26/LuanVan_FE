@@ -85,7 +85,9 @@ const createCityApi = (cityData) => {
 
     formData.append('title', cityData.title);
     formData.append('description', cityData.description);
-    if (cityData.type) formData.append('type', cityData.type);
+    if (cityData.type && cityData.type.length > 0) {
+        formData.append('type', JSON.stringify(cityData.type));
+    }
 
     cityData.images.forEach((file) => {
         formData.append('images', file.originFileObj || file);
@@ -104,6 +106,45 @@ const createCityApi = (cityData) => {
     });
 };
 
+const getCitiesApi = () => {
+    const URL_API = '/v1/api/cities';
+    return axios.get(URL_API);
+};
+
+const updateCityApi = (id, cityData) => {
+    const URL_API = `/v1/api/cities/${id}`;
+    const formData = new FormData();
+
+    formData.append('title', cityData.title);
+    formData.append('description', cityData.description);
+    if (cityData.type && cityData.type.length > 0) {
+        formData.append('type', JSON.stringify(cityData.type));
+    }
+
+    if (cityData.images && cityData.images.length > 0) {
+        cityData.images.forEach((file) => {
+            formData.append('images', file.originFileObj || file);
+        });
+    }
+
+    formData.append('weather', JSON.stringify(cityData.weather));
+
+    if (cityData.info?.length > 0) {
+        formData.append('info', JSON.stringify(cityData.info));
+    }
+
+    return axios.put(URL_API, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+};
+
+const deleteCityApi = (id) => {
+    const URL_API = `/v1/api/cities/${id}`;
+    return axios.delete(URL_API);
+};
+
 export {
     createUserApi,
     getAccountApi,
@@ -120,4 +161,7 @@ export {
     updateCityTypeApi,
     deleteCityTypeApi,
     createCityApi,
+    getCitiesApi,
+    updateCityApi,
+    deleteCityApi,
 };

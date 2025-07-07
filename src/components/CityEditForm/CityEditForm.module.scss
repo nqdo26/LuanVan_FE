@@ -1,0 +1,145 @@
+.form {
+    width: 70%;
+    margin: 0 auto;
+    padding: 24px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    label {
+        font-weight: 600;
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 8px;
+    }
+}
+
+.form-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.form-group {
+    flex: 1;
+    min-width: 240px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.input {
+    padding: 8px 12px;
+    font-size: 16px;
+}
+
+.title {
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: #333;
+}
+
+.textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.section-label {
+    font-weight: 600;
+    font-size: 22px;
+    margin: 24px 0 12px;
+    color: #333;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.95rem;
+}
+
+.add-info-btn {
+    background: #f0f0f0;
+    border: none;
+    color: #333;
+    padding: 6px 12px;
+    margin-top: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+
+    &:hover {
+        background: #d9d9d9;
+    }
+}
+
+.delete-btn {
+    background: #ff4d4f;
+    color: #fff;
+    border: none;
+    padding: 2px 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+
+    &:hover {
+        background: #ff7875;
+    }
+}
+
+.btns {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+    gap: 12px;
+}
+
+.submit-btn,
+.back-btn {
+    padding: 10px 16px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.submit-btn {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    color: #fff;
+
+    &:hover {
+        background: #0070b1;
+        box-shadow: 0px 4px 10px rgba(100, 197, 255, 0.18);
+    }
+
+    &:disabled {
+        background-color: #d6e4ff;
+        cursor: not-allowed;
+    }
+}
+
+.back-btn {
+    background-color: #f0f0f0;
+
+    &:hover {
+        background-color: #d9d9d9;
+    }
+}
+
+@media (max-width: 600px) {
+    .form-row {
+        flex-direction: column;
+    }
+
+    .form-group {
+        min-width: 100%;
+    }
+}

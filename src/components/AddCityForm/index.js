@@ -9,7 +9,7 @@ function AddCityForm({ defaultData, onNext }) {
     const [form, setForm] = useState({
         title: defaultData.title || '',
         description: defaultData.description || '',
-        type: defaultData.type || '',
+        type: defaultData.type || [],
     });
     const [typeOptions, setTypeOptions] = useState([]);
     const [error, setError] = useState('');
@@ -30,10 +30,26 @@ function AddCityForm({ defaultData, onNext }) {
         setError('');
     };
 
+    const handleTypeChange = (typeId) => {
+        setForm((prev) => {
+            const currentTypes = prev.type || [];
+            const isSelected = currentTypes.includes(typeId);
+
+            if (isSelected) {
+                // Remove type if already selected
+                return { ...prev, type: currentTypes.filter((id) => id !== typeId) };
+            } else {
+                // Add type if not selected
+                return { ...prev, type: [...currentTypes, typeId] };
+            }
+        });
+        setError('');
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!form.title || !form.description || !form.type) {
-            setError('Vui lòng điền đầy đủ thông tin.');
+        if (!form.title || !form.description || !form.type.length) {
+            setError('Vui lòng điền đầy đủ thông tin và chọn ít nhất một phân loại.');
             return;
         }
         onNext(form);
@@ -59,15 +75,19 @@ function AddCityForm({ defaultData, onNext }) {
             </div>
             <div className={cx('form-row')}>
                 <div className={cx('form-group')}>
-                    <label htmlFor="type">Phân loại</label>
-                    <select id="type" name="type" value={form.type} onChange={handleChange}>
-                        <option value="">-- Chọn loại thành phố --</option>
+                    <label>Phân loại (có thể chọn nhiều)</label>
+                    <div className={cx('checkbox-group')}>
                         {typeOptions.map((opt) => (
-                            <option key={opt.value} value={opt.value}>
-                                {opt.label}
-                            </option>
+                            <label key={opt.value} className={cx('checkbox-item')}>
+                                <input
+                                    type="checkbox"
+                                    checked={form.type.includes(opt.value)}
+                                    onChange={() => handleTypeChange(opt.value)}
+                                />
+                                <span>{opt.label}</span>
+                            </label>
                         ))}
-                    </select>
+                    </div>
                 </div>
             </div>
             {error && <p style={{ color: 'red' }}>{error}</p>}

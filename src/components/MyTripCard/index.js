@@ -55,7 +55,7 @@ function MyTripCard() {
                     <div className={cx('trip-header')}>
                         <div className={cx('title-wrapper')}>
                             <h1 level={5} className={cx('trip-title')}>
-                                Du lịch vui ver
+                                Du lịch vui ve
                             </h1>
 
                             {isPublic ? (

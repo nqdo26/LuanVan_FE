@@ -25,17 +25,19 @@
     object-fit: cover;
     border-radius: 8px;
 }
-
 .card-title {
     position: absolute;
-    bottom: 0px;
-    left: 40%;
+    bottom: 0;
+    left: 50%;
     transform: translateX(-50%);
-    color: white;
-    font-size: 2.3rem;
+    width: 100%;
+    padding: 8px 8px;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    color: #fff;
+    font-size: 20px;
     font-weight: bold;
-    padding: 8px 12px;
-    width: 80%;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
     display: -webkit-box;
     line-clamp: 2;
     -webkit-line-clamp: 2;
@@ -49,6 +51,5 @@
     .place-card {
         width: 100%;
         max-width: 185px;
-
     }
 }
