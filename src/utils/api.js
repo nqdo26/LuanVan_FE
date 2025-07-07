@@ -111,6 +111,52 @@ const getCitiesApi = () => {
     return axios.get(URL_API);
 };
 
+const getCityByIdApi = (id) => {
+    const URL_API = `/v1/api/cities/${id}`;
+    return axios.get(URL_API);
+};
+
+const getCityBySlugApi = (slug) => {
+    const URL_API = `/v1/api/city/${slug}`;
+    return axios.get(URL_API);
+};
+
+const getCityByIdAndUpdateApi = (id, cityData = null) => {
+    const URL_API = `/v1/api/cities/${id}/edit`;
+
+    if (!cityData) {
+        return axios.get(URL_API);
+    }
+
+    const formData = new FormData();
+    formData.append('title', cityData.title);
+    formData.append('description', cityData.description);
+
+    if (cityData.type && cityData.type.length > 0) {
+        formData.append('type', JSON.stringify(cityData.type));
+    }
+
+    if (cityData.images && cityData.images.length > 0) {
+        cityData.images.forEach((file) => {
+            if (file.originFileObj) {
+                formData.append('images', file.originFileObj);
+            }
+        });
+    }
+
+    formData.append('weather', JSON.stringify(cityData.weather));
+
+    if (cityData.info?.length > 0) {
+        formData.append('info', JSON.stringify(cityData.info));
+    }
+
+    return axios.put(URL_API, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+};
+
 const updateCityApi = (id, cityData) => {
     const URL_API = `/v1/api/cities/${id}`;
     const formData = new FormData();
@@ -162,6 +208,9 @@ export {
     deleteCityTypeApi,
     createCityApi,
     getCitiesApi,
+    getCityByIdApi,
+    getCityBySlugApi,
+    getCityByIdAndUpdateApi,
     updateCityApi,
     deleteCityApi,
 };

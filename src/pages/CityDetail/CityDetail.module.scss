@@ -1,6 +1,5 @@
 .wrapper {
     width: 100%;
-    height: 100%;
 }
 
 .inner {
@@ -107,6 +106,44 @@
         min-width: 42px;
         text-align: center;
         color: #000000;
+    }
+}
+
+.additional-info {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.info-item {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+
+    h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    p {
+        font-size: 15px;
+        color: #666;
+        line-height: 1.5;
+    }
+}
+
+.breadcrumb {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+
+    span:last-child {
+        color: var(--primary-color);
+        font-weight: 500;
     }
 }
 

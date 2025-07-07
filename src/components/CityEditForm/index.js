@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
-import { Upload, Modal } from 'antd';
+import { Upload, Modal, Spin } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import styles from './CityEditForm.module.scss';
 import { getCityTypesApi } from '~/utils/api';
@@ -92,9 +92,12 @@ function CityEditForm({ defaultData = {}, onSubmit, loading = false }) {
         e.preventDefault();
         const { title, description, type, images, weather } = form;
         const hasImage = images.length > 0;
-        const weatherValid = weather.every(
-            (item) => item.title && item.minTemp.trim() !== '' && item.maxTemp.trim() !== '' && item.note.trim() !== '',
-        );
+        const weatherValid = weather.every((item) => {
+            const minTempValid = item.minTemp !== null && item.minTemp !== undefined && String(item.minTemp) !== '';
+            const maxTempValid = item.maxTemp !== null && item.maxTemp !== undefined && String(item.maxTemp) !== '';
+            const noteValid = item.note && String(item.note).trim() !== '';
+            return item.title && minTempValid && maxTempValid && noteValid;
+        });
 
         if (!title || !description || !type.length) {
             setError('Vui lòng điền đầy đủ thông tin và chọn ít nhất một phân loại.');
@@ -127,127 +130,140 @@ function CityEditForm({ defaultData = {}, onSubmit, loading = false }) {
 
     return (
         <form className={cx('form')} onSubmit={handleSubmit}>
-            <div className={cx('form-row')}>
-                <div className={cx('form-group')}>
-                    <label htmlFor="title">Tên thành phố</label>
-                    <input className={cx('input')} id="title" name="title" value={form.title} onChange={handleChange} />
-                </div>
-                <div className={cx('form-group')}>
-                    <label htmlFor="description">Mô tả</label>
-                    <textarea
-                        id="description"
-                        name="description"
-                        className={cx('input')}
-                        rows={3}
-                        value={form.description}
-                        onChange={handleChange}
-                    />
-                </div>
-            </div>
-
-            <div className={cx('form-row')}>
-                <div className={cx('form-group')}>
-                    <label>Phân loại</label>
-                    <div className={cx('checkbox-group')}>
-                        {typeOptions.map((opt) => (
-                            <label key={opt.value} className={cx('checkbox-item')}>
-                                <input
-                                    type="checkbox"
-                                    checked={form.type.includes(opt.value)}
-                                    onChange={() => handleTypeChange(opt.value)}
-                                />
-                                <span>{opt.label}</span>
-                            </label>
-                        ))}
+            <Spin spinning={loading} tip="Đang lưu thông tin..." size="large">
+                <div className={cx('form-row')}>
+                    <div className={cx('form-group')}>
+                        <label htmlFor="title">Tên thành phố</label>
+                        <input
+                            className={cx('input')}
+                            id="title"
+                            name="title"
+                            value={form.title}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className={cx('form-group')}>
+                        <label htmlFor="description">Mô tả</label>
+                        <textarea
+                            id="description"
+                            name="description"
+                            className={cx('input')}
+                            rows={3}
+                            value={form.description}
+                            onChange={handleChange}
+                        />
                     </div>
                 </div>
-            </div>
 
-            <div className={cx('form-group')}>
-                <label>Hình ảnh thành phố</label>
-                <Upload
-                    listType="picture-card"
-                    multiple
-                    fileList={form.images}
-                    onChange={handleImageChange}
-                    onPreview={handlePreview}
-                    beforeUpload={() => false}
-                >
-                    {form.images.length < 4 && (
-                        <div>
-                            <PlusOutlined /> <div style={{ marginTop: 8 }}>Tải ảnh lên</div>
+                <div className={cx('form-row')}>
+                    <div className={cx('form-group')}>
+                        <label>Phân loại</label>
+                        <div className={cx('checkbox-group')}>
+                            {typeOptions.map((opt) => (
+                                <label key={opt.value} className={cx('checkbox-item')}>
+                                    <input
+                                        type="checkbox"
+                                        checked={form.type.includes(opt.value)}
+                                        onChange={() => handleTypeChange(opt.value)}
+                                    />
+                                    <span>{opt.label}</span>
+                                </label>
+                            ))}
                         </div>
-                    )}
-                </Upload>
-                <Modal open={previewVisible} footer={null} onCancel={() => setPreviewVisible(false)}>
-                    <img alt="preview" style={{ width: '100%' }} src={previewImage} />
-                </Modal>
-            </div>
-
-            <div className={cx('section-label')}>Thời tiết</div>
-            {form.weather.map((item, index) => (
-                <div key={index} className={cx('form-group')} style={{ marginBottom: '24px' }}>
-                    <div className={cx('title')} style={{ marginBottom: 6 }}>
-                        {item.title}
                     </div>
-                    <div className={cx('form-row')}>
-                        <input
-                            className={cx('input')}
-                            placeholder="Nhiệt độ thấp nhất"
-                            value={item.minTemp}
-                            onChange={(e) => handleWeatherChange(index, 'minTemp', e.target.value)}
-                        />
-                        <input
-                            className={cx('input')}
-                            placeholder="Nhiệt độ cao nhất"
-                            value={item.maxTemp}
-                            onChange={(e) => handleWeatherChange(index, 'maxTemp', e.target.value)}
-                        />
-                    </div>
-                    <textarea
-                        className={cx('textarea')}
-                        placeholder="Ghi chú"
-                        value={item.note}
-                        onChange={(e) => handleWeatherChange(index, 'note', e.target.value)}
-                    />
                 </div>
-            ))}
 
-            <div className={cx('section-label')}>Thông tin hữu ích</div>
-            {form.info.map((item, index) => (
-                <div key={index} className={cx('form-row')}>
-                    <button className={cx('delete-btn')} type="button" onClick={() => handleRemoveInfo(index)}>
-                        X
+                <div className={cx('form-group')}>
+                    <label>Hình ảnh thành phố</label>
+                    <Upload
+                        listType="picture-card"
+                        multiple
+                        fileList={form.images}
+                        onChange={handleImageChange}
+                        onPreview={handlePreview}
+                        beforeUpload={() => false}
+                    >
+                        {form.images.length < 4 && (
+                            <div>
+                                <PlusOutlined /> <div style={{ marginTop: 8 }}>Tải ảnh lên</div>
+                            </div>
+                        )}
+                    </Upload>
+                    <Modal open={previewVisible} footer={null} onCancel={() => setPreviewVisible(false)}>
+                        <img alt="preview" style={{ width: '100%' }} src={previewImage} />
+                    </Modal>
+                </div>
+
+                <div className={cx('section-label')}>Thời tiết</div>
+                {form.weather.map((item, index) => (
+                    <div key={index} className={cx('form-group')} style={{ marginBottom: '24px' }}>
+                        <div className={cx('title')} style={{ marginBottom: 6 }}>
+                            {item.title}
+                        </div>
+                        <div className={cx('form-row')}>
+                            <input
+                                className={cx('input')}
+                                placeholder="Nhiệt độ thấp nhất"
+                                value={item.minTemp}
+                                onChange={(e) => handleWeatherChange(index, 'minTemp', e.target.value)}
+                            />
+                            <input
+                                className={cx('input')}
+                                placeholder="Nhiệt độ cao nhất"
+                                value={item.maxTemp}
+                                onChange={(e) => handleWeatherChange(index, 'maxTemp', e.target.value)}
+                            />
+                        </div>
+                        <textarea
+                            className={cx('textarea')}
+                            placeholder="Ghi chú"
+                            value={item.note}
+                            onChange={(e) => handleWeatherChange(index, 'note', e.target.value)}
+                        />
+                    </div>
+                ))}
+
+                <div className={cx('section-label')}>Thông tin hữu ích</div>
+                {form.info.map((item, index) => (
+                    <div key={index} className={cx('form-row')}>
+                        <button className={cx('delete-btn')} type="button" onClick={() => handleRemoveInfo(index)}>
+                            X
+                        </button>
+                        <input
+                            className={cx('input')}
+                            placeholder="Tiêu đề"
+                            value={item.title || ''}
+                            onChange={(e) => handleInfoChange(index, 'title', e.target.value)}
+                        />
+                        <input
+                            className={cx('input')}
+                            placeholder="Nội dung"
+                            value={item.description || ''}
+                            onChange={(e) => handleInfoChange(index, 'description', e.target.value)}
+                        />
+                    </div>
+                ))}
+                {form.info.length < 4 && (
+                    <button type="button" className={cx('add-info-btn')} onClick={handleAddInfo}>
+                        + Thêm thông tin
                     </button>
-                    <input
-                        className={cx('input')}
-                        placeholder="Tiêu đề"
-                        value={item.title || ''}
-                        onChange={(e) => handleInfoChange(index, 'title', e.target.value)}
-                    />
-                    <input
-                        className={cx('input')}
-                        placeholder="Nội dung"
-                        value={item.description || ''}
-                        onChange={(e) => handleInfoChange(index, 'description', e.target.value)}
-                    />
-                </div>
-            ))}
-            {form.info.length < 4 && (
-                <button type="button" className={cx('add-info-btn')} onClick={handleAddInfo}>
-                    + Thêm thông tin
-                </button>
-            )}
+                )}
 
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <div className={cx('btns')}>
-                <button type="submit" className={cx('back-btn')} disabled={loading}>
-                    Hủy
-                </button>
-                <button type="submit" className={cx('submit-btn')} disabled={loading}>
-                    {loading ? 'Đang lưu...' : 'Lưu thông tin'}
-                </button>
-            </div>
+                {error && <p style={{ color: 'red' }}>{error}</p>}
+                <div className={cx('btns')}>
+                    <button
+                        type="button"
+                        className={cx('back-btn')}
+                        disabled={loading}
+                        onClick={() => window.history.back()}
+                    >
+                        Hủy
+                    </button>
+                    <button type="submit" className={cx('submit-btn')} disabled={loading}>
+                        {loading ? 'Đang lưu...' : 'Lưu thông tin'}
+                    </button>
+                </div>
+            </Spin>
         </form>
     );
 }

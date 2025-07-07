@@ -23,7 +23,7 @@ function AdminPlaceManage() {
         try {
             setLoading(true);
             const response = await getCitiesApi();
-            console.log('Cities response:', response);
+    
             if (response && response.EC === 0) {
                 setCities(response.data);
             } else {
@@ -40,11 +40,11 @@ function AdminPlaceManage() {
     const handleDeleteCity = async (record) => {
         try {
             const response = await deleteCityApi(record._id);
-            if (response && response.data && response.data.EC === 0) {
+            if (response && response.EC === 0) {
                 setCities((prev) => prev.filter((city) => city._id !== record._id));
                 message.success('Xóa thành phố thành công!');
             } else {
-                message.error(response?.data?.EM || 'Xóa thành phố thất bại');
+                message.error(response?.EM || 'Xóa thành phố thất bại');
             }
         } catch (error) {
             console.error('Error deleting city:', error);
@@ -57,7 +57,7 @@ function AdminPlaceManage() {
     };
 
     const handleEditCity = (record) => {
-        alert(`Chỉnh sửa thành phố: ${record.name}`);
+        window.open(`/admin/city/edit/${record._id}`);
     };
 
     const columns = [
