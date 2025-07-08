@@ -1,3 +1,24 @@
+.close-btn {
+    padding: 7px 18px;
+    background: #000000;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-left: 8px;
+    box-shadow: 0 1px 6px rgba(244, 67, 54, 0.08);
+    transition: background 0.18s, color 0.18s;
+    &:hover:not(:disabled) {
+        background: #4e4e4e;
+        color: #ffffff;
+    }
+    &:disabled {
+        opacity: 0.7;
+        cursor: wait;
+    }
+}
 .form {
     display: flex;
     flex-direction: column;
@@ -138,7 +159,7 @@
         border: 1px solid #ccc;
         padding: 4px 11px;
         font-size: 14px;
-        background: #f4f7fb;
+        background: #dfdfdf;
         margin: 0 3px;
         transition: border 0.17s;
         cursor: pointer;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Spin } from 'antd';
 import classNames from 'classnames/bind';
 import styles from './AddCityForm.module.scss';
 import { getCityTypesApi } from '~/utils/api';
@@ -13,13 +14,16 @@ function AddCityForm({ defaultData, onNext }) {
     });
     const [typeOptions, setTypeOptions] = useState([]);
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchTypes = async () => {
+            setLoading(true);
             const res = await getCityTypesApi();
             if (Array.isArray(res.data)) {
                 setTypeOptions(res.data.map((t) => ({ value: t._id, label: t.title })));
             }
+            setLoading(false);
         };
         fetchTypes();
     }, []);
@@ -54,6 +58,14 @@ function AddCityForm({ defaultData, onNext }) {
         }
         onNext(form);
     };
+
+    if (loading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
+                <Spin size="large" />
+            </div>
+        );
+    }
 
     return (
         <form className={cx('form')} onSubmit={handleSubmit}>

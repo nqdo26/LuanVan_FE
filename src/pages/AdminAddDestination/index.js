@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import classNames from 'classnames/bind';
 import styles from './AdminAddDestination.module.scss';
 
@@ -8,6 +8,7 @@ import StepDetailRestaurant from '~/components/StepDetailRestaurant';
 import StepDetailTourist from '~/components/StepDetailTourist';
 import { createDestinationApi } from '~/utils/api';
 import { notification } from 'antd';
+import { AuthContext } from '~/components/Context/auth.context';
 
 const cx = classNames.bind(styles);
 
@@ -47,6 +48,7 @@ const initDetail = {
         fnb: [],
         extra: [],
     },
+    createdBy: '',
 };
 
 function AdminAddDestination() {
@@ -56,7 +58,8 @@ function AdminAddDestination() {
     const [loading, setLoading] = useState(false);
     const [tagsList, setTagsList] = useState([]);
 
-    // Lấy danh sách tags 1 lần khi mount
+    const { auth, setAuth } = useContext(AuthContext);
+
     React.useEffect(() => {
         getTagsApi().then((res) => {
             if (res && res.data && Array.isArray(res.data)) {
@@ -65,25 +68,25 @@ function AdminAddDestination() {
         });
     }, []);
 
-    // Step 1 submit
     const handleSubmitStep1 = (data) => {
         setForm(data);
         setStep(2);
     };
 
-    // Step 2 submit
     const handleSubmitStep2 = async (data) => {
         setLoading(true);
         try {
             const submitData = {
                 ...form,
                 ...data,
-            };
-            submitData.contactInfo = {
-                phone: form.phone,
-                website: form.website,
-                facebook: form.facebook,
-                instagram: form.instagram,
+                createdBy: auth?.user?.email || '',
+                openHour: data.openHour || form.openHour || undefined,
+                contactInfo: {
+                    phone: form.phone,
+                    website: form.website,
+                    facebook: form.facebook,
+                    instagram: form.instagram,
+                },
             };
             if (Array.isArray(form.tags) && form.tags.length > 0) {
                 if (typeof form.tags[0] === 'object') {
@@ -140,12 +143,14 @@ function AdminAddDestination() {
                             defaultData={detail}
                             onPrev={() => setStep(1)}
                             onSubmit={handleSubmitStep2}
+                            loading={loading}
                         />
                     ) : (
                         <StepDetailRestaurant
                             defaultData={detail}
                             onPrev={() => setStep(1)}
                             onSubmit={handleSubmitStep2}
+                            loading={loading}
                         />
                     ))}
             </div>

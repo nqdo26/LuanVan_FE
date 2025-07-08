@@ -6,9 +6,9 @@ import AlbumUploader from '~/components/AlbumUploader';
 
 const cx = classNames.bind(styles);
 
-function StepDetailTourist({ defaultData, onPrev, onSubmit }) {
+function StepDetailTourist({ defaultData, onPrev, onSubmit, loading }) {
     const [data, setData] = useState(defaultData);
-    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const addToList = (key, value) => {
         if (value.trim()) setData((prev) => ({ ...prev, [key]: [...prev[key], value], ['new' + key]: '' }));
@@ -34,15 +34,49 @@ function StepDetailTourist({ defaultData, onPrev, onSubmit }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
-            onSubmit(data);
-        }, 800);
+        setError('');
+        if (!data.description.trim()) {
+            setError('Vui lòng nhập giới thiệu về địa điểm.');
+            return;
+        }
+        if (!data.highlight.length) {
+            setError('Vui lòng nhập ít nhất 1 giá trị cho Nổi bật.');
+            return;
+        }
+        if (!data.cultureType.length) {
+            setError('Vui lòng nhập ít nhất 1 giá trị cho Loại hình văn hóa.');
+            return;
+        }
+        if (!data.fee.length) {
+            setError('Vui lòng nhập ít nhất 1 giá trị cho Chi phí tham quan.');
+            return;
+        }
+        if (!data.usefulInfo.length) {
+            setError('Vui lòng nhập ít nhất 1 giá trị cho Thông tin hữu ích.');
+            return;
+        }
+        if (!data.activities.length) {
+            setError('Vui lòng nhập ít nhất 1 giá trị cho Hoạt động đặc trưng.');
+            return;
+        }
+        if (!data.album.space.length) {
+            setError('Album Không gian phải có ít nhất 1 ảnh.');
+            return;
+        }
+        if (!data.album.fnb.length) {
+            setError('Album Ẩm thực phải có ít nhất 1 ảnh.');
+            return;
+        }
+        if (!data.album.extra.length) {
+            setError('Album Nổi bật phải có ít nhất 1 ảnh.');
+            return;
+        }
+        onSubmit(data);
     };
 
     return (
         <form className={cx('form')} onSubmit={handleSubmit}>
+            {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
             <div className={cx('form-group')}>
                 <label className={cx('title')}>Giới thiệu</label>
                 <textarea
@@ -93,9 +127,7 @@ function StepDetailTourist({ defaultData, onPrev, onSubmit }) {
                 onInput={(e) => handleInput('newActivities', e.target.value)}
             />
 
-            <div className={cx('section-label')} >
-                Album ảnh
-            </div>
+            <div className={cx('section-label')}>Album ảnh</div>
             <div className={cx('album-wrap')}>
                 <AlbumUploader
                     label="Không gian"
@@ -117,7 +149,7 @@ function StepDetailTourist({ defaultData, onPrev, onSubmit }) {
                 />
             </div>
             <div className={cx('btns')}>
-                <button type="button" className={cx('back-btn')} onClick={onPrev}>
+                <button type="button" className={cx('back-btn')} onClick={onPrev} disabled={loading}>
                     Quay lại
                 </button>
                 <button type="submit" className={cx('submit-btn')} disabled={loading}>

@@ -22,7 +22,6 @@ const createDestinationApi = (destinationData) => {
             formData.append('images', file.originFileObj || file);
         });
     }
-    // Append detail fields (array fields as JSON string, new* as string)
     if (destinationData.highlight) {
         formData.append('highlight', JSON.stringify(destinationData.highlight));
     }
@@ -59,7 +58,12 @@ const createDestinationApi = (destinationData) => {
     if (destinationData.newFee) {
         formData.append('newFee', destinationData.newFee);
     }
-    // Thêm album từng loại (space, fnb, extra)
+    if (destinationData.openHour) {
+        formData.append('openHour', JSON.stringify(destinationData.openHour));
+    }
+    if (destinationData.createdBy) {
+        formData.append('createdBy', destinationData.createdBy);
+    }
     if (destinationData.album) {
         if (destinationData.album.space && destinationData.album.space.length > 0) {
             destinationData.album.space.forEach((file) => {
@@ -151,8 +155,6 @@ const deleteDestinationApi = (id) => {
     return axios.delete(URL_API);
 };
 
-//USER
-
 const getAccountApi = () => {
     const URL_API = '/v1/api/account';
     return axios.get(URL_API);
@@ -185,7 +187,6 @@ const updateUserAdminApi = (userId, isAdmin) => {
     return axios.patch(URL_API, { isAdmin });
 };
 
-//TAG MANAGEMENT
 const createTagApi = (title) => {
     const URL_API = '/v1/api/tag';
     return axios.post(URL_API, { title });
@@ -206,7 +207,6 @@ const deleteTagApi = (id) => {
     return axios.delete(URL_API);
 };
 
-//CITY TYPE MANAGEMENT
 const createCityTypeApi = (title) => {
     const URL_API = '/v1/api/cityType';
     const data = { title };
@@ -229,7 +229,6 @@ const deleteCityTypeApi = (id) => {
     return axios.delete(URL_API);
 };
 
-//DESTINATION TYPE MANAGEMENT
 const createDestinationTypeApi = (title) => {
     const URL_API = '/v1/api/destinationType';
     const data = { title };
@@ -252,7 +251,6 @@ const deleteDestinationTypeApi = (id) => {
     return axios.delete(URL_API);
 };
 
-//City MANAGEMENT
 const createCityApi = (cityData) => {
     const URL_API = '/v1/api/city';
     const formData = new FormData();

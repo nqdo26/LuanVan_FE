@@ -7,9 +7,9 @@ import styles from './StepDetailRestaurant.module.scss';
 
 const cx = classNames.bind(styles);
 
-function StepDetailRestaurant({ defaultData, onPrev, onSubmit }) {
+function StepDetailRestaurant({ defaultData, onPrev, onSubmit, loading }) {
     const [data, setData] = useState(defaultData);
-    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const addToList = (key, value) => {
         if (value.trim()) setData((prev) => ({ ...prev, [key]: [...prev[key], value], ['new' + key]: '' }));
@@ -51,14 +51,59 @@ function StepDetailRestaurant({ defaultData, onPrev, onSubmit }) {
             },
         }));
     };
+    const handleClosedDay = (day) => {
+        setData((prev) => ({
+            ...prev,
+            openHour: {
+                ...prev.openHour,
+                [day]: { open: 'Đóng cửa', close: 'Đóng cửa' },
+            },
+        }));
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
-            onSubmit(data);
-        }, 800);
+        setError('');
+        if (!data.description.trim()) {
+            setError('Vui lòng nhập giới thiệu về nhà hàng.');
+            return;
+        }
+        if (!data.highlight.length) {
+            setError('Vui lòng nhập ít nhất 1 giá trị cho Nổi bật.');
+            return;
+        }
+        if (!data.services.length) {
+            setError('Vui lòng nhập ít nhất 1 giá trị cho Dịch vụ tiện ích.');
+            return;
+        }
+        if (!data.usefulInfo.length) {
+            setError('Vui lòng nhập ít nhất 1 giá trị cho Thông tin hữu ích.');
+            return;
+        }
+        // Validate openHour: mỗi ngày phải có giá trị hoặc chọn allday
+        if (!data.openHour.allday) {
+            const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+            for (let day of days) {
+                const oh = data.openHour[day];
+                if (!oh.open || !oh.close) {
+                    setError('Vui lòng nhập đầy đủ thời gian mở cửa cho tất cả các ngày hoặc chọn Mở cả ngày.');
+                    return;
+                }
+            }
+        }
+        if (!data.album.space.length) {
+            setError('Album Không gian phải có ít nhất 1 ảnh.');
+            return;
+        }
+        if (!data.album.fnb.length) {
+            setError('Album Ẩm thực phải có ít nhất 1 ảnh.');
+            return;
+        }
+        if (!data.album.extra.length) {
+            setError('Album Thực đơn phải có ít nhất 1 ảnh.');
+            return;
+        }
+        onSubmit(data);
     };
 
     const getDayLabel = (day) => {
@@ -76,6 +121,7 @@ function StepDetailRestaurant({ defaultData, onPrev, onSubmit }) {
 
     return (
         <form className={cx('form')} onSubmit={handleSubmit}>
+            {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
             <div className={cx('form-group')}>
                 <label>Giới thiệu</label>
                 <textarea
@@ -109,7 +155,6 @@ function StepDetailRestaurant({ defaultData, onPrev, onSubmit }) {
                 onRemove={(i) => removeFromList('usefulInfo', i)}
                 onInput={(e) => handleInput('newUsefulInfo', e.target.value)}
             />
-            {/* Thời gian mở cửa */}
             <div className={cx('openhour-section')}>
                 <label>Thời gian mở cửa</label>
                 <div style={{ marginBottom: 8 }}>
@@ -132,13 +177,18 @@ function StepDetailRestaurant({ defaultData, onPrev, onSubmit }) {
                                     type="time"
                                     value={data.openHour[day].open}
                                     onChange={(e) => handleOpenHourChange(day, 'open', e.target.value)}
+                                    disabled={data.openHour[day].open === 'Đóng cửa'}
                                 />
                                 <span style={{ margin: '0 3px' }}>đến</span>
                                 <input
                                     type="time"
                                     value={data.openHour[day].close}
                                     onChange={(e) => handleOpenHourChange(day, 'close', e.target.value)}
+                                    disabled={data.openHour[day].close === 'Đóng cửa'}
                                 />
+                                <button type="button" className={cx('close-btn')} onClick={() => handleClosedDay(day)}>
+                                    Đóng cửa
+                                </button>
                             </div>
                         ))}
                     </div>
@@ -167,7 +217,7 @@ function StepDetailRestaurant({ defaultData, onPrev, onSubmit }) {
                 />
             </div>
             <div className={cx('btns')}>
-                <button type="button" className={cx('back-btn')} onClick={onPrev}>
+                <button type="button" className={cx('back-btn')} onClick={onPrev} disabled={loading}>
                     Quay lại
                 </button>
                 <button type="submit" className={cx('submit-btn')} disabled={loading}>
