@@ -80,7 +80,8 @@
 
 .form-row button {
     padding: 6px 12px;
-    background-color: #ddd;
+    background-color: #000000;
+    color: #fff;
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -89,7 +90,7 @@
 }
 
 .form-row button:hover {
-    background-color: #bbb;
+    background-color: #525252;
 }
 
 .btns {
@@ -147,14 +148,14 @@
     font-weight: 600;
     font-size: 15px;
     color: #1a1a1a;
-    background: #f2f4f8;
-    border: 1px solid #cfd9ed;
+    background: #ffffff;
+    border: 1px solid #8b8b8b;
     transition: all 0.2s ease;
 
     &:hover {
-        background: #e6ecf6;
-        border-color: #a6b4d4;
-        color: #000;
+        background: #d1d1d1;
+        border-color: #ffffff;
+        color: #000000;
     }
 }
 

@@ -40,10 +40,8 @@ function AddCityForm({ defaultData, onNext }) {
             const isSelected = currentTypes.includes(typeId);
 
             if (isSelected) {
-         
                 return { ...prev, type: currentTypes.filter((id) => id !== typeId) };
             } else {
-          
                 return { ...prev, type: [...currentTypes, typeId] };
             }
         });
