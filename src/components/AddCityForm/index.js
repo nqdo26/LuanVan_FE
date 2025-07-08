@@ -36,10 +36,10 @@ function AddCityForm({ defaultData, onNext }) {
             const isSelected = currentTypes.includes(typeId);
 
             if (isSelected) {
-                // Remove type if already selected
+         
                 return { ...prev, type: currentTypes.filter((id) => id !== typeId) };
             } else {
-                // Add type if not selected
+          
                 return { ...prev, type: [...currentTypes, typeId] };
             }
         });
@@ -60,7 +60,13 @@ function AddCityForm({ defaultData, onNext }) {
             <div className={cx('form-row')}>
                 <div className={cx('form-group')}>
                     <label htmlFor="title">Tên thành phố</label>
-                    <input id="title" name="title" value={form.title} onChange={handleChange} />
+                    <input
+                        id="title"
+                        name="title"
+                        value={form.title}
+                        onChange={handleChange}
+                        placeholder="Nhập tên thành phố"
+                    />
                 </div>
                 <div className={cx('form-group')}>
                     <label htmlFor="description">Mô tả</label>
@@ -70,6 +76,7 @@ function AddCityForm({ defaultData, onNext }) {
                         rows={3}
                         value={form.description}
                         onChange={handleChange}
+                        placeholder="Nhập mô tả về thành phố"
                     />
                 </div>
             </div>

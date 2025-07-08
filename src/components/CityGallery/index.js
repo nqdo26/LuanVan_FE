@@ -31,6 +31,8 @@ function CityGallery({
         setIsModalVisible(false);
     };
 
+    const infoList = Array.isArray(city.info) ? city.info.slice(0, 2) : [];
+
     return (
         <div
             className={cx('wrapper')}
@@ -45,14 +47,12 @@ function CityGallery({
                     <s className={cx('show-more')}>Xem thêm</s>
 
                     <div className={cx('best-time')}>
-                        <div className={cx('item')}>
-                            <p className={cx('time-title')}>Thời gian tuyệt nhất để đến</p>
-                            <p>{city.time}</p>
-                        </div>
-                        <div className={cx('item')}>
-                            <p className={cx('time-title')}>Thời lượng lý tưởng</p>
-                            <p>{city.duration}</p>
-                        </div>
+                        {infoList.map((item, idx) => (
+                            <div className={cx('item')} key={idx}>
+                                <p className={cx('time-title')}>{item.title}</p>
+                                <p>{item.description}</p>
+                            </div>
+                        ))}
                     </div>
                 </div>
                 <div className={cx('carousel')}>

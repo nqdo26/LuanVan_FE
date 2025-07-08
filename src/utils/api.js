@@ -1,4 +1,155 @@
 import axios from './axios.custiomize';
+const createDestinationApi = (destinationData) => {
+    const URL_API = '/v1/api/destination';
+    const formData = new FormData();
+
+    formData.append('title', destinationData.title);
+    formData.append('description', destinationData.description);
+    if (destinationData.type) {
+        formData.append('type', destinationData.type);
+    }
+    if (destinationData.tags && destinationData.tags.length > 0) {
+        destinationData.tags.forEach((id) => formData.append('tags', id));
+    }
+    if (destinationData.city) {
+        formData.append('city', destinationData.city);
+    }
+    if (destinationData.address) {
+        formData.append('address', destinationData.address);
+    }
+    if (destinationData.images && destinationData.images.length > 0) {
+        destinationData.images.forEach((file) => {
+            formData.append('images', file.originFileObj || file);
+        });
+    }
+    // Append detail fields (array fields as JSON string, new* as string)
+    if (destinationData.highlight) {
+        formData.append('highlight', JSON.stringify(destinationData.highlight));
+    }
+    if (destinationData.services) {
+        formData.append('services', JSON.stringify(destinationData.services));
+    }
+    if (destinationData.cultureType) {
+        formData.append('cultureType', JSON.stringify(destinationData.cultureType));
+    }
+    if (destinationData.activities) {
+        formData.append('activities', JSON.stringify(destinationData.activities));
+    }
+    if (destinationData.fee) {
+        formData.append('fee', JSON.stringify(destinationData.fee));
+    }
+    if (destinationData.usefulInfo) {
+        formData.append('usefulInfo', JSON.stringify(destinationData.usefulInfo));
+    }
+    if (destinationData.newHighlight) {
+        formData.append('newHighlight', destinationData.newHighlight);
+    }
+    if (destinationData.newServices) {
+        formData.append('newServices', destinationData.newServices);
+    }
+    if (destinationData.newUsefulInfo) {
+        formData.append('newUsefulInfo', destinationData.newUsefulInfo);
+    }
+    if (destinationData.newCultureType) {
+        formData.append('newCultureType', destinationData.newCultureType);
+    }
+    if (destinationData.newActivities) {
+        formData.append('newActivities', destinationData.newActivities);
+    }
+    if (destinationData.newFee) {
+        formData.append('newFee', destinationData.newFee);
+    }
+    // Thêm album từng loại (space, fnb, extra)
+    if (destinationData.album) {
+        if (destinationData.album.space && destinationData.album.space.length > 0) {
+            destinationData.album.space.forEach((file) => {
+                formData.append('album_space', file.originFileObj || file);
+            });
+        }
+        if (destinationData.album.fnb && destinationData.album.fnb.length > 0) {
+            destinationData.album.fnb.forEach((file) => {
+                formData.append('album_fnb', file.originFileObj || file);
+            });
+        }
+        if (destinationData.album.extra && destinationData.album.extra.length > 0) {
+            destinationData.album.extra.forEach((file) => {
+                formData.append('album_extra', file.originFileObj || file);
+            });
+        }
+    }
+    if (destinationData.weather) {
+        formData.append('weather', JSON.stringify(destinationData.weather));
+    }
+    if (destinationData.info && destinationData.info.length > 0) {
+        formData.append('info', JSON.stringify(destinationData.info));
+    }
+    if (destinationData.contactInfo) {
+        formData.append('contactInfo', JSON.stringify(destinationData.contactInfo));
+    }
+    return axios.post(URL_API, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+};
+
+const getDestinationsApi = () => {
+    const URL_API = '/v1/api/destinations';
+    return axios.get(URL_API);
+};
+
+const getDestinationByIdApi = (id) => {
+    const URL_API = `/v1/api/destinations/${id}`;
+    return axios.get(URL_API);
+};
+
+const getDestinationBySlugApi = (slug) => {
+    const URL_API = `/v1/api/destination/${slug}`;
+    return axios.get(URL_API);
+};
+
+const updateDestinationApi = (id, destinationData) => {
+    const URL_API = `/v1/api/destinations/${id}`;
+    const formData = new FormData();
+    formData.append('title', destinationData.title);
+    formData.append('description', destinationData.description);
+    if (destinationData.type) {
+        formData.append('type', destinationData.type);
+    }
+    if (destinationData.tags && destinationData.tags.length > 0) {
+        formData.append('tags', JSON.stringify(destinationData.tags));
+    }
+    if (destinationData.city) {
+        formData.append('city', destinationData.city);
+    }
+    if (destinationData.address) {
+        formData.append('address', destinationData.address);
+    }
+    if (destinationData.images && destinationData.images.length > 0) {
+        destinationData.images.forEach((file) => {
+            formData.append('images', file.originFileObj || file);
+        });
+    }
+    if (destinationData.weather) {
+        formData.append('weather', JSON.stringify(destinationData.weather));
+    }
+    if (destinationData.info && destinationData.info.length > 0) {
+        formData.append('info', JSON.stringify(destinationData.info));
+    }
+    if (destinationData.contactInfo) {
+        formData.append('contactInfo', JSON.stringify(destinationData.contactInfo));
+    }
+    return axios.put(URL_API, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+};
+
+const deleteDestinationApi = (id) => {
+    const URL_API = `/v1/api/destinations/${id}`;
+    return axios.delete(URL_API);
+};
 
 //USER
 
@@ -240,4 +391,10 @@ export {
     getCityByIdAndUpdateApi,
     updateCityApi,
     deleteCityApi,
+    createDestinationApi,
+    getDestinationsApi,
+    getDestinationByIdApi,
+    getDestinationBySlugApi,
+    updateDestinationApi,
+    deleteDestinationApi,
 };

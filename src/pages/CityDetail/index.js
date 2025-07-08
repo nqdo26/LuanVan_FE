@@ -11,6 +11,7 @@ import CitySideBar from '~/components/CitySideBar';
 import ResultSorter from '~/components/ResultSorter';
 import DestinationCard from '~/components/DestinationCard';
 import { getCityBySlugApi } from '~/utils/api';
+import { duration } from 'moment';
 
 const cx = classNames.bind(styles);
 
@@ -129,8 +130,7 @@ function CityDetail() {
                             title: cityData.name,
                             description: cityData.description,
                             images: cityData.images || [],
-                            time: 'Thời gian tốt nhất để ghé thăm',
-                            duration: 'Khám phá từ 2-3 ngày',
+                            info: Array.isArray(cityData.info) ? cityData.info.slice(0, 2) : [],
                         }}
                     />
                 </div>

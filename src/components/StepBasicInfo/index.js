@@ -3,7 +3,7 @@ import classNames from 'classnames/bind';
 import styles from './StepBasicInfo.module.scss';
 import { X } from 'lucide-react';
 import { useEffect } from 'react';
-import { getTagsApi, getCitiesApi, getDestinationTypesApi } from '~/utils/api';
+import { getTagsApi, getCitiesApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
 
@@ -12,8 +12,13 @@ function StepBasicInfo({ defaultData, onNext }) {
     const [tagDropdownOpen, setTagDropdownOpen] = useState(false);
     const [tags, setTags] = useState([]);
     const [cities, setCities] = useState([]);
-    const [destinationTypes, setDestinationTypes] = useState([]);
+    // Removed destinationTypes state
     const [loading, setLoading] = useState(true);
+    const [typeError, setTypeError] = useState(false);
+    const [cityError, setCityError] = useState(false);
+    const [tagError, setTagError] = useState(false);
+    const [contactError, setContactError] = useState(false);
+    const [addressError, setAddressError] = useState(false);
     const tagRef = useRef();
 
     useEffect(() => {
@@ -33,11 +38,7 @@ function StepBasicInfo({ defaultData, onNext }) {
     const fetchTagsAndCities = async () => {
         try {
             setLoading(true);
-            const [tagsResponse, citiesResponse, destinationTypesResponse] = await Promise.all([
-                getTagsApi(),
-                getCitiesApi(),
-                getDestinationTypesApi(),
-            ]);
+            const [tagsResponse, citiesResponse] = await Promise.all([getTagsApi(), getCitiesApi()]);
 
             if (tagsResponse && tagsResponse.EC === 0) {
                 setTags(tagsResponse.data);
@@ -45,10 +46,6 @@ function StepBasicInfo({ defaultData, onNext }) {
 
             if (citiesResponse && citiesResponse.EC === 0) {
                 setCities(citiesResponse.data);
-            }
-
-            if (destinationTypesResponse && destinationTypesResponse.EC === 0) {
-                setDestinationTypes(destinationTypesResponse.data);
             }
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -71,6 +68,46 @@ function StepBasicInfo({ defaultData, onNext }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        let hasError = false;
+        if (!form.type) {
+            setTypeError(true);
+            hasError = true;
+        } else {
+            setTypeError(false);
+        }
+        if (!form.city) {
+            setCityError(true);
+            hasError = true;
+        } else {
+            setCityError(false);
+        }
+        if (!form.tags || form.tags.length === 0) {
+            setTagError(true);
+            hasError = true;
+        } else {
+            setTagError(false);
+        }
+        // Validate address
+        if (!form.address || form.address.trim() === '') {
+            setAddressError(true);
+            hasError = true;
+        } else {
+            setAddressError(false);
+        }
+        // Validate at least one contact info
+        if (
+            (!form.phone || form.phone.trim() === '') &&
+            (!form.website || form.website.trim() === '') &&
+            (!form.facebook || form.facebook.trim() === '') &&
+            (!form.instagram || form.instagram.trim() === '')
+        ) {
+            setContactError(true);
+            hasError = true;
+        } else {
+            setContactError(false);
+        }
+        if (!form.title || form.title.trim() === '') hasError = true;
+        if (hasError) return;
         onNext(form);
     };
 
@@ -78,9 +115,7 @@ function StepBasicInfo({ defaultData, onNext }) {
         <form className={cx('form')} onSubmit={handleSubmit}>
             <div className={cx('form-row')}>
                 <div className={cx('form-group')}>
-                    <label htmlFor="title">
-                        Tên địa điểm<span>*</span>
-                    </label>
+                    <label htmlFor="title">Tên địa điểm</label>
                     <input
                         required
                         id="title"
@@ -94,22 +129,26 @@ function StepBasicInfo({ defaultData, onNext }) {
             <div className={cx('form-row')}>
                 <div className={cx('form-group')}>
                     <label htmlFor="type">Loại địa điểm</label>
-                    <select id="type" name="type" value={form.type} onChange={handleChange}>
+                    <select
+                        id="type"
+                        name="type"
+                        value={form.type}
+                        onChange={(e) => {
+                            handleChange(e);
+                            setTypeError(false);
+                        }}
+                        required
+                        className={typeError ? cx('error') : ''}
+                    >
                         <option className={cx('placeholder')} value="">
                             Chọn loại địa điểm
                         </option>
-                        {loading ? (
-                            <option disabled>Đang tải...</option>
-                        ) : destinationTypes.length > 0 ? (
-                            destinationTypes.map((type) => (
-                                <option value={type._id} key={type._id}>
-                                    {type.title}
-                                </option>
-                            ))
-                        ) : (
-                            <option disabled>Không có loại địa điểm nào</option>
-                        )}
+                        <option value="restaurant">Nhà hàng(quán ăn, quán nước, ...)</option>
+                        <option value="tourist">Địa điểm tham quan(di tích, khu vui chơi, công viên, ...)</option>
                     </select>
+                    {typeError && (
+                        <div style={{ color: 'red', fontSize: 13, marginTop: 4 }}>Vui lòng chọn loại địa điểm!</div>
+                    )}
                 </div>
                 <div className={cx('form-group')} ref={tagRef} style={{ position: 'relative' }}>
                     <label>Thẻ</label>
@@ -158,6 +197,9 @@ function StepBasicInfo({ defaultData, onNext }) {
                             )}
                         </div>
                     )}
+                    {tagError && (
+                        <div style={{ color: 'red', fontSize: 13, marginTop: 4 }}>Vui lòng chọn ít nhất 1 thẻ!</div>
+                    )}
                 </div>
             </div>
             <div className={cx('section-label')}>Thông tin địa chỉ</div>
@@ -165,16 +207,34 @@ function StepBasicInfo({ defaultData, onNext }) {
                 <div className={cx('form-group')}>
                     <label htmlFor="address">Địa chỉ cụ thể</label>
                     <input
+                        required
                         id="address"
                         name="address"
                         value={form.address}
-                        onChange={handleChange}
+                        onChange={(e) => {
+                            handleChange(e);
+                            setAddressError(false);
+                        }}
                         placeholder="Ví dụ: 123 Lê Lợi, Quận 1"
+                        className={addressError ? cx('error') : ''}
                     />
+                    {addressError && (
+                        <div style={{ color: 'red', fontSize: 13, marginTop: 4 }}>Vui lòng nhập địa chỉ cụ thể!</div>
+                    )}
                 </div>
                 <div className={cx('form-group')}>
                     <label htmlFor="city">Thành phố</label>
-                    <select id="city" name="city" value={form.city} onChange={handleChange}>
+                    <select
+                        id="city"
+                        name="city"
+                        value={form.city}
+                        onChange={(e) => {
+                            handleChange(e);
+                            setCityError(false);
+                        }}
+                        required
+                        className={cityError ? cx('error') : ''}
+                    >
                         <option className={cx('placeholder')} value="">
                             Chọn thành phố
                         </option>
@@ -190,9 +250,12 @@ function StepBasicInfo({ defaultData, onNext }) {
                             <option disabled>Không có thành phố nào</option>
                         )}
                     </select>
+                    {cityError && (
+                        <div style={{ color: 'red', fontSize: 13, marginTop: 4 }}>Vui lòng chọn thành phố!</div>
+                    )}
                 </div>
             </div>
-            <div className={cx('section-label')}>Liên hệ</div>
+            <div className={cx('section-label')}>Liên hệ <span style={{color:'red'}}>*</span></div>
             <div className={cx('form-row')}>
                 <div className={cx('form-group')}>
                     <label htmlFor="phone">Điện thoại</label>
@@ -237,6 +300,11 @@ function StepBasicInfo({ defaultData, onNext }) {
                     />
                 </div>
             </div>
+            {contactError && (
+                <div style={{ color: 'red', fontSize: 13, marginTop: 4, marginBottom: 8 }}>
+                    Vui lòng nhập ít nhất một thông tin liên hệ!
+                </div>
+            )}
             <button className={cx('submit-btn')} type="submit">
                 Tiếp tục
             </button>

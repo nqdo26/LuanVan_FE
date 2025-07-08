@@ -43,8 +43,9 @@ function AdminAddCity() {
         setLoading(true);
         try {
             const res = await createCityApi(fullData);
+            console.log('Response from createCityApi:', res);
 
-            if (res?.EC === 0) {
+            if (res && res?.EC === 0) {
                 notification.success({
                     message: 'Success',
                     description: 'Thêm thành phố thành công!',
