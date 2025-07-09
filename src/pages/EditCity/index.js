@@ -107,7 +107,7 @@ function EditCity() {
     return (
         <div className={cx('wrapper')}>
             <div className={cx('inner')}>
-                <h1 className={cx('title')}>Chỉnh sửa thành phố</h1>
+                <h1 className={cx('title')}>Chỉnh sửa thông tin thành phố</h1>
                 {cityData && <CityEditForm defaultData={cityData} onSubmit={handleSubmit} loading={submitting} />}
             </div>
         </div>

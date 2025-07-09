@@ -25,31 +25,25 @@ function AdminCategoriesManage() {
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 5;
 
-    // Tag state
     const [tags, setTags] = useState([]);
     const [loadingTags, setLoadingTags] = useState(false);
 
-    // City Type state (REAL)
     const [cityTypes, setCityTypes] = useState([]);
     const [loadingCityTypes, setLoadingCityTypes] = useState(false);
     const [isCityTypeModalOpen, setIsCityTypeModalOpen] = useState(false);
     const [editingCityType, setEditingCityType] = useState(null);
 
-    // Destination Type state
     const [destinationTypes, setDestinationTypes] = useState([]);
     const [loadingDestinationTypes, setLoadingDestinationTypes] = useState(false);
     const [isDestinationTypeModalOpen, setIsDestinationTypeModalOpen] = useState(false);
     const [editingDestinationType, setEditingDestinationType] = useState(null);
 
-    // Modal Tag
     const [isTagModalOpen, setIsTagModalOpen] = useState(false);
     const [editingTag, setEditingTag] = useState(null);
-
     const [form] = Form.useForm();
     const [cityTypeForm] = Form.useForm();
     const [destinationTypeForm] = Form.useForm();
 
-    // Fetch data
     useEffect(() => {
         fetchTags();
         fetchCityTypes();
@@ -213,7 +207,6 @@ function AdminCategoriesManage() {
         }
     };
 
-    // DestinationType handlers
     const handleAddDestinationType = () => {
         setEditingDestinationType(null);
         destinationTypeForm.resetFields();
@@ -271,7 +264,6 @@ function AdminCategoriesManage() {
         }
     };
 
-    // Table columns
     const tagColumns = [
         {
             title: 'STT',
@@ -300,9 +292,7 @@ function AdminCategoriesManage() {
             title: 'Tùy chọn',
             render: (record) => (
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center' }}>
-                    <Button type="primary" onClick={() => handleEditTag(record)}>
-                        <EditOutlined />
-                    </Button>
+                    <Button icon={<EditOutlined />} onClick={() => handleEditTag(record)} title="Chỉnh sửa thẻ" />
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xóa tag này?"
                         onConfirm={() => handleDeleteTag(record)}
@@ -347,9 +337,11 @@ function AdminCategoriesManage() {
             title: 'Tùy chọn',
             render: (record) => (
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center' }}>
-                    <Button type="primary" onClick={() => handleEditCityType(record)}>
-                        <EditOutlined />
-                    </Button>
+                    <Button
+                        icon={<EditOutlined />}
+                        onClick={() => handleEditCityType(record)}
+                        title="Chỉnh sửa danh mục"
+                    />
                     <Popconfirm
                         title="Xác nhận xóa?"
                         onConfirm={() => handleDeleteCityType(record)}
@@ -394,9 +386,11 @@ function AdminCategoriesManage() {
             title: 'Tùy chọn',
             render: (record) => (
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center' }}>
-                    <Button type="primary" onClick={() => handleEditDestinationType(record)}>
-                        <EditOutlined />
-                    </Button>
+                    <Button
+                        icon={<EditOutlined />}
+                        onClick={() => handleEditDestinationType(record)}
+                        title="Chỉnh sửa loại địa điểm"
+                    />
                     <Popconfirm
                         title="Xác nhận xóa?"
                         onConfirm={() => handleDeleteDestinationType(record)}

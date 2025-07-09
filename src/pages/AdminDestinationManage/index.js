@@ -1,35 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import { motion } from 'framer-motion';
 import styles from './AdminDestinationManage.module.scss';
 import { Button, Table, Popconfirm, message } from 'antd';
 import { EyeOutlined, DeleteOutlined, StarFilled, EditOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import { getDestinationsApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
 
-const fakeDestinations = Array.from({ length: 20 }, (_, i) => ({
-    _id: `d${i + 1}`,
-    name: `Địa điểm ${i + 1}`,
-    city: `Thành phố ${Math.floor(i / 3) + 1}`,
-    statistics: {
-        views: Math.floor(Math.random() * 5000) + 1000,
-        totalSave: Math.floor(Math.random() * 300) + 10,
-        totalRate: Math.floor(Math.random() * 100) + 5,
-        totalReview: Math.floor(Math.random() * 120) + 5,
-        averageRating: +(Math.random() * 5).toFixed(1),
-    },
-    commentCount: Math.floor(Math.random() * 40) + 3,
-    createdAt: dayjs().subtract(i, 'day').format('YYYY-MM-DD HH:mm'),
-    updatedAt: dayjs()
-        .subtract(Math.floor(i / 2), 'hour')
-        .format('YYYY-MM-DD HH:mm'),
-}));
-
 function AdminDestinationManage() {
-    const [data, setData] = useState(fakeDestinations);
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 7;
+    const pageSize = 5;
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        fetchDestinations();
+    }, []);
+
+    const fetchDestinations = async () => {
+        setLoading(true);
+        try {
+            const res = await getDestinationsApi();
+            if (res && res.data && Array.isArray(res.data)) {
+                setData(res.data);
+            } else if (res && res.data && Array.isArray(res.data.data)) {
+                setData(res.data.data);
+            } else if (res && res.EC === 0 && Array.isArray(res.data)) {
+                setData(res.data);
+            } else if (res && res.EC === 0 && Array.isArray(res.data?.data)) {
+                setData(res.data.data);
+            } else {
+                message.error('Không thể tải danh sách địa điểm');
+            }
+        } catch (error) {
+            message.error('Có lỗi xảy ra khi tải danh sách địa điểm');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleDelete = (record) => {
         setData((prev) => prev.filter((item) => item._id !== record._id));
@@ -41,29 +53,42 @@ function AdminDestinationManage() {
     };
 
     const handleEdit = (record) => {
-        alert(`Chỉnh sửa địa điểm: ${record.name}`);
+        if (record && record._id) {
+            navigate(`/admin/destination/edit/${record._id}`);
+        }
     };
 
     const columns = [
         {
             title: 'STT',
             key: 'stt',
-            width: 60,
+            width: 50,
             align: 'center',
             render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
         },
         {
             title: 'ID',
             dataIndex: '_id',
-            width: 80,
+            width: 50,
         },
         {
             title: 'Tên địa điểm',
-            dataIndex: 'name',
+            dataIndex: 'title',
         },
         {
             title: 'Thành phố',
-            dataIndex: 'city',
+            dataIndex: ['location', 'city'],
+            render: (city, record) => {
+                if (typeof city === 'object' && city !== null) {
+                    return city.name || city.title || city._id || '';
+                }
+                return city || '';
+            },
+        },
+        {
+            title: 'Người tạo',
+            dataIndex: 'createdBy',
+            render: (val) => val || '',
         },
         {
             title: 'Chỉ số',
@@ -74,10 +99,7 @@ function AdminDestinationManage() {
                         Lượt xem: <b>{record.statistics.views}</b>
                     </span>
                     <span>
-                        Lượt lưu: <b>{record.statistics.totalSave}</b>
-                    </span>
-                    <span>
-                        Bình luận: <b>{record.commentCount}</b>
+                        Lượt đánh giá: <b>{record.statistics.totalRate}</b>
                     </span>
                 </div>
             ),
@@ -107,13 +129,13 @@ function AdminDestinationManage() {
             title: 'Ngày tạo',
             dataIndex: 'createdAt',
             width: 140,
-            render: (val) => <span>{val}</span>,
+            render: (val) => <span>{val ? dayjs(val).format('DD/MM/YYYY HH:mm') : '-'}</span>,
         },
         {
             title: 'Ngày chỉnh sửa',
             dataIndex: 'updatedAt',
             width: 140,
-            render: (val) => <span>{val}</span>,
+            render: (val) => <span>{val ? dayjs(val).format('DD/MM/YYYY HH:mm') : '-'}</span>,
         },
         {
             title: 'Tùy chọn',
@@ -159,7 +181,7 @@ function AdminDestinationManage() {
                         <div className={cx('small-card')}>
                             <p className={cx('small-card-title')}>Lượt đánh giá:</p>
                             <p className={cx('small-card-value')}>
-                                {data.reduce((sum, d) => sum + d.statistics.totalReview, 0)}
+                                {data.reduce((sum, d) => sum + (d.statistics?.totalReview || 0), 0)}
                             </p>
                         </div>
                     </div>
@@ -168,6 +190,7 @@ function AdminDestinationManage() {
                     <h1 className={cx('table-title')}>Danh sách địa điểm</h1>
                     <Table
                         scroll={{ x: 768 }}
+                        loading={loading}
                         dataSource={data}
                         columns={columns}
                         bordered

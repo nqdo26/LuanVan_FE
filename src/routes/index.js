@@ -13,6 +13,7 @@ import AdminUserManage from '~/pages/AdminUserManage';
 import CityDetail from '~/pages/CityDetail';
 import DestinationDetails from '~/pages/DestinationDetails';
 import EditCity from '~/pages/EditCity';
+import EditDestination from '~/pages/EditDestination';
 import Gobot from '~/pages/Gobot';
 import Home from '~/pages/Home';
 import MyTrip from '~/pages/MyTrip';
@@ -39,6 +40,7 @@ const publicRoutes = [
     { path: '/admin/add-city', component: AdminAddCity, layout: AdminLayout },
     { path: '/admin/categories-management', component: AdminCategoriesManage, layout: AdminLayout },
     { path: '/admin/city/edit/:id', component: EditCity },
+    { path: '/admin/destination/edit/:id', component: EditDestination },
     { path: '/destination/wimi-factory', component: DestinationDetails },
     { path: '/write-review', component: WriteReview },
     { path: 'city/:id', component: CityDetail },

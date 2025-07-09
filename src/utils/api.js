@@ -112,41 +112,42 @@ const getDestinationBySlugApi = (slug) => {
     return axios.get(URL_API);
 };
 
-const updateDestinationApi = (id, destinationData) => {
-    const URL_API = `/v1/api/destinations/${id}`;
+const getDestinationToEditApi = (id) => {
+    const URL_API = `/v1/api/destinations/${id}/edit`;
+    return axios.get(URL_API);
+};
+
+const updateDestinationToEditApi = (id, destinationData) => {
+    const URL_API = `/v1/api/destinations/${id}/edit`;
     const formData = new FormData();
-    formData.append('title', destinationData.title);
-    formData.append('description', destinationData.description);
-    if (destinationData.type) {
-        formData.append('type', destinationData.type);
-    }
-    if (destinationData.tags && destinationData.tags.length > 0) {
-        formData.append('tags', JSON.stringify(destinationData.tags));
-    }
-    if (destinationData.city) {
-        formData.append('city', destinationData.city);
-    }
-    if (destinationData.address) {
-        formData.append('address', destinationData.address);
-    }
-    if (destinationData.images && destinationData.images.length > 0) {
-        destinationData.images.forEach((file) => {
-            formData.append('images', file.originFileObj || file);
+
+    formData.append('title', destinationData.title || '');
+    formData.append('type', destinationData.type || '');
+    formData.append('address', destinationData.address || '');
+    formData.append('city', destinationData.city || '');
+    formData.append('createdBy', destinationData.createdBy || '');
+
+    destinationData.tags?.forEach((tagId) => {
+        formData.append('tags', tagId);
+    });
+
+    formData.append('contactInfo', JSON.stringify(destinationData.contactInfo || {}));
+    formData.append('openHour', JSON.stringify(destinationData.openHour || {}));
+    formData.append('details', JSON.stringify(destinationData.details || {}));
+
+    if (destinationData.album) {
+        ['space', 'fnb', 'extra'].forEach((key) => {
+            destinationData.album[key]?.forEach((file) => {
+                formData.append(`album_${key}`, file.originFileObj || file);
+            });
         });
+        if (destinationData.album.highlight) {
+            formData.append('highlight', JSON.stringify(destinationData.album.highlight));
+        }
     }
-    if (destinationData.weather) {
-        formData.append('weather', JSON.stringify(destinationData.weather));
-    }
-    if (destinationData.info && destinationData.info.length > 0) {
-        formData.append('info', JSON.stringify(destinationData.info));
-    }
-    if (destinationData.contactInfo) {
-        formData.append('contactInfo', JSON.stringify(destinationData.contactInfo));
-    }
+
     return axios.put(URL_API, formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
     });
 };
 
@@ -393,6 +394,7 @@ export {
     getDestinationsApi,
     getDestinationByIdApi,
     getDestinationBySlugApi,
-    updateDestinationApi,
     deleteDestinationApi,
+    getDestinationToEditApi,
+    updateDestinationToEditApi,
 };

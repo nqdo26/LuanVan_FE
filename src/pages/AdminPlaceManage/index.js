@@ -13,7 +13,7 @@ function AdminPlaceManage() {
     const [cities, setCities] = useState([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 7;
+    const pageSize = 5;
 
     useEffect(() => {
         fetchCities();
@@ -108,13 +108,13 @@ function AdminPlaceManage() {
             title: 'Ngày tạo',
             dataIndex: 'createdAt',
             width: 140,
-            render: (val) => <span>{val ? dayjs(val).format('YYYY-MM-DD HH:mm') : '-'}</span>,
+            render: (val) => <span>{val ? dayjs(val).format('DD/MM/YYYY HH:mm') : '-'}</span>,
         },
         {
             title: 'Ngày chỉnh sửa',
             dataIndex: 'updatedAt',
             width: 140,
-            render: (val) => <span>{val ? dayjs(val).format('YYYY-MM-DD HH:mm') : '-'}</span>,
+            render: (val) => <span>{val ? dayjs(val).format('DD/MM/YYYY HH:mm') : '-'}</span>,
         },
         {
             title: 'Người tạo',
@@ -144,7 +144,12 @@ function AdminPlaceManage() {
                         onClick={() => handleAccessCity(record)}
                         title="Xem chi tiết"
                     />
-                    <Button icon={<EditOutlined />} onClick={() => handleEditCity(record)} title="Chỉnh sửa địa điểm" />
+                    <Button
+              
+                        icon={<EditOutlined />}
+                        onClick={() => handleEditCity(record)}
+                        title="Chỉnh sửa địa điểm"
+                    />
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xóa địa điểm này?"
                         onConfirm={() => handleDeleteCity(record)}

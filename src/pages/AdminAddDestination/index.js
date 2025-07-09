@@ -104,6 +104,12 @@ function AdminAddDestination() {
                     extra: data.album.extra || [],
                 };
             }
+            delete submitData.newHighlight;
+            delete submitData.newServices;
+            delete submitData.newUsefulInfo;
+            delete submitData.newActivities;
+            delete submitData.newCultureType;
+            delete submitData.newFee;
             const res = await createDestinationApi(submitData);
             if (res && res.data && res.EC === 0) {
                 notification.success({

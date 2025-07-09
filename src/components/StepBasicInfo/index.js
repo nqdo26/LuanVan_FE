@@ -1,13 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import classNames from 'classnames/bind';
 import styles from './StepBasicInfo.module.scss';
 import { X } from 'lucide-react';
-import { useEffect } from 'react';
 import { getTagsApi, getCitiesApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
 
-function StepBasicInfo({ defaultData, onNext }) {
+function StepBasicInfo({ defaultData, onNext, isEditMode }) {
     const [form, setForm] = useState(defaultData);
     const [tagDropdownOpen, setTagDropdownOpen] = useState(false);
     const [tags, setTags] = useState([]);
@@ -35,6 +34,10 @@ function StepBasicInfo({ defaultData, onNext }) {
         fetchTagsAndCities();
     }, []);
 
+    useEffect(() => {
+        setForm(defaultData);
+    }, [defaultData]);
+
     const fetchTagsAndCities = async () => {
         try {
             setLoading(true);
@@ -60,10 +63,13 @@ function StepBasicInfo({ defaultData, onNext }) {
     };
 
     const handleTagToggle = (tag) => {
-        setForm((prev) => ({
-            ...prev,
-            tags: prev.tags.includes(tag.title) ? prev.tags.filter((t) => t !== tag.title) : [...prev.tags, tag.title],
-        }));
+        setForm((prev) => {
+            const isSelected = prev.tags.some((t) => t._id === tag._id);
+            return {
+                ...prev,
+                tags: isSelected ? prev.tags.filter((t) => t._id !== tag._id) : [...prev.tags, tag],
+            };
+        });
     };
 
     const handleSubmit = (e) => {
@@ -87,14 +93,14 @@ function StepBasicInfo({ defaultData, onNext }) {
         } else {
             setTagError(false);
         }
-        // Validate address
+
         if (!form.address || form.address.trim() === '') {
             setAddressError(true);
             hasError = true;
         } else {
             setAddressError(false);
         }
-        // Validate at least one contact info
+
         if (
             (!form.phone || form.phone.trim() === '') &&
             (!form.website || form.website.trim() === '') &&
@@ -112,7 +118,7 @@ function StepBasicInfo({ defaultData, onNext }) {
     };
 
     return (
-        <form className={cx('form')} onSubmit={handleSubmit}>
+        <div className={cx('form')}>
             <div className={cx('form-row')}>
                 <div className={cx('form-group')}>
                     <label htmlFor="title">Tên địa điểm</label>
@@ -143,8 +149,8 @@ function StepBasicInfo({ defaultData, onNext }) {
                         <option className={cx('placeholder')} value="">
                             Chọn loại địa điểm
                         </option>
-                        <option value="restaurant">Nhà hàng(quán ăn, quán nước, ...)</option>
-                        <option value="tourist">Địa điểm tham quan(di tích, khu vui chơi, công viên, ...)</option>
+                        <option value="restaurant">Nhà hàng (quán ăn, quán nước,...)</option>
+                        <option value="tourist">Địa điểm du lịch (di tích, khu vui chơi, công viên,...)</option>
                     </select>
                     {typeError && (
                         <div style={{ color: 'red', fontSize: 13, marginTop: 4 }}>Vui lòng chọn loại địa điểm!</div>
@@ -161,15 +167,14 @@ function StepBasicInfo({ defaultData, onNext }) {
                             {form.tags.length === 0 && <span className={cx('placeholder')}>Chọn thẻ...</span>}
                             {form.tags.map((tag) => (
                                 <span
-                                    key={tag}
+                                    key={tag._id}
                                     className={cx('tag-item', 'selected')}
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        const tagObj = tags.find((t) => t.title === tag);
-                                        if (tagObj) handleTagToggle(tagObj);
+                                        handleTagToggle(tag);
                                     }}
                                 >
-                                    {tag}
+                                    {tag.title}
                                     <span className={cx('close')}>
                                         <X size={13} />
                                     </span>
@@ -185,11 +190,16 @@ function StepBasicInfo({ defaultData, onNext }) {
                                 tags.map((tag) => (
                                     <div
                                         key={tag._id}
-                                        className={cx('dropdown-item', form.tags.includes(tag.title) && 'active')}
+                                        className={cx(
+                                            'dropdown-item',
+                                            form.tags.some((t) => t._id === tag._id) && 'active',
+                                        )}
                                         onClick={() => handleTagToggle(tag)}
                                     >
                                         <span>{tag.title}</span>
-                                        {form.tags.includes(tag.title) && <span className={cx('tick')}>✓</span>}
+                                        {form.tags.some((t) => t._id === tag._id) && (
+                                            <span className={cx('tick')}>✓</span>
+                                        )}
                                     </div>
                                 ))
                             ) : (
@@ -255,7 +265,9 @@ function StepBasicInfo({ defaultData, onNext }) {
                     )}
                 </div>
             </div>
-            <div className={cx('section-label')}>Liên hệ <span style={{color:'red'}}>*</span></div>
+            <div className={cx('section-label')}>
+                Liên hệ <span style={{ color: 'red' }}>*</span>
+            </div>
             <div className={cx('form-row')}>
                 <div className={cx('form-group')}>
                     <label htmlFor="phone">Điện thoại</label>
@@ -305,10 +317,12 @@ function StepBasicInfo({ defaultData, onNext }) {
                     Vui lòng nhập ít nhất một thông tin liên hệ!
                 </div>
             )}
-            <button className={cx('submit-btn')} type="submit">
-                Tiếp tục
-            </button>
-        </form>
+            {!isEditMode && (
+                <button className={cx('submit-btn')} type="button" onClick={handleSubmit}>
+                    Tiếp tục
+                </button>
+            )}
+        </div>
     );
 }
 
