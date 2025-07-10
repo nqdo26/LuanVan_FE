@@ -41,7 +41,7 @@ const publicRoutes = [
     { path: '/admin/categories-management', component: AdminCategoriesManage, layout: AdminLayout },
     { path: '/admin/city/edit/:id', component: EditCity },
     { path: '/admin/destination/edit/:id', component: EditDestination },
-    { path: '/destination/wimi-factory', component: DestinationDetails },
+    { path: '/destination/:slug', component: DestinationDetails },
     { path: '/write-review', component: WriteReview },
     { path: 'city/:id', component: CityDetail },
     { path: '/add-trip', component: AddTrip },

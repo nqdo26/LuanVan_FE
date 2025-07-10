@@ -15,6 +15,7 @@ function EditCity() {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchCityData();
     }, [id]);
@@ -23,21 +24,10 @@ function EditCity() {
         try {
             setLoading(true);
 
-            console.log('=== API Call ===');
-            console.log('Calling getCityByIdAndUpdateApi with ID:', id);
-
             const response = await getCityByIdAndUpdateApi(id);
-
-            console.log('=== API Response ===');
-            console.log('Full response:', response);
-            console.log('Response.data:', response?.data);
-            console.log('Response.EC:', response?.EC);
 
             if (response && response.EC === 0) {
                 const city = response.data;
-                console.log('=== EditCity fetchCityData ===');
-                console.log('Raw city data:', city);
-                console.log('City info:', city.info);
 
                 const formData = {
                     title: city.name,
@@ -54,8 +44,6 @@ function EditCity() {
                     info: city.info || [],
                 };
 
-                console.log('Mapped formData:', formData);
-                console.log('FormData info:', formData.info);
                 setCityData(formData);
             } else {
                 notification.error({
@@ -65,7 +53,6 @@ function EditCity() {
                 navigate('/admin/citys-management');
             }
         } catch (error) {
-            console.error('Error fetching city:', error);
             notification.error({
                 message: 'Lỗi',
                 description: 'Có lỗi xảy ra khi tải thông tin thành phố',

@@ -13,6 +13,10 @@
     gap: 30px;
 }
 
+:global(.ant-modal-content) {
+    min-height: 100px !important;
+}
+
 .title {
     font-size: 32px;
     font-weight: 600;

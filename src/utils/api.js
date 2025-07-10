@@ -432,6 +432,16 @@ const deleteCityApi = (id) => {
     return axios.delete(URL_API);
 };
 
+const getCityDeletionInfoApi = (id) => {
+    const URL_API = `/v1/api/cities/${id}/deletion-info`;
+    return axios.get(URL_API);
+};
+
+const getCitiesWithDestinationCountApi = () => {
+    const URL_API = '/v1/api/cities-with-count';
+    return axios.get(URL_API);
+};
+
 export {
     createUserApi,
     getAccountApi,
@@ -465,4 +475,6 @@ export {
     deleteDestinationApi,
     getDestinationToEditApi,
     updateDestinationToEditApi,
+    getCityDeletionInfoApi,
+    getCitiesWithDestinationCountApi,
 };

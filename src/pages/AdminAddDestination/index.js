@@ -58,7 +58,7 @@ function AdminAddDestination() {
     const [loading, setLoading] = useState(false);
     const [tagsList, setTagsList] = useState([]);
 
-    const { auth, setAuth } = useContext(AuthContext);
+    const { auth } = useContext(AuthContext);
 
     React.useEffect(() => {
         getTagsApi().then((res) => {

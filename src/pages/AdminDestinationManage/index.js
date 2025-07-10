@@ -49,7 +49,7 @@ function AdminDestinationManage() {
     };
 
     const handleAccess = (record) => {
-        alert(`Truy cập địa điểm: ${record.name}`);
+        navigate(`/destination/${record.slug}`);
     };
 
     const handleEdit = (record) => {

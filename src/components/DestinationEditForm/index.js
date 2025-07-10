@@ -3,7 +3,7 @@ import classNames from 'classnames/bind';
 import styles from './DestinationEditForm.module.scss';
 import AlbumUploader from '~/components/AlbumUploader';
 import { getCitiesApi, getTagsApi } from '~/utils/api';
-import { PlusOutlined, LoadingOutlined } from '@ant-design/icons';
+import { LoadingOutlined } from '@ant-design/icons';
 import { PlusIcon } from 'lucide-react';
 
 const cx = classNames.bind(styles);
@@ -198,16 +198,6 @@ function DestinationEditForm({ initialData, onSave, loading }) {
             return acc;
         }, {});
         setForm((prev) => ({ ...prev, openHour: updatedOpenHour }));
-    };
-
-    const handleCloseDay = (day) => {
-        setForm((prev) => ({
-            ...prev,
-            openHour: {
-                ...prev.openHour,
-                [day]: { open: 'Đóng cửa', close: 'Đóng cửa', allDay: false },
-            },
-        }));
     };
 
     const handleToggleDay = (day) => {
