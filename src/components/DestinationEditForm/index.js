@@ -27,25 +27,76 @@ function DestinationEditForm({ initialData, onSave, loading }) {
 
     useEffect(() => {
         if (initialData) {
-            console.log('Dữ liệu nhận từ API:', initialData);
+            let cleanOpenHour = defaultOpenHour;
+            if (initialData.detail.openHour) {
+                const dayMapping = {
+                    mon: 'monday',
+                    tue: 'tuesday',
+                    wed: 'wednesday',
+                    thu: 'thursday',
+                    fri: 'friday',
+                    sat: 'saturday',
+                    sun: 'sunday',
+                };
+
+                cleanOpenHour = {};
+                Object.keys(dayMapping).forEach((shortDay) => {
+                    const fullDay = dayMapping[shortDay];
+                    if (initialData.detail.openHour[shortDay]) {
+                        cleanOpenHour[fullDay] = {
+                            open: initialData.detail.openHour[shortDay].open || '',
+                            close: initialData.detail.openHour[shortDay].close || '',
+                            allDay: initialData.detail.openHour[shortDay].allDay || false,
+                        };
+                    } else {
+                        cleanOpenHour[fullDay] = { open: '', close: '', allDay: false };
+                    }
+                });
+            }
+
             const updatedForm = {
-                ...initialData.form,
-                ...initialData.detail,
-                address: initialData.form.address || '',
-                contactInfo: {
-                    phone: initialData.form.phone || '',
-                    website: initialData.form.website || '',
-                    facebook: initialData.form.facebook || '',
-                    instagram: initialData.form.instagram || '',
-                },
-                openHour: initialData.detail.openHour || defaultOpenHour,
+                // Thông tin cơ bản từ form
+                title: initialData.form?.title || '',
+                type: initialData.form?.type || '',
+                tags: initialData.form?.tags || [],
+                address: initialData.form?.address || '',
+                city: initialData.form?.city || '',
+                createdBy: initialData.form?.createdBy || '',
+
+                // Thông tin liên hệ từ form
+                phone: initialData.form?.phone || '',
+                website: initialData.form?.website || '',
+                facebook: initialData.form?.facebook || '',
+                instagram: initialData.form?.instagram || '',
+
+                // Thông tin chi tiết từ detail (đã được mapped trong EditDestination)
+                description: initialData.detail?.description || '',
+                highlight: initialData.detail?.highlight || [],
+                services: initialData.detail?.services || [],
+                cultureType: initialData.detail?.cultureType || [],
+                activities: initialData.detail?.activities || [],
+                fee: initialData.detail?.fee || [],
+                usefulInfo: initialData.detail?.usefulInfo || [],
+
+                // Giờ mở cửa
+                openHour: cleanOpenHour,
+
+                // Album ảnh
                 album: {
-                    space: initialData.detail.album?.space || [],
-                    fnb: initialData.detail.album?.fnb || [],
-                    extra: initialData.detail.album?.extra || [],
+                    space: initialData.detail?.album?.space || [],
+                    fnb: initialData.detail?.album?.fnb || [],
+                    extra: initialData.detail?.album?.extra || [],
+                },
+
+                // ContactInfo từ form hoặc detail
+                contactInfo: {
+                    phone: initialData.form?.phone || '',
+                    website: initialData.form?.website || '',
+                    facebook: initialData.form?.facebook || '',
+                    instagram: initialData.form?.instagram || '',
                 },
             };
-            console.log('Dữ liệu được set vào form:', updatedForm);
+
             setForm(updatedForm);
         }
     }, [initialData]);
@@ -81,40 +132,44 @@ function DestinationEditForm({ initialData, onSave, loading }) {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        console.log(`Thay đổi trường ${name}:`, value); // Log giá trị thay đổi
         setForm((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleListChange = (key, index, value) => {
-        const updated = [...form[key]];
+        const updated = [...(form[key] || [])];
         updated[index] = value;
         setForm((prev) => ({ ...prev, [key]: updated }));
     };
 
     const handleListAdd = (key) => {
-        setForm((prev) => ({ ...prev, [key]: [...prev[key], ''] }));
+        setForm((prev) => ({ ...prev, [key]: [...(prev[key] || []), ''] }));
     };
 
     const handleListRemove = (key, index) => {
-        setForm((prev) => ({ ...prev, [key]: prev[key].filter((_, i) => i !== index) }));
+        setForm((prev) => ({ ...prev, [key]: (prev[key] || []).filter((_, i) => i !== index) }));
     };
 
     const handleAlbumAdd = (key, files) => {
         setForm((prev) => ({
             ...prev,
-            album: { ...prev.album, [key]: [...prev.album[key], ...files] },
+            album: {
+                ...prev.album,
+                [key]: [...(prev.album?.[key] || []), ...files],
+            },
         }));
     };
 
     const handleAlbumRemove = (key, index) => {
         setForm((prev) => ({
             ...prev,
-            album: { ...prev.album, [key]: prev.album[key].filter((_, i) => i !== index) },
+            album: {
+                ...prev.album,
+                [key]: (prev.album?.[key] || []).filter((_, i) => i !== index),
+            },
         }));
     };
 
     const handleOpenHourChange = (day, field, value) => {
-        console.log(`Thay đổi giờ mở cửa cho ${day} - ${field}:`, value); // Log thay đổi giờ mở cửa
         setForm((prev) => ({
             ...prev,
             openHour: {
@@ -170,27 +225,30 @@ function DestinationEditForm({ initialData, onSave, loading }) {
         });
     };
 
-    const renderListField = (label, key) => (
-        <div className={cx('form-group')}>
-            <label>{label}</label>
-            <button className={cx('add-button')} type="button" onClick={() => handleListAdd(key)}>
-                <PlusIcon size={20} /> Thêm {label.toLowerCase()}
-            </button>
-            {form[key].map((item, index) => (
-                <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
-                    <input
-                        type="text"
-                        value={item}
-                        onChange={(e) => handleListChange(key, index, e.target.value)}
-                        style={{ flex: 1 }}
-                    />
-                    <button className={cx('delete-btn')} type="button" onClick={() => handleListRemove(key, index)}>
-                        Xóa
-                    </button>
-                </div>
-            ))}
-        </div>
-    );
+    const renderListField = (label, key) => {
+        const items = form[key] || [];
+        return (
+            <div className={cx('form-group')}>
+                <label>{label}</label>
+                <button className={cx('add-button')} type="button" onClick={() => handleListAdd(key)}>
+                    <PlusIcon size={20} /> Thêm {label.toLowerCase()}
+                </button>
+                {items.map((item, index) => (
+                    <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
+                        <input
+                            type="text"
+                            value={item}
+                            onChange={(e) => handleListChange(key, index, e.target.value)}
+                            style={{ flex: 1 }}
+                        />
+                        <button className={cx('delete-btn')} type="button" onClick={() => handleListRemove(key, index)}>
+                            Xóa
+                        </button>
+                    </div>
+                ))}
+            </div>
+        );
+    };
 
     const renderOpenHourField = () => (
         <div className={cx('form-group')}>
@@ -199,7 +257,7 @@ function DestinationEditForm({ initialData, onSave, loading }) {
                 Mở cả ngày
             </button>
             {Object.keys(form.openHour)
-                .filter((day) => day !== 'allday')
+                .filter((day) => day !== 'allday' && day !== 'open' && day !== 'close' && day !== 'allDay')
                 .map((day) => (
                     <div key={day} className={cx('open-hour-row')}>
                         <span>{day.charAt(0).toUpperCase() + day.slice(1)}</span>
@@ -287,7 +345,6 @@ function DestinationEditForm({ initialData, onSave, loading }) {
                 usefulInfo: form.usefulInfo,
             },
         };
-        console.log('Payload gửi lên backend:', payload);
         onSave(payload);
     };
 
@@ -347,7 +404,7 @@ function DestinationEditForm({ initialData, onSave, loading }) {
 
             <div className={cx('form-group')}>
                 <label>Giới thiệu</label>
-                <textarea name="description" value={form.description} onChange={handleChange} rows={3} />
+                <textarea name="description" value={form.description || ''} onChange={handleChange} rows={3} />
             </div>
 
             {renderListField('Nổi bật', 'highlight')}
