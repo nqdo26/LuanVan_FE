@@ -3,6 +3,8 @@ import classNames from 'classnames/bind';
 import styles from './DestinationEditForm.module.scss';
 import AlbumUploader from '~/components/AlbumUploader';
 import { getCitiesApi, getTagsApi } from '~/utils/api';
+import { PlusOutlined } from '@ant-design/icons';
+import { PlusIcon } from 'lucide-react';
 
 const cx = classNames.bind(styles);
 
@@ -171,6 +173,9 @@ function DestinationEditForm({ initialData, onSave, loading }) {
     const renderListField = (label, key) => (
         <div className={cx('form-group')}>
             <label>{label}</label>
+            <button className={cx('add-button')} type="button" onClick={() => handleListAdd(key)}>
+                <PlusIcon size={20} /> Thêm {label.toLowerCase()}
+            </button>
             {form[key].map((item, index) => (
                 <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
                     <input
@@ -179,25 +184,22 @@ function DestinationEditForm({ initialData, onSave, loading }) {
                         onChange={(e) => handleListChange(key, index, e.target.value)}
                         style={{ flex: 1 }}
                     />
-                    <button type="button" onClick={() => handleListRemove(key, index)}>
+                    <button className={cx('delete-btn')} type="button" onClick={() => handleListRemove(key, index)}>
                         Xóa
                     </button>
                 </div>
             ))}
-            <button type="button" onClick={() => handleListAdd(key)}>
-                + Thêm {label.toLowerCase()}
-            </button>
         </div>
     );
 
     const renderOpenHourField = () => (
         <div className={cx('form-group')}>
             <label>Giờ mở cửa</label>
-            <button type="button" onClick={() => handleAllDayToggle(true)}>
+            <button className={cx('add-button')} type="button" onClick={() => handleAllDayToggle(true)}>
                 Mở cả ngày
             </button>
             {Object.keys(form.openHour)
-                .filter((day) => day !== 'allday') // Loại bỏ mục allDay khỏi danh sách hiển thị
+                .filter((day) => day !== 'allday')
                 .map((day) => (
                     <div key={day} className={cx('open-hour-row')}>
                         <span>{day.charAt(0).toUpperCase() + day.slice(1)}</span>
@@ -268,13 +270,13 @@ function DestinationEditForm({ initialData, onSave, loading }) {
         const payload = {
             ...form,
             tags: form.tags.map((tag) => (typeof tag === 'object' ? tag._id : tag)),
-            openHour: { ...form.openHour }, // Đảm bảo gửi dưới dạng object
+            openHour: { ...form.openHour },
             album: {
                 space: form.album.space,
                 fnb: form.album.fnb,
                 extra: form.album.extra,
             },
-            contactInfo: { ...form.contactInfo }, // Đảm bảo gửi dưới dạng object
+            contactInfo: { ...form.contactInfo },
             details: {
                 description: form.description,
                 highlight: form.highlight,
@@ -285,7 +287,7 @@ function DestinationEditForm({ initialData, onSave, loading }) {
                 usefulInfo: form.usefulInfo,
             },
         };
-        console.log('Payload gửi lên backend:', payload); // Log dữ liệu gửi lên backend
+        console.log('Payload gửi lên backend:', payload);
         onSave(payload);
     };
 
@@ -308,6 +310,10 @@ function DestinationEditForm({ initialData, onSave, loading }) {
             {renderTagField()}
             <div className={cx('form-row')}>
                 <div className={cx('form-group')}>
+                    <label>Địa chỉ</label>
+                    <input name="address" value={form.address} onChange={handleChange} />
+                </div>
+                <div className={cx('form-group')}>
                     <label>Thành phố</label>
                     <select name="city" value={form.city} onChange={handleChange} required>
                         <option value="">Chọn thành phố</option>
@@ -317,10 +323,6 @@ function DestinationEditForm({ initialData, onSave, loading }) {
                             </option>
                         ))}
                     </select>
-                </div>
-                <div className={cx('form-group')}>
-                    <label>Địa chỉ</label>
-                    <input name="address" value={form.address} onChange={handleChange} />
                 </div>
             </div>
 

@@ -6,6 +6,7 @@ import { Button, Table, Popconfirm, message, Spin } from 'antd';
 import { EyeOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { getCitiesApi, deleteCityApi } from '~/utils/api';
+import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
@@ -15,6 +16,7 @@ function AdminPlaceManage() {
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 5;
 
+    const navigate = useNavigate();
     useEffect(() => {
         fetchCities();
     }, []);
@@ -53,11 +55,11 @@ function AdminPlaceManage() {
     };
 
     const handleAccessCity = (record) => {
-        window.open(`/city/${record.slug}`, '_blank');
+        navigate(`/city/${record.slug}`);
     };
 
     const handleEditCity = (record) => {
-        window.open(`/admin/city/edit/${record._id}`);
+        navigate(`/admin/city/edit/${record._id}`);
     };
 
     const columns = [
@@ -144,12 +146,7 @@ function AdminPlaceManage() {
                         onClick={() => handleAccessCity(record)}
                         title="Xem chi tiết"
                     />
-                    <Button
-              
-                        icon={<EditOutlined />}
-                        onClick={() => handleEditCity(record)}
-                        title="Chỉnh sửa địa điểm"
-                    />
+                    <Button icon={<EditOutlined />} onClick={() => handleEditCity(record)} title="Chỉnh sửa địa điểm" />
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xóa địa điểm này?"
                         onConfirm={() => handleDeleteCity(record)}

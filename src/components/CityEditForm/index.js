@@ -130,7 +130,7 @@ function CityEditForm({ defaultData = {}, onSubmit, loading = false }) {
 
     return (
         <form className={cx('form')} onSubmit={handleSubmit}>
-            <Spin spinning={loading} tip="Đang lưu thông tin..." size="large">
+            <Spin spinning={loading} size="large">
                 <div className={cx('form-row')}>
                     <div className={cx('form-group')}>
                         <label htmlFor="title">Tên thành phố</label>

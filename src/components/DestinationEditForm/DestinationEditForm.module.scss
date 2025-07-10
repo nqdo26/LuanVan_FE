@@ -6,7 +6,7 @@
 
 .section-label {
     font-weight: 600;
-    font-size: 17px;
+    font-size: 20px;
     color: #1a1a1a;
     margin: 14px 0 4px 0;
 }
@@ -26,7 +26,7 @@
 
     label {
         font-weight: 500;
-        font-size: 15px;
+        font-size: 20px;
         color: #222;
         margin-bottom: 2px;
 
@@ -59,18 +59,39 @@
         margin-top: 4px;
         padding: 6px 10px;
         font-size: 14px;
-        background: #eee;
+        background: #000000;
+        color: #fff;
         border: none;
         border-radius: 6px;
         cursor: pointer;
         transition: all 0.18s;
 
         &:hover {
-            background: #ddd;
+            background: #555555;
         }
     }
 }
 
+.add-button {
+    width: fit-content;
+    display: flex;
+    align-items: center;
+}
+
+.delete-btn {
+    padding: 6px 10px;
+    background: #e53e3e !important;
+    color: #fff !important;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+
+    &:hover {
+        background: #ff6565 !important;
+    }
+}
 .open-hour-row {
     display: flex;
     align-items: center;

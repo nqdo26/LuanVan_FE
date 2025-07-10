@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import classNames from 'classnames/bind';
+import { Spin } from 'antd';
 import FieldList from '~/components/FieldList';
 import AlbumUploader from '~/components/AlbumUploader';
 
@@ -43,13 +44,21 @@ function StepDetailRestaurant({ defaultData, onPrev, onSubmit, loading }) {
         }));
     };
     const handleAllDayChange = () => {
-        setData((prev) => ({
-            ...prev,
-            openHour: {
-                ...prev.openHour,
-                allday: !prev.openHour.allday,
-            },
-        }));
+        setData((prev) => {
+            const newAllDay = !prev.openHour.allday;
+            const newOpenHour = { ...prev.openHour, allday: newAllDay };
+
+            if (newAllDay) {
+                ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].forEach((day) => {
+                    newOpenHour[day] = { open: '00:00', close: '23:59' };
+                });
+            }
+
+            return {
+                ...prev,
+                openHour: newOpenHour,
+            };
+        });
     };
     const handleClosedDay = (day) => {
         setData((prev) => ({
@@ -57,6 +66,16 @@ function StepDetailRestaurant({ defaultData, onPrev, onSubmit, loading }) {
             openHour: {
                 ...prev.openHour,
                 [day]: { open: 'Đóng cửa', close: 'Đóng cửa' },
+            },
+        }));
+    };
+
+    const handleOpenDay = (day) => {
+        setData((prev) => ({
+            ...prev,
+            openHour: {
+                ...prev.openHour,
+                [day]: { open: '', close: '' },
             },
         }));
     };
@@ -80,11 +99,14 @@ function StepDetailRestaurant({ defaultData, onPrev, onSubmit, loading }) {
             setError('Vui lòng nhập ít nhất 1 giá trị cho Thông tin hữu ích.');
             return;
         }
-        // Validate openHour: mỗi ngày phải có giá trị hoặc chọn allday
+
         if (!data.openHour.allday) {
             const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
             for (let day of days) {
                 const oh = data.openHour[day];
+                if (oh.open === 'Đóng cửa' && oh.close === 'Đóng cửa') {
+                    continue;
+                }
                 if (!oh.open || !oh.close) {
                     setError('Vui lòng nhập đầy đủ thời gian mở cửa cho tất cả các ngày hoặc chọn Mở cả ngày.');
                     return;
@@ -120,111 +142,130 @@ function StepDetailRestaurant({ defaultData, onPrev, onSubmit, loading }) {
     };
 
     return (
-        <form className={cx('form')} onSubmit={handleSubmit}>
-            {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
-            <div className={cx('form-group')}>
-                <label>Giới thiệu</label>
-                <textarea
-                    rows={3}
-                    value={data.description}
-                    onChange={(e) => handleInput('description', e.target.value)}
-                    placeholder="Giới thiệu về nhà hàng..."
-                />
-            </div>
-            <FieldList
-                label="Nổi bật"
-                value={data.highlight}
-                newValue={data.newHighlight || ''}
-                onAdd={() => addToList('highlight', data.newHighlight || '')}
-                onRemove={(i) => removeFromList('highlight', i)}
-                onInput={(e) => handleInput('newHighlight', e.target.value)}
-            />
-            <FieldList
-                label="Dịch vụ tiện ích"
-                value={data.services}
-                newValue={data.newServices || ''}
-                onAdd={() => addToList('services', data.newServices || '')}
-                onRemove={(i) => removeFromList('services', i)}
-                onInput={(e) => handleInput('newServices', e.target.value)}
-            />
-            <FieldList
-                label="Thông tin hữu ích"
-                value={data.usefulInfo}
-                newValue={data.newUsefulInfo || ''}
-                onAdd={() => addToList('usefulInfo', data.newUsefulInfo || '')}
-                onRemove={(i) => removeFromList('usefulInfo', i)}
-                onInput={(e) => handleInput('newUsefulInfo', e.target.value)}
-            />
-            <div className={cx('openhour-section')}>
-                <label>Thời gian mở cửa</label>
-                <div style={{ marginBottom: 8 }}>
-                    <label>
-                        <input
-                            type="checkbox"
-                            checked={data.openHour.allday}
-                            onChange={handleAllDayChange}
-                            style={{ marginRight: 8 }}
-                        />
-                        Mở cả ngày
-                    </label>
+        <Spin size="large" spinning={loading}>
+            <form className={cx('form')} onSubmit={handleSubmit}>
+                {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
+                <div className={cx('form-group')}>
+                    <label>Giới thiệu</label>
+                    <textarea
+                        rows={3}
+                        value={data.description}
+                        onChange={(e) => handleInput('description', e.target.value)}
+                        placeholder="Giới thiệu về nhà hàng..."
+                    />
                 </div>
-                {!data.openHour.allday && (
-                    <div className={cx('openhour-table')}>
-                        {['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].map((day) => (
-                            <div key={day} className={cx('openhour-row')}>
-                                <span className={cx('oh-day')}>{getDayLabel(day)}:</span>
-                                <input
-                                    type="time"
-                                    value={data.openHour[day].open}
-                                    onChange={(e) => handleOpenHourChange(day, 'open', e.target.value)}
-                                    disabled={data.openHour[day].open === 'Đóng cửa'}
-                                />
-                                <span style={{ margin: '0 3px' }}>đến</span>
-                                <input
-                                    type="time"
-                                    value={data.openHour[day].close}
-                                    onChange={(e) => handleOpenHourChange(day, 'close', e.target.value)}
-                                    disabled={data.openHour[day].close === 'Đóng cửa'}
-                                />
-                                <button type="button" className={cx('close-btn')} onClick={() => handleClosedDay(day)}>
-                                    Đóng cửa
-                                </button>
-                            </div>
-                        ))}
+                <FieldList
+                    label="Nổi bật"
+                    value={data.highlight}
+                    newValue={data.newHighlight || ''}
+                    onAdd={() => addToList('highlight', data.newHighlight || '')}
+                    onRemove={(i) => removeFromList('highlight', i)}
+                    onInput={(e) => handleInput('newHighlight', e.target.value)}
+                />
+                <FieldList
+                    label="Dịch vụ tiện ích"
+                    value={data.services}
+                    newValue={data.newServices || ''}
+                    onAdd={() => addToList('services', data.newServices || '')}
+                    onRemove={(i) => removeFromList('services', i)}
+                    onInput={(e) => handleInput('newServices', e.target.value)}
+                />
+                <FieldList
+                    label="Thông tin hữu ích"
+                    value={data.usefulInfo}
+                    newValue={data.newUsefulInfo || ''}
+                    onAdd={() => addToList('usefulInfo', data.newUsefulInfo || '')}
+                    onRemove={(i) => removeFromList('usefulInfo', i)}
+                    onInput={(e) => handleInput('newUsefulInfo', e.target.value)}
+                />
+                <div className={cx('openhour-section')}>
+                    <label>Thời gian mở cửa</label>
+                    <div style={{ marginBottom: 8 }}>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={data.openHour.allday}
+                                onChange={handleAllDayChange}
+                                style={{ marginRight: 8 }}
+                            />
+                            Mở cả ngày
+                        </label>
                     </div>
-                )}
-            </div>
+                    {!data.openHour.allday && (
+                        <div className={cx('openhour-table')}>
+                            {['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].map((day) => (
+                                <div key={day} className={cx('openhour-row')}>
+                                    <span className={cx('oh-day')}>{getDayLabel(day)}:</span>
+                                    {data.openHour[day].open === 'Đóng cửa' ? (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <span style={{ color: '#999' }}>Đóng cửa</span>
+                                            <button
+                                                type="button"
+                                                className={cx('open-btn')}
+                                                onClick={() => handleOpenDay(day)}
+                                            >
+                                                Mở cửa
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <input
+                                                type="time"
+                                                value={data.openHour[day].open}
+                                                onChange={(e) => handleOpenHourChange(day, 'open', e.target.value)}
+                                            />
+                                            <span style={{ margin: '0 3px' }}>đến</span>
+                                            <input
+                                                type="time"
+                                                value={data.openHour[day].close}
+                                                onChange={(e) => handleOpenHourChange(day, 'close', e.target.value)}
+                                            />
+                                            <button
+                                                type="button"
+                                                className={cx('close-btn')}
+                                                onClick={() => handleClosedDay(day)}
+                                            >
+                                                Đóng cửa
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
-            <div className={cx('section-label')}>Album ảnh</div>
-            <div className={cx('album-wrap')}>
-                <AlbumUploader
-                    label="Không gian "
-                    files={data.album.space}
-                    onAdd={(files) => handleAlbumAdd('space', files)}
-                    onRemove={(idx) => handleAlbumRemove('space', idx)}
-                />
-                <AlbumUploader
-                    label="Ẩm thực "
-                    files={data.album.fnb}
-                    onAdd={(files) => handleAlbumAdd('fnb', files)}
-                    onRemove={(idx) => handleAlbumRemove('fnb', idx)}
-                />
-                <AlbumUploader
-                    label="Thực đơn "
-                    files={data.album.extra}
-                    onAdd={(files) => handleAlbumAdd('extra', files)}
-                    onRemove={(idx) => handleAlbumRemove('extra', idx)}
-                />
-            </div>
-            <div className={cx('btns')}>
-                <button type="button" className={cx('back-btn')} onClick={onPrev} disabled={loading}>
-                    Quay lại
-                </button>
-                <button type="submit" className={cx('submit-btn')} disabled={loading}>
-                    {loading ? 'Đang lưu...' : 'Lưu thông tin'}
-                </button>
-            </div>
-        </form>
+                <div className={cx('section-label')}>Album ảnh</div>
+                <div className={cx('album-wrap')}>
+                    <AlbumUploader
+                        label="Không gian "
+                        files={data.album.space}
+                        onAdd={(files) => handleAlbumAdd('space', files)}
+                        onRemove={(idx) => handleAlbumRemove('space', idx)}
+                    />
+                    <AlbumUploader
+                        label="Ẩm thực "
+                        files={data.album.fnb}
+                        onAdd={(files) => handleAlbumAdd('fnb', files)}
+                        onRemove={(idx) => handleAlbumRemove('fnb', idx)}
+                    />
+                    <AlbumUploader
+                        label="Thực đơn "
+                        files={data.album.extra}
+                        onAdd={(files) => handleAlbumAdd('extra', files)}
+                        onRemove={(idx) => handleAlbumRemove('extra', idx)}
+                    />
+                </div>
+                <div className={cx('btns')}>
+                    <button type="button" className={cx('back-btn')} onClick={onPrev} disabled={loading}>
+                        Quay lại
+                    </button>
+                    <button type="submit" className={cx('submit-btn')} disabled={loading}>
+                        {loading ? 'Đang lưu...' : 'Lưu thông tin'}
+                    </button>
+                </div>
+            </form>
+        </Spin>
     );
 }
 
