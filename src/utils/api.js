@@ -135,14 +135,44 @@ const updateDestinationToEditApi = (id, destinationData) => {
     formData.append('openHour', JSON.stringify(destinationData.openHour || {}));
     formData.append('details', JSON.stringify(destinationData.details || {}));
 
+    // Xử lý album - gửi cả ảnh cũ và ảnh mới
     if (destinationData.album) {
-        ['space', 'fnb', 'extra'].forEach((key) => {
-            destinationData.album[key]?.forEach((file) => {
-                formData.append(`album_${key}`, file.originFileObj || file);
+        // Phân loại ảnh cũ (URL string) và ảnh mới (File object)
+        const processAlbumField = (fieldName, files) => {
+            const existingImages = [];
+            const newFiles = [];
+
+            if (files && files.length > 0) {
+                files.forEach((file) => {
+                    if (typeof file === 'string') {
+                        // Ảnh cũ (URL)
+                        existingImages.push(file);
+                    } else {
+                        // Ảnh mới (File object)
+                        newFiles.push(file);
+                    }
+                });
+            }
+
+            // Gửi danh sách ảnh cũ còn lại
+            if (existingImages.length > 0) {
+                formData.append(`existing_${fieldName}`, JSON.stringify(existingImages));
+            }
+
+            // Gửi ảnh mới
+            newFiles.forEach((file) => {
+                formData.append(fieldName, file.originFileObj || file);
             });
-        });
+        };
+
+        // Xử lý từng loại album
+        processAlbumField('album_space', destinationData.album.space);
+        processAlbumField('album_fnb', destinationData.album.fnb);
+        processAlbumField('album_extra', destinationData.album.extra);
+
+        // Xử lý highlight (nếu có)
         if (destinationData.album.highlight) {
-            formData.append('highlight', JSON.stringify(destinationData.album.highlight));
+            processAlbumField('images', destinationData.album.highlight);
         }
     }
 

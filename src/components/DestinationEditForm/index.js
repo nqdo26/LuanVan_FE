@@ -3,7 +3,7 @@ import classNames from 'classnames/bind';
 import styles from './DestinationEditForm.module.scss';
 import AlbumUploader from '~/components/AlbumUploader';
 import { getCitiesApi, getTagsApi } from '~/utils/api';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, LoadingOutlined } from '@ant-design/icons';
 import { PlusIcon } from 'lucide-react';
 
 const cx = classNames.bind(styles);
@@ -445,6 +445,7 @@ function DestinationEditForm({ initialData, onSave, loading }) {
             </div>
 
             <button type="submit" className={cx('submit-btn')} disabled={loading}>
+                {loading && <LoadingOutlined style={{ marginRight: 8 }} />}
                 {loading ? 'Đang lưu...' : 'Lưu thay đổi'}
             </button>
         </form>
