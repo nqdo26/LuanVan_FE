@@ -339,11 +339,29 @@ const getCityByIdAndUpdateApi = (id, cityData = null) => {
         formData.append('type', JSON.stringify(cityData.type));
     }
 
+    // Xử lý ảnh - phân loại ảnh cũ (URL string) và ảnh mới (File object)
     if (cityData.images && cityData.images.length > 0) {
-        cityData.images.forEach((file) => {
-            if (file.originFileObj) {
-                formData.append('images', file.originFileObj);
+        const existingImages = [];
+        const newFiles = [];
+
+        cityData.images.forEach((image) => {
+            if (image.url && !image.originFileObj) {
+                // Ảnh cũ (có URL, không có originFileObj)
+                existingImages.push(image.url);
+            } else if (image.originFileObj) {
+                // Ảnh mới (có originFileObj)
+                newFiles.push(image);
             }
+        });
+
+        // Gửi danh sách ảnh cũ còn lại
+        if (existingImages.length > 0) {
+            formData.append('existing_images', JSON.stringify(existingImages));
+        }
+
+        // Gửi ảnh mới
+        newFiles.forEach((file) => {
+            formData.append('images', file.originFileObj);
         });
     }
 
@@ -370,8 +388,28 @@ const updateCityApi = (id, cityData) => {
         formData.append('type', JSON.stringify(cityData.type));
     }
 
+    // Xử lý ảnh - phân loại ảnh cũ (URL string) và ảnh mới (File object)
     if (cityData.images && cityData.images.length > 0) {
-        cityData.images.forEach((file) => {
+        const existingImages = [];
+        const newFiles = [];
+
+        cityData.images.forEach((image) => {
+            if (typeof image === 'string') {
+                // Ảnh cũ (URL)
+                existingImages.push(image);
+            } else {
+                // Ảnh mới (File object)
+                newFiles.push(image);
+            }
+        });
+
+        // Gửi danh sách ảnh cũ còn lại
+        if (existingImages.length > 0) {
+            formData.append('existing_images', JSON.stringify(existingImages));
+        }
+
+        // Gửi ảnh mới
+        newFiles.forEach((file) => {
             formData.append('images', file.originFileObj || file);
         });
     }

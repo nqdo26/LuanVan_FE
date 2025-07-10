@@ -23,9 +23,21 @@ function EditCity() {
         try {
             setLoading(true);
 
+            console.log('=== API Call ===');
+            console.log('Calling getCityByIdAndUpdateApi with ID:', id);
+
             const response = await getCityByIdAndUpdateApi(id);
+
+            console.log('=== API Response ===');
+            console.log('Full response:', response);
+            console.log('Response.data:', response?.data);
+            console.log('Response.EC:', response?.EC);
+
             if (response && response.EC === 0) {
                 const city = response.data;
+                console.log('=== EditCity fetchCityData ===');
+                console.log('Raw city data:', city);
+                console.log('City info:', city.info);
 
                 const formData = {
                     title: city.name,
@@ -41,6 +53,9 @@ function EditCity() {
                     weather: city.weather || [],
                     info: city.info || [],
                 };
+
+                console.log('Mapped formData:', formData);
+                console.log('FormData info:', formData.info);
                 setCityData(formData);
             } else {
                 notification.error({

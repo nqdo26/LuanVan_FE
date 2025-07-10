@@ -38,6 +38,28 @@ function CityEditForm({ defaultData = {}, onSubmit, loading = false }) {
         fetchTypes();
     }, []);
 
+    useEffect(() => {
+        if (defaultData && Object.keys(defaultData).length > 0) {
+            console.log('=== CityEditForm useEffect ===');
+            console.log('defaultData received:', defaultData);
+            console.log('defaultData.info:', defaultData.info);
+
+            setForm({
+                title: defaultData.title || '',
+                description: defaultData.description || '',
+                type: defaultData.type || [],
+                images: defaultData.images || [],
+                weather: FIXED_SEASONS.map((season, i) => ({
+                    title: season,
+                    minTemp: defaultData.weather?.[i]?.minTemp || '',
+                    maxTemp: defaultData.weather?.[i]?.maxTemp || '',
+                    note: defaultData.weather?.[i]?.note || '',
+                })),
+                info: defaultData.info || [],
+            });
+        }
+    }, [defaultData]);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
@@ -224,6 +246,9 @@ function CityEditForm({ defaultData = {}, onSubmit, loading = false }) {
                 ))}
 
                 <div className={cx('section-label')}>Thông tin hữu ích</div>
+                {console.log('=== Rendering info section ===') || ''}
+                {console.log('form.info:', form.info) || ''}
+                {console.log('form.info.length:', form.info?.length) || ''}
                 {form.info.map((item, index) => (
                     <div key={index} className={cx('form-row')}>
                         <button className={cx('delete-btn')} type="button" onClick={() => handleRemoveInfo(index)}>

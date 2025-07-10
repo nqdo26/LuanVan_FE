@@ -125,7 +125,6 @@ function EditDestination() {
                 });
             }
         } catch (err) {
-            console.error('Chi tiết lỗi:', err);
             notification.error({
                 message: 'Lỗi',
                 description: err.response?.data?.EM || 'Có lỗi khi cập nhật địa điểm!',
