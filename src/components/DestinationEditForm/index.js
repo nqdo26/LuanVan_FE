@@ -29,6 +29,7 @@ function DestinationEditForm({ initialData, onSave, loading }) {
             const updatedForm = {
                 ...initialData.form,
                 ...initialData.detail,
+                address: initialData.form.address || '',
                 contactInfo: {
                     phone: initialData.form.phone || '',
                     website: initialData.form.website || '',
@@ -78,6 +79,7 @@ function DestinationEditForm({ initialData, onSave, loading }) {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        console.log(`Thay đổi trường ${name}:`, value); // Log giá trị thay đổi
         setForm((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -110,6 +112,7 @@ function DestinationEditForm({ initialData, onSave, loading }) {
     };
 
     const handleOpenHourChange = (day, field, value) => {
+        console.log(`Thay đổi giờ mở cửa cho ${day} - ${field}:`, value); // Log thay đổi giờ mở cửa
         setForm((prev) => ({
             ...prev,
             openHour: {
@@ -150,6 +153,21 @@ function DestinationEditForm({ initialData, onSave, loading }) {
         }));
     };
 
+    const handleToggleDay = (day) => {
+        setForm((prev) => {
+            const isClosed = prev.openHour[day]?.open === 'Đóng cửa';
+            return {
+                ...prev,
+                openHour: {
+                    ...prev.openHour,
+                    [day]: isClosed
+                        ? { open: '', close: '', allDay: false }
+                        : { open: 'Đóng cửa', close: 'Đóng cửa', allDay: false },
+                },
+            };
+        });
+    };
+
     const renderListField = (label, key) => (
         <div className={cx('form-group')}>
             <label>{label}</label>
@@ -178,26 +196,28 @@ function DestinationEditForm({ initialData, onSave, loading }) {
             <button type="button" onClick={() => handleAllDayToggle(true)}>
                 Mở cả ngày
             </button>
-            {Object.keys(defaultOpenHour).map((day) => (
-                <div key={day} className={cx('open-hour-row')}>
-                    <span>{day.charAt(0).toUpperCase() + day.slice(1)}</span>
-                    <input
-                        type="time"
-                        value={form.openHour[day]?.open || ''}
-                        onChange={(e) => handleOpenHourChange(day, 'open', e.target.value)}
-                        disabled={form.openHour[day]?.open === 'Đóng cửa'}
-                    />
-                    <input
-                        type="time"
-                        value={form.openHour[day]?.close || ''}
-                        onChange={(e) => handleOpenHourChange(day, 'close', e.target.value)}
-                        disabled={form.openHour[day]?.close === 'Đóng cửa'}
-                    />
-                    <button type="button" onClick={() => handleCloseDay(day)}>
-                        Đóng cửa
-                    </button>
-                </div>
-            ))}
+            {Object.keys(form.openHour)
+                .filter((day) => day !== 'allday') // Loại bỏ mục allDay khỏi danh sách hiển thị
+                .map((day) => (
+                    <div key={day} className={cx('open-hour-row')}>
+                        <span>{day.charAt(0).toUpperCase() + day.slice(1)}</span>
+                        <input
+                            type="time"
+                            value={form.openHour[day]?.open || ''}
+                            onChange={(e) => handleOpenHourChange(day, 'open', e.target.value)}
+                            disabled={form.openHour[day]?.open === 'Đóng cửa'}
+                        />
+                        <input
+                            type="time"
+                            value={form.openHour[day]?.close || ''}
+                            onChange={(e) => handleOpenHourChange(day, 'close', e.target.value)}
+                            disabled={form.openHour[day]?.close === 'Đóng cửa'}
+                        />
+                        <button type="button" onClick={() => handleToggleDay(day)}>
+                            {form.openHour[day]?.open === 'Đóng cửa' ? 'Mở cửa' : 'Đóng cửa'}
+                        </button>
+                    </div>
+                ))}
         </div>
     );
 
@@ -248,13 +268,24 @@ function DestinationEditForm({ initialData, onSave, loading }) {
         const payload = {
             ...form,
             tags: form.tags.map((tag) => (typeof tag === 'object' ? tag._id : tag)),
-            openHour: form.openHour,
+            openHour: { ...form.openHour }, // Đảm bảo gửi dưới dạng object
             album: {
                 space: form.album.space,
                 fnb: form.album.fnb,
                 extra: form.album.extra,
             },
+            contactInfo: { ...form.contactInfo }, // Đảm bảo gửi dưới dạng object
+            details: {
+                description: form.description,
+                highlight: form.highlight,
+                services: form.services,
+                cultureType: form.cultureType,
+                activities: form.activities,
+                fee: form.fee,
+                usefulInfo: form.usefulInfo,
+            },
         };
+        console.log('Payload gửi lên backend:', payload); // Log dữ liệu gửi lên backend
         onSave(payload);
     };
 

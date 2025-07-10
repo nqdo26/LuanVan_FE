@@ -103,7 +103,7 @@ function EditDestination() {
 
             if (res && res.EC === 0) {
                 message.success('Cập nhật địa điểm thành công!');
-                navigate('/admin/destinations');
+                navigate('/admin/destinations-management');
             } else {
                 message.error(res?.EM || 'Cập nhật thất bại!');
             }
