@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './DestinationCard.module.scss';
 const cx = classNames.bind(styles);
 
-function DestinationCard() {
+function DestinationCard({ destination = {} }) {
     const navigate = useNavigate();
     const [liked, setLiked] = useState(false);
 
@@ -40,13 +40,81 @@ function DestinationCard() {
     };
 
     const handleCardClick = () => {
-        navigate('/destination/wimi-factory');
+        navigate(`/destination/${destination.slug || 'unknown'}`);
         window.scrollTo(0, 0);
     };
 
-    const rating = 3.5;
-    const badges = ['Chụp hình', 'Học bài', 'Cà phê ngon', 'Sống ảo', 'View đẹp'];
+    const getFirstImage = () => {
+        if (!destination.album) return '/destination-img.png';
+
+        if (destination.album.space && destination.album.space.length > 0) {
+            return destination.album.space[0];
+        }
+        if (destination.album.fnb && destination.album.fnb.length > 0) {
+            return destination.album.fnb[0];
+        }
+        if (destination.album.extra && destination.album.extra.length > 0) {
+            return destination.album.extra[0];
+        }
+
+        return '/destination-img.png';
+    };
+
+    const getOpenTimeText = () => {
+        // Sửa đường dẫn từ destination.details?.openHour thành destination.openHour
+        if (destination.type !== 'restaurant' || !destination.openHour) {
+            return 'Đang mở cửa';
+        }
+
+        const openHour = destination.openHour;
+
+        if (openHour.allday) {
+            return 'Đang mở cửa';
+        }
+
+        const now = new Date();
+        const currentDay = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][now.getDay()];
+        const currentTime = now.getHours() * 60 + now.getMinutes();
+
+        const todaySchedule = openHour[currentDay];
+
+        if (!todaySchedule || todaySchedule.open === 'Đóng cửa') {
+            return 'Đang đóng cửa';
+        }
+
+        const parseTime = (timeStr) => {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes;
+        };
+
+        const openTime = parseTime(todaySchedule.open);
+        const closeTime = parseTime(todaySchedule.close);
+
+        if (closeTime > openTime) {
+            if (currentTime >= openTime && currentTime <= closeTime) {
+                return 'Đang mở cửa';
+            }
+        } else {
+            if (currentTime >= openTime || currentTime <= closeTime) {
+                return 'Đang mở cửa';
+            }
+        }
+
+        return 'Đang đóng cửa';
+    };
+
+    // Lấy badge class dựa trên type
+    const getBadgeClass = () => {
+        return destination.type === 'restaurant' ? 'badge-restaurant' : 'badge-tourist';
+    };
+
+    const badges = destination.tags?.map((tag) => tag.title || tag.name || tag) || [];
     const maxBadgesToShow = 2;
+
+    const rating = destination.statistics?.averageRating || 0;
+    const commentCount = destination.comments?.length || 0;
+
+    const isOpen = getOpenTimeText() === 'Đang mở cửa';
 
     return (
         <motion.div
@@ -62,7 +130,11 @@ function DestinationCard() {
                 hoverable
                 cover={
                     <div className={cx('image-container')}>
-                        <img alt="WIMI-Factory" src="/destination-img.png" className={cx('card-image')} />
+                        <img
+                            alt={destination.title || 'Destination'}
+                            src={getFirstImage()}
+                            className={cx('card-image')}
+                        />
                         <button className={cx('favorite-btn')} onClick={toggleLike}>
                             <HeartOutlined
                                 className={cx('favourite-icon', { liked })}
@@ -75,28 +147,33 @@ function DestinationCard() {
             >
                 <div className={cx('location')}>
                     <AiOutlineEnvironment className={cx('icon-location')} />
-                    Cần Thơ
+                    {destination.location?.city?.name || 'Chưa có thông tin'}
                 </div>
-                <h3 className={cx('title')}>Wimi-Factory Wimi-Factory Wimi-Factory Wimi-Factory Wimi-Factory</h3>
+                <h3 className={cx('title')}>{destination.title || 'Tên địa điểm'}</h3>
 
                 <div className={cx('badge-container')}>
                     {badges.slice(0, maxBadgesToShow).map((badge, index) => (
-                        <div key={index} className={cx('badge')} title={badge}>
+                        <div key={index} className={cx('badge', getBadgeClass())} title={badge}>
                             {truncateText(badge, 11)}
                         </div>
                     ))}
-                    {badges.length > maxBadgesToShow && <div className={cx('badge')}>...</div>}
+                    {badges.length > maxBadgesToShow && <div className={cx('badge', getBadgeClass())}>...</div>}
                 </div>
 
                 <div className={cx('info')}>
-                    <AiOutlineClockCircle style={{ color: 'black', marginRight: '5px' }} />
-                    <span>Hoạt động cả ngày</span>
+                    <AiOutlineClockCircle
+                        style={{
+                            color: isOpen ? '#52c41a' : '#ff4d4f',
+                            marginRight: '5px',
+                        }}
+                    />
+                    <span style={{ color: isOpen ? '#50b81c' : '#ff4d4f' }}>{getOpenTimeText()}</span>
                 </div>
 
                 <div className={cx('rating-container')}>
                     <Rate disabled allowHalf value={rating} />
-                    <span className={cx('rating-value')}>{rating}</span>
-                    <span className={cx('rating-count')}>(300)</span>
+                    <span className={cx('rating-value')}>{rating.toFixed(1)}</span>
+                    <span className={cx('rating-count')}>({commentCount})</span>
                 </div>
             </Card>
         </motion.div>

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 import styles from './AdminAddDestination.module.scss';
 
@@ -60,7 +60,7 @@ function AdminAddDestination() {
 
     const { auth } = useContext(AuthContext);
 
-    React.useEffect(() => {
+    useEffect(() => {
         getTagsApi().then((res) => {
             if (res && res.data && Array.isArray(res.data)) {
                 setTagsList(res.data);

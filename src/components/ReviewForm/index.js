@@ -1,13 +1,15 @@
 import classNames from 'classnames/bind';
 import { Rate, Input, DatePicker, Button, Upload, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import styles from './ReviewForm.module.scss';
 import { useState } from 'react';
 
 const cx = classNames.bind(styles);
 const { TextArea } = Input;
 
-function ReviewForm({ type = 'restaurant', onSubmit }) {
+function ReviewForm({ type = 'restaurant', onSubmit, destinationId, destinationData }) {
+    const navigate = useNavigate();
     const [form, setForm] = useState({
         author: '',
         rating: 0,
@@ -56,7 +58,7 @@ function ReviewForm({ type = 'restaurant', onSubmit }) {
                 const total = validRates.reduce((sum, val) => sum + val, 0);
                 const average = validRates.length ? total / validRates.length : 0;
 
-                newForm.rating = Math.round(average * 2) / 2; // Làm tròn 0.5
+                newForm.rating = Math.round(average * 2) / 2;
             }
 
             return newForm;
@@ -72,13 +74,43 @@ function ReviewForm({ type = 'restaurant', onSubmit }) {
     };
 
     const handleSubmit = () => {
+        if (!form.title.trim()) {
+            message.error('Vui lòng nhập tiêu đề đánh giá');
+            return;
+        }
+        if (!form.content.trim()) {
+            message.error('Vui lòng nhập nội dung đánh giá');
+            return;
+        }
+        if (form.rating === 0) {
+            message.error('Vui lòng đánh giá ít nhất một tiêu chí');
+            return;
+        }
+
         console.log('Review gửi đi:', form);
-        if (onSubmit) onSubmit(form);
+        if (onSubmit) {
+            onSubmit(form);
+        } else {
+            message.success('Gửi đánh giá thành công!');
+
+            if (destinationData?.slug) {
+                navigate(`/destination/${destinationData.slug}`);
+            } else {
+                navigate(-1);
+            }
+        }
+    };
+
+    const handleCancel = () => {
+        if (destinationData?.slug) {
+            navigate(`/destination/${destinationData.slug}`);
+        } else {
+            navigate(-1);
+        }
     };
 
     return (
         <div className={cx('wrapper')}>
-            {/* Tiêu đề */}
             <div className={cx('form-group')}>
                 <label>Tiêu đề đánh giá:</label>
                 <Input
@@ -89,7 +121,6 @@ function ReviewForm({ type = 'restaurant', onSubmit }) {
                 />
             </div>
 
-            {/* Nội dung */}
             <div className={cx('form-group')}>
                 <label>Nội dung đánh giá:</label>
                 <TextArea
@@ -101,10 +132,14 @@ function ReviewForm({ type = 'restaurant', onSubmit }) {
                 />
             </div>
 
-            {/* Ngày trải nghiệm */}
             <div className={cx('form-group')}>
                 <label>Thời gian trải nghiệm:</label>
-                <DatePicker picker="day" value={form.date} onChange={(value) => handleChange('date', value)} />
+                <DatePicker
+                    placeholder="Chọn ngày"
+                    picker="day"
+                    value={form.date}
+                    onChange={(value) => handleChange('date', value)}
+                />
             </div>
 
             <div className={cx('form-group-rate')}>
@@ -114,7 +149,7 @@ function ReviewForm({ type = 'restaurant', onSubmit }) {
                         allowHalf
                         disabled
                         value={form.rating}
-                        style={{ fontSize: '25px', color: getRatingColor(form.rating) }} 
+                        style={{ fontSize: '25px', color: getRatingColor(form.rating) }}
                     />
                     {form.rating > 0 && (
                         <span className={cx('rating-text')} style={{ color: getRatingColor(form.rating) }}>
@@ -150,7 +185,6 @@ function ReviewForm({ type = 'restaurant', onSubmit }) {
                             </tr>
                         )}
 
-                        {/* Không gian hoặc Hoạt động */}
                         {type === 'restaurant' ? (
                             <tr>
                                 <td className={cx('rating-details-label')}>Không gian:</td>
@@ -175,7 +209,6 @@ function ReviewForm({ type = 'restaurant', onSubmit }) {
                             </tr>
                         )}
 
-                        {/* Phục vụ hoặc Chi phí tham quan */}
                         {type === 'restaurant' ? (
                             <tr>
                                 <td className={cx('rating-details-label')}>Phục vụ:</td>
@@ -200,7 +233,6 @@ function ReviewForm({ type = 'restaurant', onSubmit }) {
                             </tr>
                         )}
 
-                        {/* Vệ sinh */}
                         <tr>
                             <td className={cx('rating-details-label')}>Vệ sinh:</td>
                             <td className={cx('rating-stars')}>
@@ -212,7 +244,6 @@ function ReviewForm({ type = 'restaurant', onSubmit }) {
                             </td>
                         </tr>
 
-                        {/* Giá cả hoặc Độ thuận tiện đường đi */}
                         {type === 'restaurant' ? (
                             <tr>
                                 <td className={cx('rating-details-label')}>Giá cả:</td>
@@ -240,7 +271,6 @@ function ReviewForm({ type = 'restaurant', onSubmit }) {
                 </table>
             </div>
 
-            {/* Upload hình ảnh */}
             <div className={cx('form-group')}>
                 <label>Tải lên hình ảnh (tối đa 4):</label>
                 <Upload
@@ -258,12 +288,11 @@ function ReviewForm({ type = 'restaurant', onSubmit }) {
                 </Upload>
             </div>
 
-            {/* Nút submit */}
             <div className={cx('form-group-submit')}>
-                <Button className={cx('btn-submit')} onClick={handleSubmit}>
+                <Button type="primary" className={cx('btn-submit')} onClick={handleSubmit}>
                     Gửi đánh giá
                 </Button>
-                <Button className={cx('btn-cancel')} onClick={handleSubmit}>
+                <Button className={cx('btn-cancel')} onClick={handleCancel}>
                     Hủy bỏ
                 </Button>
             </div>

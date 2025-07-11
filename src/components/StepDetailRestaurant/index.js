@@ -142,7 +142,7 @@ function StepDetailRestaurant({ defaultData, onPrev, onSubmit, loading }) {
     };
 
     return (
-        <Spin size="large" spinning={loading}>
+        <Spin spinning={loading} size="large">
             <form className={cx('form')} onSubmit={handleSubmit}>
                 {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
                 <div className={cx('form-group')}>

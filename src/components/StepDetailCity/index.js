@@ -161,8 +161,8 @@ function StepDetailCity({ defaultData, onPrev, onSubmit, loading }) {
                             value={item.description || ''}
                             onChange={(e) => handleInfoChange(index, 'description', e.target.value)}
                         />
-                        <button type="button" onClick={() => handleRemoveInfo(index)}>
-                            Xoá
+                        <button className={cx('delete-btn')} type="button" onClick={() => handleRemoveInfo(index)}>
+                            Xóa
                         </button>
                     </div>
                 ))}

@@ -9,13 +9,21 @@
     background-color: #fff;
     width: 265px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    height: 320px;
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    gap: 4px;
+    padding-bottom: 15px;
     &:hover {
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         transform: translateY(-5px);
     }
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    margin-top: 8px;
+    gap: 4px;
 }
 
 .image {
@@ -23,23 +31,14 @@
     height: 220px;
     object-fit: cover;
     display: block;
-}
-
-.info {
-    padding: 0 12px;
+    border-radius: 8px;
 }
 
 .name {
     font-size: 18px;
     font-weight: 600;
-    margin-bottom: 4px;
-    color: #111;
-}
 
-.address {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 2px;
+    color: #111;
 }
 
 .location {

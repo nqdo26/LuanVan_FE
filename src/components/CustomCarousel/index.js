@@ -3,16 +3,40 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
+import { Spin } from 'antd';
 
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import styles from './CustomCarousel.module.scss';
 import classNames from 'classnames/bind';
+import DestinationCard from '~/components/DestinationCard';
 
 const cx = classNames.bind(styles);
 
-function CustomCarousel({ title, card, number }) {
+function CustomCarousel({ title, destinations = [], loading = false, number = 4 }) {
     const prevRef = useRef(null);
     const nextRef = useRef(null);
+
+    if (loading) {
+        return (
+            <div className={cx('wrapper')}>
+                <h2 className={cx('title')}>{title}</h2>
+                <div className={cx('loading-container')}>
+                    <Spin size="large" />
+                </div>
+            </div>
+        );
+    }
+
+    if (!destinations.length) {
+        return (
+            <div className={cx('wrapper')}>
+                <h2 className={cx('title')}>{title}</h2>
+                <div className={cx('no-data')}>
+                    <p>Không có dữ liệu để hiển thị</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={cx('wrapper')}>
@@ -37,14 +61,17 @@ function CustomCarousel({ title, card, number }) {
                     }}
                     breakpoints={{
                         1200: { slidesPerView: 4 },
+                        1150: { slidesPerView: 3 },
                         900: { slidesPerView: 2 },
                         600: { slidesPerView: 2 },
                         0: { slidesPerView: 1 },
                     }}
                 >
-                    {Array.from({ length: 8 }).map((_, i) => (
-                        <SwiperSlide key={i}>
-                            <div className={cx('carousel-items')}>{card}</div>
+                    {destinations.map((destination, index) => (
+                        <SwiperSlide key={destination._id || index}>
+                            <div className={cx('carousel-items')}>
+                                <DestinationCard destination={destination} />
+                            </div>
                         </SwiperSlide>
                     ))}
                 </Swiper>

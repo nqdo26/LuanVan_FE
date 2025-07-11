@@ -42,7 +42,7 @@ const publicRoutes = [
     { path: '/admin/city/edit/:id', component: EditCity },
     { path: '/admin/destination/edit/:id', component: EditDestination },
     { path: '/destination/:slug', component: DestinationDetails },
-    { path: '/write-review', component: WriteReview },
+    { path: '/write-review/:slug', component: WriteReview },
     { path: 'city/:id', component: CityDetail },
     { path: '/add-trip', component: AddTrip },
     { path: '/trip-detail/:id', component: TripDetail },

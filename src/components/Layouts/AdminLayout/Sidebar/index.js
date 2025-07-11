@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Button, Layout, Menu, Avatar, Flex } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { PlusOutlined, EnvironmentOutlined, GlobalOutlined, UserOutlined } from '@ant-design/icons';
-import { House } from 'lucide-react';
+import { House, Tags } from 'lucide-react';
 
 import styles from './Sidebar.module.scss';
 
@@ -41,7 +41,7 @@ function Sidebar() {
         {
             key: 'categories',
             label: 'Danh mục',
-            icon: <GlobalOutlined />,
+            icon: <Tags size={18} />,
             path: '/admin/categories-management',
         },
     ];

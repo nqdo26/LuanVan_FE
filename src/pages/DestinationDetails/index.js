@@ -1,11 +1,14 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import { motion } from 'framer-motion';
+import { Spin, notification, Tabs } from 'antd';
 import styles from './DestinationDetails.module.scss';
 import DestinationDetailPageHeader from '~/components/DestinationDetailPageHeader';
 import DestinationGallery from '~/components/DestinationGallery';
 import DestinationOverview from '~/components/DestinationOverview';
 import CustomComment from '~/components/CustomComment';
-import { Tabs } from 'antd';
+import { getDestinationBySlugApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
 
@@ -19,6 +22,116 @@ const scrollToSection = (id) => {
 };
 
 function DestinationDetails() {
+    const { slug } = useParams();
+    const [destinationData, setDestinationData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (slug) {
+            fetchDestinationData();
+        }
+    }, [slug]);
+
+    useEffect(() => {
+        if (destinationData) {
+            document.title = `${destinationData.title} - Du lịch Việt Nam`;
+        }
+
+        return () => {
+            document.title = 'Du lịch Việt Nam';
+        };
+    }, [destinationData]);
+
+    const fetchDestinationData = async () => {
+        try {
+            setLoading(true);
+            const response = await getDestinationBySlugApi(slug);
+            console.log('Response from API:', response);
+            if (response && response.EC === 0) {
+                setDestinationData(response.data);
+            } else {
+                notification.error({
+                    message: 'Lỗi',
+                    description: 'Không thể tải thông tin địa điểm',
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching destination:', error);
+            notification.error({
+                message: 'Lỗi',
+                description: 'Có lỗi xảy ra khi tải thông tin địa điểm',
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                    zIndex: 9999,
+                }}
+            >
+                <Spin size="large" />
+            </div>
+        );
+    }
+
+    if (!destinationData) {
+        return (
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    minHeight: '400px',
+                    fontSize: '18px',
+                }}
+            >
+                Không tìm thấy thông tin địa điểm
+            </div>
+        );
+    }
+
+    const handleAddComment = () => {
+        navigate(`/write-review/${destinationData.slug}`);
+    };
+
+    const handleSave = () => {
+        notification.success({
+            description: 'Đã thêm địa điểm vào danh sách yêu thích',
+        });
+    };
+
+    const handleShare = () => {
+        const shareUrl = `${window.location.origin}/destination/${destinationData.slug}`;
+        if (navigator.share) {
+            navigator
+                .share({
+                    title: destinationData.title,
+                    text: `Check out this destination: ${destinationData.title}`,
+                    url: shareUrl,
+                })
+
+                .catch((error) => notification.error({ message: 'Lỗi khi chia sẻ', description: error.message }));
+        } else {
+            notification.info({
+                message: 'Chia sẻ',
+                description: `Sao chép liên kết để chia sẻ: ${shareUrl}`,
+            });
+        }
+    };
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -28,10 +141,20 @@ function DestinationDetails() {
         >
             <div className={cx('inner')}>
                 <div className={cx('header')}>
-                    <DestinationDetailPageHeader title="Wimi-Factory" />
+                    <DestinationDetailPageHeader
+                        title={destinationData.title}
+                        location={destinationData.location}
+                        tags={destinationData.tags}
+                        averageRating={destinationData.statistics.averageRating}
+                        comments={destinationData.comments}
+                        destinationType={destinationData.type}
+                        handleAddComment={handleAddComment}
+                        handleSave={handleSave}
+                        handleShare={handleShare}
+                    />
                 </div>
                 <div className={cx('body')}>
-                    <DestinationGallery type="restauran" />
+                    <DestinationGallery type={destinationData.type} album={destinationData.album} />
                     <Tabs
                         className={cx('tabs')}
                         onChange={scrollToSection}
@@ -41,10 +164,15 @@ function DestinationDetails() {
                         }))}
                     />
                     <div id="description">
-                        <DestinationOverview />
+                        <DestinationOverview
+                            destination={destinationData}
+                            handleAddComment={handleAddComment}
+                            handleSave={handleSave}
+                            handleShare={handleShare}
+                        />
                     </div>
                     <div id="rate">
-                        <CustomComment />
+                        <CustomComment handleAddComment={handleAddComment} />
                     </div>
                 </div>
             </div>

@@ -5,41 +5,59 @@ import styles from './DestinationDetailPageHeader.module.scss';
 
 const cx = classNames.bind(styles);
 
-const badges = ['Văn hóa', 'Ẩm thực', 'Chụp hình'];
+function DestinationDetailPageHeader({
+    title = '',
+    location = {},
+    tags = [],
+    averageRating = 0,
+    comments = [],
+    handleAddComment,
+    handleSave,
+    handleShare,
+    destinationType = 'tourist', // Thêm prop này
+}) {
+    // Function để lấy class cho badge
+    const getBadgeClass = () => {
+        return destinationType === 'restaurant' ? 'badge-restaurant' : 'badge-tourist';
+    };
 
-function DestinationDetailPageHeader({ title }) {
     return (
         <div className={cx('destination-header')}>
             <div className={cx('location')}>
                 <EnvironmentOutlined className={cx('location-icon')} />
-                <span className={cx('location-name')}>Thành phố Cần Thơ</span>
+                <span className={cx('location-name')}>{location?.city?.name || 'Không xác định'}</span>
             </div>
             <div className={cx('title-save')}>
                 <h2 className={cx('title')}>{title}</h2>
                 <div className={cx('action')}>
-                    <Button icon={<HeartOutlined />} className={cx('save-btn')}>
-                        Lưu 
+                    <Button onClick={handleSave} icon={<HeartOutlined />} className={cx('save-btn')}>
+                        Lưu
                     </Button>
-                    <Button icon={<ShareAltOutlined />} className={cx('share-btn')}>
+                    <Button onClick={handleShare} icon={<ShareAltOutlined />} className={cx('share-btn')}>
                         Chia sẻ
                     </Button>
                 </div>
             </div>
 
             <div className={cx('badge-container')}>
-                {badges.map((badge, index) => (
-                    <span key={index} className={cx('badge')}>
-                        {badge}
-                    </span>
-                ))}
+                {Array.isArray(tags) &&
+                    tags.length > 0 &&
+                    tags.map((tag) => (
+                        <span key={tag._id} className={cx('badge', getBadgeClass())}>
+                            {tag.title}
+                        </span>
+                    ))}
             </div>
 
             <div className={cx('review-section')}>
                 <div className={cx('rating-location')}>
-                    <Rate disabled defaultValue={5} className={cx('rating')} />
-                    <span className={cx('review-count')}>2,930 đánh giá</span>
+                    <Rate disabled defaultValue={averageRating} className={cx('rating')} />
+
+                    <span className={cx('review-count')}>
+                        {comments.length === 0 ? 'Chưa có đánh giá' : `${comments.length} đánh giá`}
+                    </span>
                 </div>
-                <div className={cx('review-btn')}>
+                <div onClick={handleAddComment} className={cx('review-btn')}>
                     <EditOutlined />
                     <span>Viết đánh giá</span>
                 </div>

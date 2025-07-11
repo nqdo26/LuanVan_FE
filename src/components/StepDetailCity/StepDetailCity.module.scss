@@ -114,6 +114,14 @@
     transition: background 0.17s;
 }
 
+.delete-btn {
+    background-color: red !important;
+    color: #fff !important;
+    &:hover {
+        background-color: rgb(255, 136, 136) !important;;
+    }
+}
+
 .back-btn:hover {
     background: #e2e2e2;
 }

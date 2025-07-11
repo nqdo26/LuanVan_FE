@@ -7,7 +7,7 @@ import GalleryModal from '../GalleryModal';
 
 const cx = classNames.bind(styles);
 
-const DestinationGallery = ({ type }) => {
+const DestinationGallery = ({ type = '', album = {} }) => {
     const [visible, setVisible] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('all');
 
@@ -16,36 +16,52 @@ const DestinationGallery = ({ type }) => {
         setVisible(true);
     };
 
+    const allImages = [...(album.space || []), ...(album.fnb || []), ...(album.extra || [])];
+
     const categories = [
-        { key: 'all', label: 'Tất cả', images: ['/wimi2-img.png', '/wimi3-img.png', '/wimi4-img.png'] },
-        { key: 'space', label: 'Không gian', images: ['/wimi2-img.png'] },
-        { key: 'food', label: 'Ẩm thực', images: ['/wimi3-img.png'] },
         {
-            key: 'menu',
+            key: 'all',
+            label: 'Tất cả',
+            images: allImages,
+        },
+        {
+            key: 'space',
+            label: 'Không gian',
+            images: album.space || [],
+        },
+        {
+            key: 'food',
+            label: 'Ẩm thực',
+            images: album.fnb || [],
+        },
+        {
+            key: 'extra',
             label: type === 'restaurant' ? 'Thực đơn' : 'Nổi bật',
-            images: [type === 'restaurant' ? '/wimi1-img.png' : '/wimi4-img.png'],
+            images: album.extra || [],
         },
     ];
+
+    const mainImage = album.space?.[0] || allImages[0] || '/placeholder-image.jpg';
 
     return (
         <div className={cx('gallery-container')}>
             <div className={cx('main-image-container')}>
                 <Card
                     styles={{ body: { display: 'contents' } }}
-                    onClick={() => showAlbum({ src: '/wimi3-img.png', label: 'Thư viện' })}
+                    onClick={() => showAlbum({ src: mainImage, label: 'Thư viện' })}
                     className={cx('main-image-card')}
                 >
-                    <Image preview={false} src="/wimi3-img.png" alt="Main View" className={cx('main-image')} />
+                    <Image preview={false} src={mainImage} alt="Main View" className={cx('main-image')} />
                     <div className={cx('image-overlay')}>
                         <CameraOutlined className={cx('image-icon')} />
-                        <span className={cx('image-count')}>50</span>
+                        <span className={cx('image-count')}>{allImages.length}</span>
                     </div>
                 </Card>
             </div>
 
             <div className={cx('category-container')}>
                 {categories
-                    .filter((item) => item.key !== 'all')
+                    .filter((item) => item.key !== 'all' && item.images.length > 0)
                     .map((item, index) => (
                         <Card
                             styles={{ body: { display: 'contents' } }}
@@ -68,7 +84,7 @@ const DestinationGallery = ({ type }) => {
             </div>
 
             <GalleryModal
-                detinationName="Wimi-Factory"
+                detinationName="Hình ảnh "
                 visible={visible}
                 onClose={() => setVisible(false)}
                 categories={categories}

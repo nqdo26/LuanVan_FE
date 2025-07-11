@@ -12,10 +12,8 @@ import {
     createCityTypeApi,
     updateCityTypeApi,
     deleteCityTypeApi,
-    getDestinationTypesApi,
     createDestinationTypeApi,
     updateDestinationTypeApi,
-    deleteDestinationTypeApi,
 } from '~/utils/api';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 
@@ -33,8 +31,6 @@ function AdminCategoriesManage() {
     const [isCityTypeModalOpen, setIsCityTypeModalOpen] = useState(false);
     const [editingCityType, setEditingCityType] = useState(null);
 
-    const [destinationTypes, setDestinationTypes] = useState([]);
-    const [loadingDestinationTypes, setLoadingDestinationTypes] = useState(false);
     const [isDestinationTypeModalOpen, setIsDestinationTypeModalOpen] = useState(false);
     const [editingDestinationType, setEditingDestinationType] = useState(null);
 
@@ -47,7 +43,6 @@ function AdminCategoriesManage() {
     useEffect(() => {
         fetchTags();
         fetchCityTypes();
-        fetchDestinationTypes();
     }, []);
 
     const fetchTags = async () => {
@@ -78,21 +73,6 @@ function AdminCategoriesManage() {
             message.error('Lỗi khi lấy danh sách Loại thành phố!');
         }
         setLoadingCityTypes(false);
-    };
-
-    const fetchDestinationTypes = async () => {
-        setLoadingDestinationTypes(true);
-        try {
-            const res = await getDestinationTypesApi();
-            let dataArr = [];
-            if (Array.isArray(res)) dataArr = res;
-            else if (res && Array.isArray(res.data)) dataArr = res.data;
-            setDestinationTypes(dataArr);
-        } catch {
-            setDestinationTypes([]);
-            message.error('Lỗi khi lấy danh sách Loại địa điểm!');
-        }
-        setLoadingDestinationTypes(false);
     };
 
     // Tag handlers
@@ -219,20 +199,6 @@ function AdminCategoriesManage() {
         setIsDestinationTypeModalOpen(true);
     };
 
-    const handleDeleteDestinationType = async (record) => {
-        try {
-            const res = await deleteDestinationTypeApi(record._id);
-            if (res && res.EC === 0) {
-                message.success('Xóa loại địa điểm thành công!');
-                fetchDestinationTypes();
-            } else {
-                message.error(res?.EM || 'Xóa loại địa điểm thất bại!');
-            }
-        } catch {
-            message.error('Lỗi hệ thống!');
-        }
-    };
-
     const handleDestinationTypeModalOk = async () => {
         try {
             const values = await destinationTypeForm.validateFields();
@@ -258,7 +224,6 @@ function AdminCategoriesManage() {
                 }
             }
             setIsDestinationTypeModalOpen(false);
-            fetchDestinationTypes();
         } catch {
             message.error('Vui lòng kiểm tra lại thông tin!');
         }
@@ -358,55 +323,6 @@ function AdminCategoriesManage() {
         },
     ];
 
-    const destinationTypeColumns = [
-        {
-            title: 'STT',
-            render: (_, __, idx) => idx + 1,
-            width: 60,
-        },
-        {
-            title: 'ID',
-            dataIndex: '_id',
-            width: 200,
-            ellipsis: true,
-            render: (id) => <span style={{ fontFamily: 'monospace', fontSize: 13 }}>{id}</span>,
-        },
-        {
-            title: 'Tiêu đề',
-            dataIndex: 'title',
-        },
-        {
-            title: 'Số địa điểm',
-            dataIndex: 'destinationCount',
-            align: 'center',
-            width: 140,
-            render: (count) => count ?? 0,
-        },
-        {
-            title: 'Tùy chọn',
-            render: (record) => (
-                <div style={{ display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center' }}>
-                    <Button
-                        icon={<EditOutlined />}
-                        onClick={() => handleEditDestinationType(record)}
-                        title="Chỉnh sửa loại địa điểm"
-                    />
-                    <Popconfirm
-                        title="Xác nhận xóa?"
-                        onConfirm={() => handleDeleteDestinationType(record)}
-                        okText="Đồng ý"
-                        cancelText="Hủy"
-                    >
-                        <Button danger>
-                            <DeleteOutlined />
-                        </Button>
-                    </Popconfirm>
-                </div>
-            ),
-            width: 140,
-        },
-    ];
-
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -426,15 +342,9 @@ function AdminCategoriesManage() {
                             <p className={cx('small-card-title')}>Loại thành phố:</p>
                             <p className={cx('small-card-value')}>{Array.isArray(cityTypes) ? cityTypes.length : 0}</p>
                         </div>
-                        <div className={cx('small-card')}>
-                            <p className={cx('small-card-title')}>Loại địa điểm:</p>
-                            <p className={cx('small-card-value')}>
-                                {Array.isArray(destinationTypes) ? destinationTypes.length : 0}
-                            </p>
-                        </div>
                     </div>
                 </div>
-                <div className={cx('section-2')} style={{ marginBottom: 32 }}>
+                <div className={cx('section-2')}>
                     <h2 style={{ marginBottom: 12 }}>Danh sách Thẻ</h2>
                     <Button
                         className={cx('add-btn')}
@@ -474,31 +384,6 @@ function AdminCategoriesManage() {
                         loading={loadingCityTypes}
                         dataSource={Array.isArray(cityTypes) ? cityTypes : []}
                         columns={cityTypeColumns}
-                        rowKey="_id"
-                        bordered
-                        pagination={{
-                            pageSize,
-                            current: currentPage,
-                            onChange: (page) => setCurrentPage(page),
-                            showSizeChanger: false,
-                        }}
-                    />
-                </div>
-                <div className={cx('section-2')}>
-                    <h2 style={{ marginBottom: 12 }}>Danh mục địa điểm</h2>
-                    <Button
-                        className={cx('add-btn')}
-                        type="primary"
-                        onClick={handleAddDestinationType}
-                        style={{ marginBottom: 14 }}
-                    >
-                        <PlusOutlined />
-                    </Button>
-                    <Table
-                        scroll={{ x: 768 }}
-                        loading={loadingDestinationTypes}
-                        dataSource={Array.isArray(destinationTypes) ? destinationTypes : []}
-                        columns={destinationTypeColumns}
                         rowKey="_id"
                         bordered
                         pagination={{

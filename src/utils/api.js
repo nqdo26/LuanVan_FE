@@ -135,9 +135,7 @@ const updateDestinationToEditApi = (id, destinationData) => {
     formData.append('openHour', JSON.stringify(destinationData.openHour || {}));
     formData.append('details', JSON.stringify(destinationData.details || {}));
 
-    // Xử lý album - gửi cả ảnh cũ và ảnh mới
     if (destinationData.album) {
-        // Phân loại ảnh cũ (URL string) và ảnh mới (File object)
         const processAlbumField = (fieldName, files) => {
             const existingImages = [];
             const newFiles = [];
@@ -145,40 +143,34 @@ const updateDestinationToEditApi = (id, destinationData) => {
             if (files && files.length > 0) {
                 files.forEach((file) => {
                     if (typeof file === 'string') {
-                        // Ảnh cũ (URL)
                         existingImages.push(file);
                     } else {
-                        // Ảnh mới (File object)
                         newFiles.push(file);
                     }
                 });
             }
 
-            // Gửi danh sách ảnh cũ còn lại
             if (existingImages.length > 0) {
                 formData.append(`existing_${fieldName}`, JSON.stringify(existingImages));
+
+                newFiles.forEach((file) => {
+                    formData.append(fieldName, file.originFileObj || file);
+                });
             }
 
-            // Gửi ảnh mới
-            newFiles.forEach((file) => {
-                formData.append(fieldName, file.originFileObj || file);
-            });
+            processAlbumField('album_space', destinationData.album.space);
+            processAlbumField('album_fnb', destinationData.album.fnb);
+            processAlbumField('album_extra', destinationData.album.extra);
+
+            if (destinationData.album.highlight) {
+                processAlbumField('images', destinationData.album.highlight);
+            }
         };
 
-        // Xử lý từng loại album
-        processAlbumField('album_space', destinationData.album.space);
-        processAlbumField('album_fnb', destinationData.album.fnb);
-        processAlbumField('album_extra', destinationData.album.extra);
-
-        // Xử lý highlight (nếu có)
-        if (destinationData.album.highlight) {
-            processAlbumField('images', destinationData.album.highlight);
-        }
+        return axios.put(URL_API, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
     }
-
-    return axios.put(URL_API, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-    });
 };
 
 const deleteDestinationApi = (id) => {
@@ -275,6 +267,10 @@ const updateDestinationTypeApi = (id, title) => {
     const URL_API = `/v1/api/destinationTypes/${id}`;
     const data = { title };
     return axios.put(URL_API, data);
+};
+
+const getPopularDestinationsApi = () => {
+    return axios.get('/v1/api/destinations/popular');
 };
 
 const deleteDestinationTypeApi = (id) => {
@@ -477,4 +473,5 @@ export {
     updateDestinationToEditApi,
     getCityDeletionInfoApi,
     getCitiesWithDestinationCountApi,
+    getPopularDestinationsApi,
 };
