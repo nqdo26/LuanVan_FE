@@ -427,7 +427,7 @@ function DestinationEditForm({ initialData, onSave, loading }) {
                     onRemove={(i) => handleAlbumRemove('fnb', i)}
                 />
                 <AlbumUploader
-                    label="Khác"
+                    label={form.type === 'restaurant' ? 'Thực đơn' : form.type === 'tourist' ? 'Nổi bật' : 'Thực đơn'}
                     files={form.album.extra}
                     onAdd={(files) => handleAlbumAdd('extra', files)}
                     onRemove={(i) => handleAlbumRemove('extra', i)}

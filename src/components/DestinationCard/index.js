@@ -61,7 +61,6 @@ function DestinationCard({ destination = {} }) {
     };
 
     const getOpenTimeText = () => {
-        // Sửa đường dẫn từ destination.details?.openHour thành destination.openHour
         if (destination.type !== 'restaurant' || !destination.openHour) {
             return 'Đang mở cửa';
         }

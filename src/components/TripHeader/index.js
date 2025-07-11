@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Button, Tooltip, Modal, Input, DatePicker } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Button, Tooltip, Modal, Input, DatePicker, message } from 'antd';
 import {
     ShareAltOutlined,
     SettingOutlined,
@@ -11,6 +11,7 @@ import {
 import classNames from 'classnames/bind';
 import styles from './TripHeader.module.scss';
 import CardSearchDrawer from '../CardSearchDrawer';
+import { updateTourApi, getCitiesApi } from '~/utils/api';
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
@@ -18,31 +19,130 @@ import locale from 'antd/es/date-picker/locale/vi_VN';
 
 const cx = classNames.bind(styles);
 
-function TripHeader({ trip, onTripChange }) {
+function TripHeader({ tour, onTourChange }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editedTrip, setEditedTrip] = useState({ ...trip });
+    const [saving, setSaving] = useState(false);
+    const [cities, setCities] = useState([]);
+    const [filteredCities, setFilteredCities] = useState([]);
+    const [selectedCity, setSelectedCity] = useState(null);
+    const [editedTour, setEditedTour] = useState({
+        name: tour?.name || '',
+        city: tour?.city?.name || '',
+        duration: tour?.duration || {},
+        description: tour?.description || '',
+    });
+
+    useEffect(() => {
+        setEditedTour({
+            name: tour?.name || '',
+            city: tour?.city?.name || '',
+            duration: tour?.duration || {},
+            description: tour?.description || '',
+        });
+        setSelectedCity(tour?.city || null);
+    }, [tour]);
+
+    // Fetch cities khi mở modal
+    useEffect(() => {
+        const fetchCities = async () => {
+            if (!isModalOpen) return;
+
+            try {
+                const response = await getCitiesApi();
+                console.log('Fetched cities:', response);
+                if (response && response.EC === 0) {
+                    setCities(response.data);
+                    setFilteredCities(response.data);
+                } else {
+                    message.error('Không thể tải danh sách thành phố');
+                }
+            } catch (error) {
+                console.error('Error fetching cities:', error);
+                message.error('Lỗi khi tải danh sách thành phố');
+            }
+        };
+
+        fetchCities();
+    }, [isModalOpen]);
+
+    // Filter cities theo tìm kiếm
+    useEffect(() => {
+        if (editedTour.city && editedTour.city.trim()) {
+            const filtered = cities.filter(
+                (city) => city.name && city.name.toLowerCase().includes(editedTour.city.toLowerCase()),
+            );
+            setFilteredCities(filtered);
+        } else {
+            setFilteredCities(cities);
+        }
+    }, [editedTour.city, cities]);
 
     const handleOpenModal = () => setIsModalOpen(true);
     const handleCloseModal = () => setIsModalOpen(false);
+
+    const handleCitySelect = (city) => {
+        if (city && city._id && city.name) {
+            setSelectedCity(city);
+            setEditedTour({ ...editedTour, city: city.name });
+        }
+    };
 
     const handleDelete = () => {
         console.log('Xóa chuyến đi');
         setIsModalOpen(false);
     };
 
-    const handleSave = () => {
-        onTripChange(editedTrip);
-        setIsModalOpen(false);
+    const handleSave = async () => {
+        // Validation
+        if (!editedTour.name || !editedTour.name.trim()) {
+            message.error('Tên chuyến đi không được để trống');
+            return;
+        }
+
+        if (!selectedCity) {
+            message.error('Vui lòng chọn thành phố');
+            return;
+        }
+
+        setSaving(true);
+        try {
+            const updateData = {
+                name: editedTour.name.trim(),
+                description: editedTour.description?.trim() || '',
+                duration: editedTour.duration,
+                city: selectedCity._id,
+            };
+
+            const response = await updateTourApi(tour._id, updateData);
+
+            if (response && response.EC === 0) {
+                message.success('Cập nhật thông tin thành công!');
+                onTourChange && onTourChange(response.DT);
+                setIsModalOpen(false);
+            } else {
+                message.error(response?.EM || 'Có lỗi xảy ra khi cập nhật');
+            }
+        } catch (error) {
+            console.error('Error updating tour:', error);
+            message.error('Có lỗi xảy ra khi cập nhật thông tin');
+        } finally {
+            setSaving(false);
+        }
     };
 
     const handleChange = (e, field) => {
-        setEditedTrip({ ...editedTrip, [field]: e.target.value });
+        const value = e.target.value;
+        setEditedTour({ ...editedTour, [field]: value });
     };
 
     return (
         <div className={cx('trip-header')}>
             <div className={cx('wrapper')}>
-                <img src="/wimi1-img.png" alt="Trip Background" className={cx('background')} />
+                <img
+                    src={tour.city?.images?.[0] || '/wimi1-img.png'}
+                    alt="Trip Background"
+                    className={cx('background')}
+                />
                 <div className={cx('content')}>
                     <div className={cx('header')}>
                         <div className={cx('actions')}>
@@ -60,20 +160,22 @@ function TripHeader({ trip, onTripChange }) {
                         </div>
                     </div>
                     <div className={cx('subInfo')}>
-                        <h2 className={cx('title')}>{trip.title}</h2>
+                        <h2 className={cx('title')}>{tour.name}</h2>
 
                         <div className={cx('subItems')}>
-                            <div className={cx('item')}>
-                                <CalendarOutlined className={cx('label')} />
-                                <span className={cx('value')}>
-                                    {dayjs(trip.startDate).format('DD/MM/YYYY')}{' '}
-                                    <MinusOutlined className={cx('dash')} />
-                                    {dayjs(trip.endDate).format('DD/MM/YYYY')}
-                                </span>
-                            </div>
+                            {tour.duration?.starDay && tour.duration?.endDay && (
+                                <div className={cx('item')}>
+                                    <CalendarOutlined className={cx('label')} />
+                                    <span className={cx('value')}>
+                                        {dayjs(tour.duration.starDay).format('DD/MM/YYYY')}{' '}
+                                        <MinusOutlined className={cx('dash')} />
+                                        {dayjs(tour.duration.endDay).format('DD/MM/YYYY')}
+                                    </span>
+                                </div>
+                            )}
                             <div className={cx('item')}>
                                 <EnvironmentOutlined className={cx('label')} />
-                                <span className={cx('value')}>{trip.locations}</span>
+                                <span className={cx('value')}>{tour.city?.name || 'Chưa xác định'}</span>
                             </div>
                         </div>
                     </div>
@@ -87,8 +189,8 @@ function TripHeader({ trip, onTripChange }) {
                             <label className={cx('form-label')}>Tên chuyến đi:</label>
                             <Input
                                 className={cx('form-input')}
-                                value={editedTrip.title}
-                                onChange={(e) => handleChange(e, 'title')}
+                                value={editedTour.name}
+                                onChange={(e) => handleChange(e, 'name')}
                             />
                         </div>
 
@@ -98,17 +200,32 @@ function TripHeader({ trip, onTripChange }) {
                                 className={cx('search-input')}
                                 prefix={<SearchOutlined className={cx('search-icon')} />}
                                 maxLength={80}
-                                value={editedTrip.locations}
-                                onChange={(e) => handleChange(e, 'locations')}
+                                placeholder="Tìm kiếm thành phố..."
+                                value={editedTour.city}
+                                onChange={(e) => handleChange(e, 'city')}
                             />
-                        </div>
-
-                        <div className={cx('form-item')}>
-                            <CardSearchDrawer
-                                city="Cần Thơ"
-                                region="Thành phố nực nhất miền Tây"
-                                image="/wimi2-img.png"
-                            />
+                            <div className={cx('city-search-result')}>
+                                {filteredCities && filteredCities.length > 0 ? (
+                                    filteredCities
+                                        .slice(0, 6)
+                                        .map((city) =>
+                                            city && city._id ? (
+                                                <CardSearchDrawer
+                                                    key={city._id}
+                                                    city={city.name || 'Không có tên'}
+                                                    region={city.description || 'Thành phố xinh đẹp'}
+                                                    image={city.images?.[0] || '/wimi2-img.png'}
+                                                    onClick={() => handleCitySelect(city)}
+                                                    isSelected={selectedCity?._id === city._id}
+                                                />
+                                            ) : null,
+                                        )
+                                ) : (
+                                    <div className={cx('no-cities')}>
+                                        {cities.length === 0 ? 'Đang tải...' : 'Không tìm thấy thành phố nào'}
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <div className={cx('form-item')}>
@@ -117,13 +234,29 @@ function TripHeader({ trip, onTripChange }) {
                                 className={cx('form-input')}
                                 locale={locale}
                                 format="DD/MM/YYYY"
-                                value={[dayjs(editedTrip.startDate), dayjs(editedTrip.endDate)]}
+                                value={
+                                    editedTour.duration?.starDay && editedTour.duration?.endDay
+                                        ? [dayjs(editedTour.duration.starDay), dayjs(editedTour.duration.endDay)]
+                                        : null
+                                }
                                 onChange={(dates) => {
                                     if (dates) {
-                                        setEditedTrip({
-                                            ...editedTrip,
-                                            startDate: dates[0].format('YYYY-MM-DD'),
-                                            endDate: dates[1].format('YYYY-MM-DD'),
+                                        setEditedTour({
+                                            ...editedTour,
+                                            duration: {
+                                                ...editedTour.duration,
+                                                starDay: dates[0].format('YYYY-MM-DD'),
+                                                endDay: dates[1].format('YYYY-MM-DD'),
+                                            },
+                                        });
+                                    } else {
+                                        setEditedTour({
+                                            ...editedTour,
+                                            duration: {
+                                                ...editedTour.duration,
+                                                starDay: null,
+                                                endDay: null,
+                                            },
                                         });
                                     }
                                 }}
@@ -134,9 +267,12 @@ function TripHeader({ trip, onTripChange }) {
                             <label className={cx('form-label')}>Mô tả:</label>
                             <Input.TextArea
                                 className={cx('form-input')}
-                                rows={2}
-                                value={editedTrip.description}
+                                rows={3}
+                                maxLength={500}
+                                placeholder="Ghi lại vài dòng về kế hoạch, cảm hứng hay điểm đặc biệt của chuyến đi này..."
+                                value={editedTour.description}
                                 onChange={(e) => handleChange(e, 'description')}
+                                showCount
                             />
                         </div>
                     </div>
@@ -145,14 +281,14 @@ function TripHeader({ trip, onTripChange }) {
                         <Button onClick={handleDelete} className={cx('modal-btn', 'delete')}>
                             Xóa chuyến đi
                         </Button>
-                        <Button onClick={handleSave} className={cx('modal-btn', 'save')}>
+                        <Button onClick={handleSave} className={cx('modal-btn', 'save')} loading={saving}>
                             Lưu
                         </Button>
                     </div>
                 </Modal>
             </div>
             <div onClick={handleOpenModal} className={cx('trip-description')}>
-                {trip.description || 'Ghi lại vài dòng về kế hoạch, cảm hứng hay điểm đặc biệt của chuyến đi này..'}
+                {tour?.description || 'Ghi lại vài dòng về kế hoạch, cảm hứng hay điểm đặc biệt của chuyến đi này..'}
             </div>
         </div>
     );

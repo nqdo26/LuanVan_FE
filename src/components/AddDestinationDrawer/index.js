@@ -1,38 +1,98 @@
-import React, { useState } from 'react';
-import { Drawer, Button, Input } from 'antd';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Drawer, Button, Input, message, Spin } from 'antd';
 import classNames from 'classnames/bind';
 import styles from './AddDestinationDrawer.module.scss';
 import { SearchOutlined } from '@ant-design/icons';
 import CardTrip from '../CardTrip';
+import { getDestinationsApi } from '~/utils/api';
 
 const { TextArea } = Input;
 const cx = classNames.bind(styles);
 
 function AddDestinationDrawer({ type, open, onClose, onAdd, title, handleAddNote }) {
     const [selectedTrip, setSelectedTrip] = useState(null);
+    const [destinations, setDestinations] = useState([]);
+    const [filteredDestinations, setFilteredDestinations] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const handleSelectTrip = (trip) => {
-        setSelectedTrip(trip);
-        onAdd(trip);
+    useEffect(() => {
+        const fetchDestinations = async () => {
+            if (!open || type === 'note') return;
+
+            setLoading(true);
+            try {
+                const response = await getDestinationsApi();
+                console.log('Destinations response:', response);
+
+                if (response && response.EC === 0) {
+                    setDestinations(response.data);
+                    setFilteredDestinations(response.data.slice(0, 4));
+                } else {
+                    message.error('Không thể tải danh sách địa điểm');
+                }
+            } catch (error) {
+                console.error('Error fetching destinations:', error);
+                message.error('Lỗi khi tải danh sách địa điểm');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDestinations();
+    }, [open, type]);
+
+    const debounceSearch = useCallback(
+        (searchValue) => {
+            const timeoutId = setTimeout(() => {
+                if (searchValue.trim()) {
+                    const filtered = destinations.filter(
+                        (destination) =>
+                            destination.title?.toLowerCase().includes(searchValue.toLowerCase()) ||
+                            destination.description?.toLowerCase().includes(searchValue.toLowerCase()) ||
+                            destination.address?.toLowerCase().includes(searchValue.toLowerCase()),
+                    );
+                    setFilteredDestinations(filtered.slice(0, 4));
+                } else {
+                    setFilteredDestinations(destinations.slice(0, 4));
+                }
+            }, 300);
+
+            return () => clearTimeout(timeoutId);
+        },
+        [destinations],
+    );
+
+    useEffect(() => {
+        const cleanup = debounceSearch(searchTerm);
+        return cleanup;
+    }, [searchTerm, debounceSearch]);
+
+    const handleSelectTrip = (destination) => {
+        setSelectedTrip(destination);
+        onAdd(destination);
         setSelectedTrip(null);
     };
 
-    const trips = [
-        { title: 'Wimi-Factory 1', location: 'Hẻm 30 đường Lê Anh Xuân', image: '/wimi2-img.png' },
-        { title: 'Wimi-Factory 2', location: 'Hẻm 30 đường Lê Anh Xuân', image: '/wimi1-img.png' },
-        { title: 'Wimi-Factory 3', location: 'Hẻm 30 đường Lê Anh Xuân', image: '/wimi3-img.png' },
-        { title: 'Wimi-Factory 4', location: 'Hẻm 30 đường Lê Anh Xuân', image: '/wimi4-img.png' },
-    ];
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
+    const handleClose = () => {
+        setSearchTerm('');
+        setSelectedTrip(null);
+        onClose();
+    };
 
     return (
         <Drawer
             placement="right"
-            onClose={onClose}
+            onClose={handleClose}
             open={open}
             width={550}
             footer={
                 <div className={cx('footer')}>
-                    <Button className={cx('footer-btn')} onClick={onClose}>
+                    <Button className={cx('footer-btn')} onClick={handleClose}>
                         Hủy
                     </Button>
                     {type === 'note' && (
@@ -65,23 +125,46 @@ function AddDestinationDrawer({ type, open, onClose, onAdd, title, handleAddNote
                         <>
                             <Input
                                 prefix={<SearchOutlined />}
-                                placeholder="Chuyến du lịch Cần Thơ cùng gia đình"
+                                placeholder="Tìm kiếm địa điểm du lịch..."
                                 maxLength={80}
+                                value={searchTerm}
+                                onChange={handleSearchChange}
                                 className={cx('drawer-input', 'drawer-search')}
                             />
 
                             <div className={cx('list-items')}>
-                                {trips.map((trip, index) => (
-                                    <CardTrip
-                                        key={index}
-                                        title={trip.title}
-                                        location={trip.location}
-                                        image={trip.image}
-                                        showMenu={false}
-                                        onClick={() => handleSelectTrip(trip)}
-                                        isSelected={selectedTrip === trip}
-                                    />
-                                ))}
+                                {loading ? (
+                                    <div style={{ textAlign: 'center', padding: '40px' }}>
+                                        <Spin size="large" />
+                                    </div>
+                                ) : filteredDestinations.length > 0 ? (
+                                    filteredDestinations.map((destination) => (
+                                        <CardTrip
+                                            key={destination._id}
+                                            title={destination.title || 'Không có tên'}
+                                            location={`${destination.location?.address || ''}, ${
+                                                destination.location?.city?.name || ''
+                                            }`}
+                                            image={
+                                                destination.album?.highlight?.[0] ||
+                                                destination.album?.space?.[0] ||
+                                                destination.album?.fnb?.[0] ||
+                                                destination.album?.extra?.[0] ||
+                                                '/wimi2-img.png'
+                                            }
+                                            tags={destination.tags || []}
+                                            rating={destination.statistics?.averageRating}
+                                            type={destination.type}
+                                            showMenu={false}
+                                            onClick={() => handleSelectTrip(destination)}
+                                            isSelected={selectedTrip?._id === destination._id}
+                                        />
+                                    ))
+                                ) : (
+                                    <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+                                        {searchTerm ? 'Không tìm thấy địa điểm nào phù hợp' : 'Chưa có địa điểm nào'}
+                                    </div>
+                                )}
                             </div>
                         </>
                     )}

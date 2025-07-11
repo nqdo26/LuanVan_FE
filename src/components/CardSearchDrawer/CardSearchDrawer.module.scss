@@ -7,10 +7,19 @@
     width: 100%;
     transition: all 0.3s ease;
     cursor: pointer;
+    border: 2px solid transparent;
 
     &:hover {
         background-color: #d0d0d0;
-        transform: scale(1.005);
+    }
+
+    &.selected {
+        background-color: #d3d3d3;
+        border-color: #000000;
+
+        .city-name {
+            color: #000000;
+        }
     }
 }
 

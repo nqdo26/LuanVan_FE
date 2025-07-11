@@ -23,10 +23,8 @@ import Search from '~/pages/Search';
 import TripDetail from '~/pages/TripDetail';
 import WriteReview from '~/pages/WriteReview';
 
-// Private routes
 const privateRoutes = [{ path: '/', component: Home }];
 
-// Public routes
 const publicRoutes = [
     { path: '/', component: Home },
     { path: 'search', component: Search },
@@ -45,7 +43,7 @@ const publicRoutes = [
     { path: '/write-review/:slug', component: WriteReview },
     { path: 'city/:id', component: CityDetail },
     { path: '/add-trip', component: AddTrip },
-    { path: '/trip-detail/:id', component: TripDetail },
+    { path: '/trip-detail/:slug', component: TripDetail },
     { path: '/my-trip', component: MyTrip },
     { path: '/gobot-assistant', component: Gobot },
 ];

@@ -3,11 +3,13 @@ import styles from './TripDetail.module.scss';
 import { motion } from 'framer-motion';
 import TripHeader from '~/components/TripHeader';
 import CityInfo from '~/components/CityInfo';
-import { Tabs } from 'antd';
+import { Tabs, Spin, message } from 'antd';
 import DestinationCard from '~/components/DestinationCard';
 import TripNav from '~/components/TripNav';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TripItinerary from '~/components/TripItinerary';
+import { useParams } from 'react-router-dom';
+import { getTourBySlugApi, getDestinationsApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
 
@@ -16,42 +18,96 @@ const items = [
     { key: 'suggest', label: 'Địa điểm nổi bật' },
 ];
 
-const destinations = [
-    { id: 1, title: 'Destination 1' },
-    { id: 2, title: 'Destination 2' },
-    { id: 3, title: 'Destination 3' },
-    { id: 4, title: 'Destination 4' },
-    { id: 5, title: 'Destination 5' },
-    { id: 6, title: 'Destination 6' },
-    { id: 7, title: 'Destination 4' },
-    { id: 8, title: 'Destination 5' },
-    { id: 9, title: 'Destination 6' },
-];
-
 const scrollToSection = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 };
 
 function TripDetail() {
+    const { slug } = useParams();
     const [activeTab, setActiveTab] = useState('trip');
     const [selectedIndexes, setSelectedIndexes] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [tour, setTour] = useState(null);
+    const [destinations, setDestinations] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [destinationsLoading, setDestinationsLoading] = useState(false);
 
     const pageSize = 6;
-    const [currentPage, setCurrentPage] = useState(1);
+
+    useEffect(() => {
+        const fetchTour = async () => {
+            if (!slug) return;
+
+            setLoading(true);
+            try {
+                const response = await getTourBySlugApi(slug);
+
+                if (response && response.EC === 0) {
+                    setTour(response.DT);
+                } else {
+                    message.error('Không tìm thấy hành trình');
+                }
+            } catch (error) {
+                console.error('Error fetching tour:', error);
+                message.error('Có lỗi xảy ra khi tải hành trình');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTour();
+    }, [slug]);
+
+    useEffect(() => {
+        const fetchDestinations = async () => {
+            if (!tour?.city?._id) return;
+
+            setDestinationsLoading(true);
+            try {
+                const response = await getDestinationsApi();
+                if (response.data && response.data.EC === 0) {
+                    const cityDestinations = response.data.DT.filter((dest) => dest.city === tour.city._id);
+                    setDestinations(cityDestinations);
+                }
+            } catch (error) {
+                console.error('Error fetching destinations:', error);
+            } finally {
+                setDestinationsLoading(false);
+            }
+        };
+
+        fetchDestinations();
+    }, [tour]);
+
     const totalPages = Math.ceil(destinations.length / pageSize);
     const pagedDestinations = destinations.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-
-    const trip = {
-        title: 'Hành trình Đà Lạt 4 ngày',
-        description: '',
-        startDate: '2024-05-06',
-        endDate: '2024-05-09',
-        locations: 'Đà Lạt',
-    };
 
     const handleToggle = (index) => {
         setSelectedIndexes((prev) => (prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]));
     };
+
+    const handleTourChange = (updatedTour) => {
+        setTour(updatedTour);
+    };
+
+    if (loading) {
+        return (
+            <div
+                className={cx('wrapper')}
+                style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}
+            >
+                <Spin size="large" />
+            </div>
+        );
+    }
+
+    if (!tour) {
+        return (
+            <div className={cx('wrapper')} style={{ textAlign: 'center', padding: '50px' }}>
+                <h2>Không tìm thấy hành trình</h2>
+            </div>
+        );
+    }
 
     return (
         <motion.div
@@ -62,7 +118,7 @@ function TripDetail() {
         >
             <div className={cx('inner')}>
                 <div className={cx('main')}>
-                    <TripHeader trip={trip} />
+                    <TripHeader tour={tour} onTourChange={handleTourChange} />
                     <Tabs
                         className={cx('tabs')}
                         onChange={(key) => {
@@ -83,7 +139,7 @@ function TripDetail() {
                     >
                         {activeTab === 'trip' && (
                             <div className={cx('trip')}>
-                                <TripItinerary trip={trip} />
+                                <TripItinerary tour={tour} />
                             </div>
                         )}
                         {activeTab === 'suggest' && (
@@ -99,38 +155,55 @@ function TripDetail() {
                                     selectedIndexes={selectedIndexes}
                                     onToggle={handleToggle}
                                 />
-                                <div className={cx('suggest-list')}>
-                                    <div className={cx('result-list')}>
-                                        {pagedDestinations.map((item) => (
-                                            <div key={item.id} className={cx('result-list-item')}>
-                                                <DestinationCard title={item.title} />
+                                {destinationsLoading ? (
+                                    <div style={{ textAlign: 'center', padding: '20px' }}>
+                                        <Spin />
+                                    </div>
+                                ) : (
+                                    <div className={cx('suggest-list')}>
+                                        <div className={cx('result-list')}>
+                                            {pagedDestinations.length > 0 ? (
+                                                pagedDestinations.map((destination) => (
+                                                    <div key={destination._id} className={cx('result-list-item')}>
+                                                        <DestinationCard
+                                                            destination={destination}
+                                                            title={destination.title}
+                                                        />
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div style={{ textAlign: 'center', padding: '20px' }}>
+                                                    Chưa có địa điểm nào trong thành phố này
+                                                </div>
+                                            )}
+                                        </div>
+                                        {totalPages > 1 && (
+                                            <div className={cx('pagination')}>
+                                                <button
+                                                    disabled={currentPage === 1}
+                                                    onClick={() => setCurrentPage(currentPage - 1)}
+                                                >
+                                                    {'<'}
+                                                </button>
+                                                <span>
+                                                    Trang {currentPage} / {totalPages}
+                                                </span>
+                                                <button
+                                                    disabled={currentPage === totalPages}
+                                                    onClick={() => setCurrentPage(currentPage + 1)}
+                                                >
+                                                    {'>'}
+                                                </button>
                                             </div>
-                                        ))}
+                                        )}
                                     </div>
-                                    <div className={cx('pagination')}>
-                                        <button
-                                            disabled={currentPage === 1}
-                                            onClick={() => setCurrentPage(currentPage - 1)}
-                                        >
-                                            {'<'}
-                                        </button>
-                                        <span>
-                                            Trang {currentPage} / {totalPages}
-                                        </span>
-                                        <button
-                                            disabled={currentPage === totalPages}
-                                            onClick={() => setCurrentPage(currentPage + 1)}
-                                        >
-                                            {'>'}
-                                        </button>
-                                    </div>
-                                </div>
+                                )}
                             </div>
                         )}
                     </motion.div>
                 </div>
                 <div className={cx('info')}>
-                    <CityInfo />
+                    <CityInfo city={tour.city} />
                 </div>
             </div>
         </motion.div>

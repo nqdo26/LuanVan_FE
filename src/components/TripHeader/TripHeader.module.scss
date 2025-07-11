@@ -137,7 +137,6 @@
 .form-input {
     width: 100%;
     margin-top: 5px;
-    padding: 15px !important;
 
     &:hover {
         border-color: #000 !important;
@@ -163,6 +162,40 @@
 .search-icon {
     font-size: 18px;
     margin: 0 5px 0 5px;
+}
+
+.city-search-result {
+    margin-top: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+
+        &:hover {
+            background: #a8a8a8;
+        }
+    }
+}
+
+.no-cities {
+    text-align: center;
+    padding: 20px;
+    color: #999;
+    font-size: 14px;
 }
 
 .modal-actions {
@@ -214,8 +247,6 @@
 @media (max-width: 576px) {
     .modal {
         width: 70% !important;
-
-
     }
 
     .modal-content {
@@ -241,6 +272,16 @@
 
     .search-icon {
         font-size: 16px;
+    }
+
+    .city-search-result {
+        max-height: 200px;
+        gap: 6px;
+    }
+
+    .no-cities {
+        padding: 15px;
+        font-size: 12px;
     }
 
     .modal-actions {

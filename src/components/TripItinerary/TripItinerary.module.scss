@@ -2,6 +2,26 @@
     padding: 16px 0 16px 0;
 }
 
+.empty-itinerary {
+    text-align: center;
+    padding: 60px 20px;
+
+    h3 {
+        color: #666;
+        font-size: 18px;
+        margin-bottom: 12px;
+        font-weight: 500;
+    }
+
+    p {
+        color: #999;
+        font-size: 14px;
+        line-height: 1.5;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+}
+
 .day-list {
     margin-bottom: 16px;
     border-bottom: 1px solid #e0e0e0;

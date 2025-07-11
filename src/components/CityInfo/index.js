@@ -3,66 +3,55 @@ import styles from './CityInfo.module.scss';
 
 const cx = classNames.bind(styles);
 
-function CityInfo() {
+function CityInfo({ city }) {
+    if (!city) {
+        return (
+            <div className={cx('wrapper')}>
+                <div className={cx('general-info')}>
+                    <h2 className={cx('section-title')}>Thông tin chung</h2>
+                    <p>Chưa có thông tin thành phố</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={cx('wrapper')}>
             <div className={cx('general-info')}>
-                <h2 className={cx('section-title')}>Thông tin chung</h2>
-                <div className={cx('info-grid')}>
-                    <div>
-                        <p className={cx('general-title')}>Thời gian tuyệt nhất để đến:</p>
-                        <p className={cx('general-content')}>THG 5 - Lễ hội Khinh khí cầu Quốc tế</p>
+                <h2 className={cx('section-title')}>Thông tin hữu ích</h2>
+
+                {city.info && city.info.length > 0 && (
+                    <div className={cx('info-grid')}>
+                        {city.info.map((info, index) => {
+                            return (
+                                <div key={index}>
+                                    <p className={cx('general-title')}>{info.title || info.name || 'Thông tin'}:</p>
+                                    <p className={cx('general-content')}>
+                                        {info.content || info.description || info.value || 'Không có thông tin'}
+                                    </p>
+                                </div>
+                            );
+                        })}
                     </div>
-                    <div>
-                        <p className={cx('general-title')}>Thời lượng lý tưởng:</p>
-                        <p className={cx('general-content')}>4 ngày 3 đêm</p>
-                    </div>
-                    <div>
-                        <p className={cx('general-title')}>Nét đặt trưng:</p>
-                        <p className={cx('general-content')}>
-                            Phố cổ rêu phong, ẩm thực phong phú và không khí mùa thu lãng mạn.
-                        </p>
-                    </div>
-                    <div>
-                        <p className={cx('general-title')}>Nhịp sống & không khí:</p>
-                        <p className={cx('general-content')}>Hoạt động sôi nổi vào ban ngày lẫn ban đêm</p>
+                )}
+            </div>
+
+            {city.weather && city.weather.length > 0 && (
+                <div className={cx('weather')}>
+                    <h2 className={cx('section-title')}>Thời tiết địa phương</h2>
+                    <div className={cx('seasons')}>
+                        {city.weather.map((season, index) => (
+                            <div key={index} className={cx('season')}>
+                                <p className={cx('time')}>{season.title}</p>
+                                <p className={cx('temp')}>
+                                    {season.maxTemp}° <span>{season.minTemp}°</span>
+                                </p>
+                                <p className={cx('desc')}>{season.note}</p>
+                            </div>
+                        ))}
                     </div>
                 </div>
-            </div>
-            <div className={cx('weather')}>
-                <h2 className={cx('section-title')}>Thời tiết địa phương</h2>
-                <div className={cx('seasons')}>
-                    <div className={cx('season')}>
-                        <p className={cx('time')}>THG 12 - THG 2</p>
-                        <p className={cx('temp')}>
-                            25° <span>19°</span>
-                        </p>
-                        <p className={cx('desc')}>Trời se lạnh - lý tưởng cho chuyến nghỉ dưỡng</p>
-                    </div>
-                    <div className={cx('season')}>
-                        <p className={cx('time')}>THG 3 - THG 5</p>
-                        <p className={cx('temp')}>
-                            32°
-                            <span>23°</span>
-                        </p>
-                        <p className={cx('desc')}>Mát mẻ - thời gian tuyệt nhất để du lịch </p>
-                    </div>
-                    <div className={cx('season')}>
-                        <p className={cx('time')}>THG 6 - THG 8</p>
-                        <p className={cx('temp')}>
-                            34° <span>26°</span>
-                        </p>
-                        <p className={cx('desc')}>Thời tiết nắng nóng - thích hợp để đi biển</p>
-                    </div>
-                    <div className={cx('season')}>
-                        <p className={cx('time')}>THG 9 - THG 11</p>
-                        <p className={cx('temp')}>
-                            30° <span>23°</span>
-                        </p>
-                        <p className={cx('desc')}>Mùa mưa - khả năng cao có bão hay mưa to</p>
-                    </div>
-                </div>
-            </div>
+            )}
         </div>
     );
 }

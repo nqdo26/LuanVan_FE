@@ -20,9 +20,12 @@ function CardTrip({
     isSelected = false,
     hoverEffect = true,
     clickEffect = true,
+    tags = [],
+    rating = 0,
+    type = 'tourist',
 }) {
     const [menuVisible, setMenuVisible] = useState(false);
-    const badges = ['Văn hóa', 'Ẩm thực', 'Chụp hình'];
+    const displayTags = tags.length > 0 ? tags : ['Văn hóa', 'Ẩm thực', 'Chụp hình'];
 
     const toggleMenu = (e) => {
         e.stopPropagation();
@@ -46,6 +49,10 @@ function CardTrip({
         whileTap: clickEffect ? { scale: 0.97 } : {},
         style: { cursor: onClick ? 'pointer' : 'default' },
         onClick: onClick ? () => onClick() : undefined,
+    };
+
+    const getBadgeClass = () => {
+        return type === 'restaurant' ? 'badge-restaurant' : 'badge-tourist';
     };
 
     return (
@@ -89,13 +96,17 @@ function CardTrip({
                     </div>
 
                     <div className={cx('rating')}>
-                        <Rate disabled defaultValue={5} className={cx('starts')} />
+                        {rating > 0 ? (
+                            <Rate disabled allowHalf value={rating} />
+                        ) : (
+                            <span style={{ fontSize: '14px', color: '#999' }}>Chưa có đánh giá</span>
+                        )}
                     </div>
 
                     <div className={cx('badge-container')}>
-                        {badges.map((badge, index) => (
-                            <span key={index} className={cx('badge')}>
-                                {badge}
+                        {displayTags.map((tag, index) => (
+                            <span key={index} className={cx('badge', getBadgeClass())}>
+                                {typeof tag === 'object' ? tag.title : tag}
                             </span>
                         ))}
                     </div>

@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
 import { motion } from 'framer-motion';
+import { Spin, message, Empty } from 'antd';
 import styles from './MyTrip.module.scss';
 import MyTripCard from '~/components/MyTripCard';
 import { CirclePlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AddTripDrawer from '~/components/AddTripDrawer';
+import { getToursApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
 const MotionBox = motion.div;
@@ -13,6 +15,30 @@ const MotionBox = motion.div;
 function MyTrip() {
     const navigate = useNavigate();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [tours, setTours] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchTours();
+    }, []);
+
+    const fetchTours = async () => {
+        setLoading(true);
+        try {
+            const response = await getToursApi();
+            console.log('Tours response:', response);
+            if (response && response.EC === 0) {
+                setTours(response.DT.tours || []);
+            } else {
+                message.error('Có lỗi xảy ra khi tải danh sách tour');
+            }
+        } catch (error) {
+            console.error('Error fetching tours:', error);
+            message.error('Có lỗi xảy ra khi tải danh sách tour');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleCreateTrip = () => {
         setIsDrawerOpen(true);
@@ -22,7 +48,11 @@ function MyTrip() {
         setIsDrawerOpen(false);
     };
 
-    const handleAddTrip = () => {
+    const handleAddTrip = (newTour) => {
+        // Thêm tour mới vào danh sách
+        if (newTour) {
+            setTours((prev) => [newTour, ...prev]);
+        }
         setIsDrawerOpen(false);
     };
 
@@ -66,10 +96,23 @@ function MyTrip() {
                     </div>
 
                     <div className={cx('trip-list')}>
-                        <MyTripCard />
-                        <MyTripCard />
-                        <MyTripCard />
-                        <MyTripCard />
+                        {loading ? (
+                            <div className={cx('loading-container')}>
+                                <Spin size="large" />
+                            </div>
+                        ) : tours.length > 0 ? (
+                            tours.map((tour) => (
+                                <MyTripCard
+                                    key={tour._id}
+                                    tour={tour}
+                                    onDelete={fetchTours} 
+                                />
+                            ))
+                        ) : (
+                            <div className={cx('empty-state')}>
+                                <Empty description="Bạn chưa có lịch trình nào" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                            </div>
+                        )}
                     </div>
                 </div>
             </motion.div>

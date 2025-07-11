@@ -152,25 +152,25 @@ const updateDestinationToEditApi = (id, destinationData) => {
 
             if (existingImages.length > 0) {
                 formData.append(`existing_${fieldName}`, JSON.stringify(existingImages));
-
-                newFiles.forEach((file) => {
-                    formData.append(fieldName, file.originFileObj || file);
-                });
             }
 
-            processAlbumField('album_space', destinationData.album.space);
-            processAlbumField('album_fnb', destinationData.album.fnb);
-            processAlbumField('album_extra', destinationData.album.extra);
-
-            if (destinationData.album.highlight) {
-                processAlbumField('images', destinationData.album.highlight);
-            }
+            newFiles.forEach((file) => {
+                formData.append(fieldName, file.originFileObj || file);
+            });
         };
 
-        return axios.put(URL_API, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-        });
+        processAlbumField('album_space', destinationData.album.space);
+        processAlbumField('album_fnb', destinationData.album.fnb);
+        processAlbumField('album_extra', destinationData.album.extra);
+
+        if (destinationData.album.highlight) {
+            processAlbumField('images', destinationData.album.highlight);
+        }
     }
+
+    return axios.put(URL_API, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
 };
 
 const deleteDestinationApi = (id) => {
@@ -438,6 +438,42 @@ const getCitiesWithDestinationCountApi = () => {
     return axios.get(URL_API);
 };
 
+// Tour APIs
+const createTourApi = (tourData) => {
+    const URL_API = '/v1/api/tours';
+    return axios.post(URL_API, tourData);
+};
+
+const getToursApi = (params = {}) => {
+    const URL_API = '/v1/api/tours';
+    return axios.get(URL_API, { params });
+};
+
+const getPublicToursApi = (params = {}) => {
+    const URL_API = '/v1/api/tours/public';
+    return axios.get(URL_API, { params });
+};
+
+const getTourByIdApi = (id) => {
+    const URL_API = `/v1/api/tours/${id}`;
+    return axios.get(URL_API);
+};
+
+const getTourBySlugApi = (slug) => {
+    const URL_API = `/v1/api/tours/slug/${slug}`;
+    return axios.get(URL_API);
+};
+
+const updateTourApi = (id, tourData) => {
+    const URL_API = `/v1/api/tours/${id}`;
+    return axios.put(URL_API, tourData);
+};
+
+const deleteTourApi = (id) => {
+    const URL_API = `/v1/api/tours/${id}`;
+    return axios.delete(URL_API);
+};
+
 export {
     createUserApi,
     getAccountApi,
@@ -474,4 +510,12 @@ export {
     getCityDeletionInfoApi,
     getCitiesWithDestinationCountApi,
     getPopularDestinationsApi,
+    // Tour APIs
+    createTourApi,
+    getToursApi,
+    getPublicToursApi,
+    getTourByIdApi,
+    getTourBySlugApi,
+    updateTourApi,
+    deleteTourApi,
 };

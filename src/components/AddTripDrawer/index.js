@@ -1,33 +1,117 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
-import { Drawer, Button, Input } from 'antd';
+import { Drawer, Button, Input, message } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import styles from './AddTripDrawer.module.scss';
 import CardSearchDrawer from '~/components/CardSearchDrawer';
 import { useNavigate } from 'react-router-dom';
+import { createTourApi, getCitiesApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
 
 function AddTripDrawer({ open, onClose, onAdd }) {
     const [tripName, setTripName] = useState('');
     const [destination, setDestination] = useState('');
+    const [selectedCity, setSelectedCity] = useState(null);
+    const [cities, setCities] = useState([]);
+    const [filteredCities, setFilteredCities] = useState([]);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleAddClick = () => {
-        if (!tripName.trim()) {
-            alert('Vui lòng nhập tên hành trình');
+    useEffect(() => {
+        const fetchCities = async () => {
+            try {
+                const response = await getCitiesApi();
+
+                if (response && response.EC === 0) {
+                    setCities(response.data);
+                    setFilteredCities(response.data);
+                } else {
+                    message.error('Không thể tải danh sách thành phố');
+                }
+            } catch (error) {
+                console.error('Error fetching cities:', error);
+                message.error('Lỗi khi tải danh sách thành phố');
+            }
+        };
+
+        if (open) {
+            fetchCities();
+        }
+    }, [open]);
+
+    useEffect(() => {
+        if (destination && destination.trim()) {
+            const filtered = cities.filter(
+                (city) => city.name && city.name.toLowerCase().includes(destination.toLowerCase()),
+            );
+            setFilteredCities(filtered);
+        } else {
+            setFilteredCities(cities);
+        }
+    }, [destination, cities]);
+
+    const handleAddClick = async () => {
+        if (!tripName || !tripName.trim()) {
+            message.error('Vui lòng nhập tên hành trình');
             return;
         }
-        onAdd({ tripName, destination });
-        setTripName('');
-        setDestination('');
-        navigate('/trip-detail/hehe');
+
+        if (!selectedCity) {
+            message.error('Vui lòng chọn địa điểm');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const tourData = {
+                name: tripName,
+                city: selectedCity._id,
+                description: '',
+                isPublic: false,
+                itinerary: [],
+            };
+
+            const response = await createTourApi(tourData);
+            console.log('Create tour response:', response);
+
+            if (response && response.EC === 0) {
+                message.success('Tạo hành trình thành công!');
+                const tour = response.DT;
+
+                if (onAdd) {
+                    onAdd(tour);
+                }
+
+                setTripName('');
+                setDestination('');
+                setSelectedCity(null);
+
+                navigate(`/trip-detail/${tour.slug}`);
+                onClose();
+            } else {
+                message.error(response.EM || 'Có lỗi xảy ra khi tạo hành trình');
+            }
+        } catch (error) {
+            console.error('Error creating tour:', error);
+            message.error('Có lỗi xảy ra khi tạo hành trình');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleClose = () => {
         onClose();
         setTripName('');
         setDestination('');
+        setSelectedCity(null);
+    };
+
+    const handleCitySelect = (city) => {
+        if (city && city._id && city.name) {
+            setSelectedCity(city);
+            setDestination(city.name);
+        }
     };
 
     return (
@@ -42,7 +126,12 @@ function AddTripDrawer({ open, onClose, onAdd }) {
                     <Button className={cx('drawer-button')} onClick={handleClose}>
                         Hủy
                     </Button>
-                    <Button className={cx('drawer-button', 'button-add')} onClick={handleAddClick} type="primary">
+                    <Button
+                        className={cx('drawer-button', 'button-add')}
+                        onClick={handleAddClick}
+                        type="primary"
+                        loading={loading}
+                    >
                         Tạo hành trình
                     </Button>
                 </div>
@@ -66,7 +155,7 @@ function AddTripDrawer({ open, onClose, onAdd }) {
                     <p className={cx('drawer-label')}>Địa điểm</p>
                     <Input
                         prefix={<SearchOutlined />}
-                        placeholder="Chuyến du lịch Cần Thơ cùng gia đình"
+                        placeholder="Tìm kiếm thành phố..."
                         maxLength={80}
                         value={destination}
                         onChange={(e) => setDestination(e.target.value)}
@@ -74,18 +163,32 @@ function AddTripDrawer({ open, onClose, onAdd }) {
                     />
                     <div className={cx('drawer-search-result')}>
                         <div className={cx('result-list')}>
-                            <CardSearchDrawer
-                                city="Cần Thơ"
-                                region="Thành phố nước ngọt miền Tây"
-                                image="/wimi2-img.png"
-                            />
-                            <CardSearchDrawer city="Hà Nội" region="Thủ đô nghìn năm văn hiến" image="/wimi2-img.png" />
-                            <CardSearchDrawer city="Đà Nẵng" region="Thành phố đáng sống" image="/wimi2-img.png" />
-                            <CardSearchDrawer city="Hà Nội" region="Thủ đô nghìn năm văn hiến" image="/wimi2-img.png" />
-                            <CardSearchDrawer city="Hà Nội" region="Thủ đô nghìn năm văn hiến" image="/wimi2-img.png" />
-                            <CardSearchDrawer city="Hà Nội" region="Thủ đô nghìn năm văn hiến" image="/wimi2-img.png" />
-                            <CardSearchDrawer city="Hà Nội" region="Thủ đô nghìn năm văn hiến" image="/wimi2-img.png" />
+                            {filteredCities && filteredCities.length > 0 ? (
+                                filteredCities
+                                    .slice(0, 8)
+                                    .map((city) =>
+                                        city && city._id ? (
+                                            <CardSearchDrawer
+                                                key={city._id}
+                                                city={city.name || 'Không có tên'}
+                                                region={city.description || 'Thành phố xinh đẹp'}
+                                                image={city.images?.[0] || '/wimi2-img.png'}
+                                                onClick={() => handleCitySelect(city)}
+                                                isSelected={selectedCity?._id === city._id}
+                                            />
+                                        ) : null,
+                                    )
+                            ) : cities.length === 0 ? (
+                                <div className={cx('no-results')}>Đang tải danh sách thành phố...</div>
+                            ) : (
+                                <div className={cx('no-results')}>
+                                    {destination ? 'Không tìm thấy thành phố nào phù hợp' : 'Không có thành phố nào'}
+                                </div>
+                            )}
                         </div>
+                        {filteredCities.length > 8 && (
+                            <div className={cx('more-results')}>Và {filteredCities.length - 8} thành phố khác...</div>
+                        )}
                     </div>
                 </div>
             </div>

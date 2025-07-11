@@ -4,9 +4,13 @@ import styles from './CardSearchDrawer.module.scss';
 
 const cx = classNames.bind(styles);
 
-function CardSearchDrawer({ city, region, image }) {
+function CardSearchDrawer({ city, region, image, onClick, isSelected }) {
     return (
-        <div className={cx('card')}>
+        <div
+            className={cx('card', { selected: isSelected })}
+            onClick={onClick}
+            style={{ cursor: onClick ? 'pointer' : 'default' }}
+        >
             <img src={image} alt={city} className={cx('image')} />
             <div className={cx('info')}>
                 <div className={cx('city-name')}>{city}</div>
