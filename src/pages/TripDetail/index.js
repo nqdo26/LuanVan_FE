@@ -9,13 +9,13 @@ import TripNav from '~/components/TripNav';
 import { useState, useEffect } from 'react';
 import TripItinerary from '~/components/TripItinerary';
 import { useParams } from 'react-router-dom';
-import { getTourBySlugApi, getDestinationsApi } from '~/utils/api';
+import { getTourBySlugApi, getDestinationsByTagsApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
 
 const items = [
     { key: 'trip', label: 'Lịch trình' },
-    { key: 'suggest', label: 'Địa điểm nổi bật' },
+    { key: 'suggest', label: 'Địa điểm nổi bậc' },
 ];
 
 const scrollToSection = (id) => {
@@ -29,10 +29,25 @@ function TripDetail() {
     const [currentPage, setCurrentPage] = useState(1);
     const [tour, setTour] = useState(null);
     const [destinations, setDestinations] = useState([]);
+    const [filteredDestinations, setFilteredDestinations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [destinationsLoading, setDestinationsLoading] = useState(false);
 
     const pageSize = 6;
+
+    const tripNavOptions = [
+        { label: 'Quán ăn & Nhà hàng' },
+        { label: 'Quán cà phê' },
+        { label: 'Công viên' },
+        { label: 'Di tích lịch sử' },
+        { label: 'Gần trung tâm' },
+        { label: 'Bảo tàng' },
+        { label: 'Khu vui chơi' },
+        { label: 'Mua sắm' },
+        { label: 'Chụp hình sống ảo' },
+        { label: 'Thích hợp gia đình' },
+        { label: 'Thích hợp cặp đôi' },
+    ];
 
     useEffect(() => {
         const fetchTour = async () => {
@@ -60,17 +75,29 @@ function TripDetail() {
 
     useEffect(() => {
         const fetchDestinations = async () => {
-            if (!tour?.city?._id) return;
+            if (!tour?.tags || tour.tags.length === 0) {
+                setDestinations([]);
+                return;
+            }
 
             setDestinationsLoading(true);
             try {
-                const response = await getDestinationsApi();
-                if (response.data && response.data.EC === 0) {
-                    const cityDestinations = response.data.DT.filter((dest) => dest.city === tour.city._id);
-                    setDestinations(cityDestinations);
+                const tagIds = tour.tags.map((tag) => tag._id || tag);
+
+                const response = await getDestinationsByTagsApi(tagIds, tour.city?._id, 20);
+
+                if (response && response.EC === 0) {
+                    setDestinations(response.data);
+                    setFilteredDestinations(response.data);
+                    setSelectedIndexes([]);
+                } else {
+                    console.error('Error response:', response);
+                    setDestinations([]);
                 }
             } catch (error) {
-                console.error('Error fetching destinations:', error);
+                console.error('Error fetching destinations by tags:', error);
+                setDestinations([]);
+                setFilteredDestinations([]);
             } finally {
                 setDestinationsLoading(false);
             }
@@ -79,8 +106,49 @@ function TripDetail() {
         fetchDestinations();
     }, [tour]);
 
-    const totalPages = Math.ceil(destinations.length / pageSize);
-    const pagedDestinations = destinations.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    useEffect(() => {
+        if (selectedIndexes.length === 0) {
+            setFilteredDestinations(destinations);
+        } else {
+            const labelKeywordMap = {
+                'quán ăn & nhà hàng': ['quán ăn', 'nhà hàng', 'restaurant', 'ẩm thực', 'món ăn'],
+                'quán cà phê': ['cà phê', 'coffee', 'cafe', 'quán cà phê'],
+                'công viên': ['công viên', 'park', 'vườn', 'thiên nhiên'],
+                'di tích lịch sử': ['di tích', 'lịch sử', 'cổ', 'văn hóa', 'bảo tàng'],
+                'gần trung tâm': ['trung tâm', 'downtown', 'city center', 'trung tâm thành phố'],
+                'bảo tàng': ['bảo tàng', 'museum', 'triển lãm'],
+                'khu vui chơi': ['vui chơi', 'giải trí', 'entertainment', 'game'],
+                'mua sắm': ['mua sắm', 'shopping', 'chợ', 'siêu thị'],
+                'chụp hình sống ảo': ['sống ảo', 'check-in', 'ảnh đẹp', 'chụp hình'],
+                'thích hợp gia đình': ['gia đình', 'family', 'trẻ em'],
+                'thích hợp cặp đôi': ['cặp đôi', 'couple', 'lãng mạn'],
+            };
+
+            const selectedKeywords = selectedIndexes.flatMap((index) => {
+                const label = tripNavOptions[index]?.label.toLowerCase();
+                return labelKeywordMap[label] || [label];
+            });
+
+            const filtered = destinations.filter((destination) => {
+                if (!destination.tags || destination.tags.length === 0) return false;
+
+                return destination.tags.some((tag) => {
+                    const tagTitle = (tag.title || tag).toLowerCase();
+                    return selectedKeywords.some(
+                        (keyword) =>
+                            tagTitle.includes(keyword.toLowerCase()) || keyword.toLowerCase().includes(tagTitle),
+                    );
+                });
+            });
+
+            setFilteredDestinations(filtered);
+        }
+
+        setCurrentPage(1);
+    }, [selectedIndexes, destinations, tripNavOptions]);
+
+    const totalPages = Math.ceil(filteredDestinations.length / pageSize);
+    const pagedDestinations = filteredDestinations.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     const handleToggle = (index) => {
         setSelectedIndexes((prev) => (prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]));
@@ -145,16 +213,26 @@ function TripDetail() {
                         {activeTab === 'suggest' && (
                             <div className={cx('suggest')}>
                                 <TripNav
-                                    options={[
-                                        { label: 'Quán ăn & Nhà hàng' },
-                                        { label: 'Quán cà phê' },
-                                        { label: 'Công viên' },
-                                        { label: 'Di tích lịch sử' },
-                                        { label: 'Bảo tàng' },
-                                    ]}
+                                    options={tripNavOptions}
                                     selectedIndexes={selectedIndexes}
                                     onToggle={handleToggle}
                                 />
+
+                                {selectedIndexes.length > 0 && (
+                                    <div
+                                        style={{
+                                            padding: '10px 0',
+                                            fontSize: '14px',
+                                            color: '#666',
+                                            borderBottom: '1px solid #f0f0f0',
+                                            marginBottom: '20px',
+                                        }}
+                                    >
+                                        Đang lọc theo:{' '}
+                                        {selectedIndexes.map((index) => tripNavOptions[index]?.label).join(', ')} • Tìm
+                                        thấy {filteredDestinations.length} địa điểm
+                                    </div>
+                                )}
                                 {destinationsLoading ? (
                                     <div style={{ textAlign: 'center', padding: '20px' }}>
                                         <Spin />
@@ -173,7 +251,11 @@ function TripDetail() {
                                                 ))
                                             ) : (
                                                 <div style={{ textAlign: 'center', padding: '20px' }}>
-                                                    Chưa có địa điểm nào trong thành phố này
+                                                    {selectedIndexes.length > 0
+                                                        ? 'Không có địa điểm nào phù hợp với bộ lọc đã chọn'
+                                                        : tour?.tags && tour.tags.length > 0
+                                                        ? 'Chưa có địa điểm nào phù hợp với tags của tour này'
+                                                        : 'Tour chưa có tags để gợi ý địa điểm'}
                                                 </div>
                                             )}
                                         </div>
@@ -203,7 +285,7 @@ function TripDetail() {
                     </motion.div>
                 </div>
                 <div className={cx('info')}>
-                    <CityInfo city={tour.city} />
+                    <CityInfo city={tour.city} tour={tour} />
                 </div>
             </div>
         </motion.div>

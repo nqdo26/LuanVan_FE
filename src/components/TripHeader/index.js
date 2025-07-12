@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button, Tooltip, Modal, Input, DatePicker, message } from 'antd';
 import {
     ShareAltOutlined,
@@ -11,7 +11,7 @@ import {
 import classNames from 'classnames/bind';
 import styles from './TripHeader.module.scss';
 import CardSearchDrawer from '../CardSearchDrawer';
-import { updateTourApi, getCitiesApi } from '~/utils/api';
+import { updateTourApi, getCitiesApi, getTagsApi } from '~/utils/api';
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
@@ -25,11 +25,16 @@ function TripHeader({ tour, onTourChange }) {
     const [cities, setCities] = useState([]);
     const [filteredCities, setFilteredCities] = useState([]);
     const [selectedCity, setSelectedCity] = useState(null);
+    const [tags, setTags] = useState([]);
+    const [selectedTags, setSelectedTags] = useState([]);
+    const [tagDropdownOpen, setTagDropdownOpen] = useState(false);
+    const tagRef = useRef(null);
     const [editedTour, setEditedTour] = useState({
         name: tour?.name || '',
         city: tour?.city?.name || '',
         duration: tour?.duration || {},
         description: tour?.description || '',
+        tags: tour?.tags || [],
     });
 
     useEffect(() => {
@@ -38,34 +43,42 @@ function TripHeader({ tour, onTourChange }) {
             city: tour?.city?.name || '',
             duration: tour?.duration || {},
             description: tour?.description || '',
+            tags: tour?.tags || [],
         });
         setSelectedCity(tour?.city || null);
+        setSelectedTags(tour?.tags || []);
     }, [tour]);
 
-    // Fetch cities khi mở modal
     useEffect(() => {
-        const fetchCities = async () => {
+        const fetchData = async () => {
             if (!isModalOpen) return;
 
             try {
-                const response = await getCitiesApi();
-                console.log('Fetched cities:', response);
-                if (response && response.EC === 0) {
-                    setCities(response.data);
-                    setFilteredCities(response.data);
+                const citiesResponse = await getCitiesApi();
+                console.log('Fetched cities:', citiesResponse);
+                if (citiesResponse && citiesResponse.EC === 0) {
+                    setCities(citiesResponse.data);
+                    setFilteredCities(citiesResponse.data);
                 } else {
                     message.error('Không thể tải danh sách thành phố');
                 }
+
+                const tagsResponse = await getTagsApi();
+                console.log('Fetched tags:', tagsResponse);
+                if (tagsResponse && tagsResponse.EC === 0) {
+                    setTags(tagsResponse.data);
+                } else {
+                    message.error('Không thể tải danh sách tags');
+                }
             } catch (error) {
-                console.error('Error fetching cities:', error);
-                message.error('Lỗi khi tải danh sách thành phố');
+                console.error('Error fetching data:', error);
+                message.error('Lỗi khi tải dữ liệu');
             }
         };
 
-        fetchCities();
+        fetchData();
     }, [isModalOpen]);
 
-    // Filter cities theo tìm kiếm
     useEffect(() => {
         if (editedTour.city && editedTour.city.trim()) {
             const filtered = cities.filter(
@@ -77,6 +90,19 @@ function TripHeader({ tour, onTourChange }) {
         }
     }, [editedTour.city, cities]);
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (tagRef.current && !tagRef.current.contains(event.target)) {
+                setTagDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     const handleOpenModal = () => setIsModalOpen(true);
     const handleCloseModal = () => setIsModalOpen(false);
 
@@ -87,13 +113,26 @@ function TripHeader({ tour, onTourChange }) {
         }
     };
 
+    const handleTagToggle = (tag) => {
+        const isSelected = selectedTags.some((t) => t._id === tag._id);
+        let updatedTags;
+
+        if (isSelected) {
+            updatedTags = selectedTags.filter((t) => t._id !== tag._id);
+        } else {
+            updatedTags = [...selectedTags, tag];
+        }
+
+        setSelectedTags(updatedTags);
+        setEditedTour({ ...editedTour, tags: updatedTags });
+    };
+
     const handleDelete = () => {
         console.log('Xóa chuyến đi');
         setIsModalOpen(false);
     };
 
     const handleSave = async () => {
-        // Validation
         if (!editedTour.name || !editedTour.name.trim()) {
             message.error('Tên chuyến đi không được để trống');
             return;
@@ -111,6 +150,7 @@ function TripHeader({ tour, onTourChange }) {
                 description: editedTour.description?.trim() || '',
                 duration: editedTour.duration,
                 city: selectedCity._id,
+                tags: selectedTags.map((tag) => tag._id),
             };
 
             const response = await updateTourApi(tour._id, updateData);
@@ -223,6 +263,58 @@ function TripHeader({ tour, onTourChange }) {
                                 ) : (
                                     <div className={cx('no-cities')}>
                                         {cities.length === 0 ? 'Đang tải...' : 'Không tìm thấy thành phố nào'}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className={cx('form-item')}>
+                            <label className={cx('form-label')}>Thẻ:</label>
+                            <div className={cx('tag-section')} ref={tagRef}>
+                                <div
+                                    className={cx('tag-multiselect')}
+                                    onClick={() => setTagDropdownOpen(!tagDropdownOpen)}
+                                >
+                                    <div className={cx('selected-tags')}>
+                                        {selectedTags.length === 0 && (
+                                            <span className={cx('placeholder')}>Chọn thẻ...</span>
+                                        )}
+                                        {selectedTags.map((tag) => (
+                                            <span
+                                                key={tag._id}
+                                                className={cx('tag-item', 'selected')}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleTagToggle(tag);
+                                                }}
+                                            >
+                                                {tag.title}
+                                                <span className={cx('close')}>✕</span>
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                                {tagDropdownOpen && (
+                                    <div className={cx('tag-dropdown-menu')}>
+                                        {tags.length > 0 ? (
+                                            tags.map((tag) => (
+                                                <div
+                                                    key={tag._id}
+                                                    className={cx(
+                                                        'dropdown-item',
+                                                        selectedTags.some((t) => t._id === tag._id) && 'active',
+                                                    )}
+                                                    onClick={() => handleTagToggle(tag)}
+                                                >
+                                                    <span>{tag.title}</span>
+                                                    {selectedTags.some((t) => t._id === tag._id) && (
+                                                        <span className={cx('tick')}>✓</span>
+                                                    )}
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className={cx('dropdown-item')}>Không có tag nào</div>
+                                        )}
                                     </div>
                                 )}
                             </div>

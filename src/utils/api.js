@@ -474,6 +474,26 @@ const deleteTourApi = (id) => {
     return axios.delete(URL_API);
 };
 
+const getDestinationsByTagsApi = (tagIds, cityId = null, limit = 20) => {
+    const URL_API = '/v1/api/destinations/by-tags';
+    const params = new URLSearchParams();
+
+    // Convert tagIds to JSON string if it's an array
+    if (Array.isArray(tagIds)) {
+        params.append('tags', JSON.stringify(tagIds));
+    } else {
+        params.append('tags', tagIds);
+    }
+
+    if (cityId) {
+        params.append('cityId', cityId);
+    }
+
+    params.append('limit', limit.toString());
+
+    return axios.get(`${URL_API}?${params.toString()}`);
+};
+
 export {
     createUserApi,
     getAccountApi,
@@ -510,6 +530,7 @@ export {
     getCityDeletionInfoApi,
     getCitiesWithDestinationCountApi,
     getPopularDestinationsApi,
+    getDestinationsByTagsApi,
     // Tour APIs
     createTourApi,
     getToursApi,

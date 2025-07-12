@@ -3,7 +3,7 @@ import styles from './CityInfo.module.scss';
 
 const cx = classNames.bind(styles);
 
-function CityInfo({ city }) {
+function CityInfo({ city, tour }) {
     if (!city) {
         return (
             <div className={cx('wrapper')}>
@@ -39,6 +39,9 @@ function CityInfo({ city }) {
             {city.weather && city.weather.length > 0 && (
                 <div className={cx('weather')}>
                     <h2 className={cx('section-title')}>Thời tiết địa phương</h2>
+                    <p className={cx('weather-note')}>
+                        💡 Đừng quên thông tin thời tiết trước khi lên đường nhé!
+                    </p>
                     <div className={cx('seasons')}>
                         {city.weather.map((season, index) => (
                             <div key={index} className={cx('season')}>
