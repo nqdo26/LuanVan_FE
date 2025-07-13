@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Card, Typography, Dropdown, Menu, message } from 'antd';
-import { Ellipsis, Share2, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Ellipsis, Share2, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import classNames from 'classnames/bind';
 import styles from './MyTripCard.module.scss';
 import { useNavigate } from 'react-router-dom';
-import { updateTourApi, deleteTourApi } from '~/utils/api';
+import { deleteTourApi } from '~/utils/api';
 import dayjs from 'dayjs';
 
 const cx = classNames.bind(styles);
@@ -13,16 +13,13 @@ const { Text } = Typography;
 
 function MyTripCard({ tour, onDelete }) {
     const navigate = useNavigate();
-    const [isPublic, setIsPublic] = useState(tour?.isPublic || false);
+
     const [loading, setLoading] = useState(false);
 
     const handleMenuClick = ({ key, domEvent }) => {
         domEvent?.stopPropagation();
 
         switch (key) {
-            case 'togglePublic':
-                handleTogglePublic();
-                break;
             case 'share':
                 handleShare();
                 break;
@@ -31,24 +28,6 @@ function MyTripCard({ tour, onDelete }) {
                 break;
             default:
                 break;
-        }
-    };
-
-    const handleTogglePublic = async () => {
-        setLoading(true);
-        try {
-            const response = await updateTourApi(tour._id, { isPublic: !isPublic });
-            if (response && response.EC === 0) {
-                setIsPublic(!isPublic);
-                message.success(`Đã chuyển lịch trình sang ${!isPublic ? 'Công khai' : 'Riêng tư'}`);
-            } else {
-                message.error('Có lỗi xảy ra khi cập nhật trạng thái');
-            }
-        } catch (error) {
-            console.error('Error updating tour:', error);
-            message.error('Có lỗi xảy ra khi cập nhật trạng thái');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -90,20 +69,22 @@ function MyTripCard({ tour, onDelete }) {
 
     const menuItems = [
         {
-            key: 'togglePublic',
-            label: isPublic ? 'Riêng tư' : 'Công khai',
-            icon: isPublic ? <EyeOff size={16} /> : <Eye size={16} />,
-            disabled: loading,
-        },
-        {
             key: 'share',
             label: 'Chia sẻ',
             icon: <Share2 size={16} />,
         },
         {
             key: 'delete',
-            label: 'Xóa',
-            icon: <Trash2 size={16} />,
+            label: (
+                <span
+                    style={{
+                        color: 'red',
+                    }}
+                >
+                    Xóa
+                </span>
+            ),
+            icon: <Trash2 color="red" size={16} />,
             danger: true,
             disabled: loading,
         },
@@ -117,8 +98,9 @@ function MyTripCard({ tour, onDelete }) {
     };
     return (
         <motion.div
-            whileHover={{ scale: 0.99, boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)' }}
-            style={{ borderRadius: '12px' }}
+            whileHover={{ scale: 1, boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.2)' }}
+            transition={{ duration: 0.3 }}
+            className={cx('destination-card')}
             onClick={handleCardClick}
         >
             <Card
@@ -139,12 +121,6 @@ function MyTripCard({ tour, onDelete }) {
                             <h1 level={5} className={cx('trip-title')}>
                                 {tour?.name || 'Chưa có tên'}
                             </h1>
-
-                            {isPublic ? (
-                                <Eye size={16} style={{ color: 'green' }} title="Công khai" />
-                            ) : (
-                                <EyeOff size={16} style={{ color: 'red' }} title="Riêng tư" />
-                            )}
                         </div>
                         <div onClick={(e) => e.stopPropagation()}>
                             <Dropdown

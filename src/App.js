@@ -13,6 +13,7 @@ function App() {
         const featchAccount = async () => {
             setAppLoading(true);
             const res = await getAccountApi();
+            console.log('Account data:', res);
             if (res && !res.message) {
                 setAuth({
                     isAuthenticated: true,
