@@ -10,39 +10,36 @@ import WeatherInfo from '~/components/WeatherInfo';
 import CitySideBar from '~/components/CitySideBar';
 import ResultSorter from '~/components/ResultSorter';
 import DestinationCard from '~/components/DestinationCard';
-import { getCityBySlugApi } from '~/utils/api';
+import { getCityBySlugApi, getDestinationsByCityApi } from '~/utils/api';
 import { duration } from 'moment';
 
 const cx = classNames.bind(styles);
 
 function CityDetail() {
-    const { id: slug } = useParams(); // Đổi tên id thành slug để rõ ý nghĩa
+    const { id: slug } = useParams();
     const [cityData, setCityData] = useState(null);
+    const [destinations, setDestinations] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [destinationsLoading, setDestinationsLoading] = useState(false);
 
     const pageSize = 6;
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalDestinations, setTotalDestinations] = useState(0);
 
-    const destinations = [
-        { id: 1, title: 'Destination 1' },
-        { id: 2, title: 'Destination 2' },
-        { id: 3, title: 'Destination 3' },
-        { id: 4, title: 'Destination 4' },
-        { id: 5, title: 'Destination 5' },
-        { id: 6, title: 'Destination 6' },
-        { id: 7, title: 'Destination 7' },
-        { id: 8, title: 'Destination 8' },
-        { id: 9, title: 'Destination 9' },
-    ];
-
-    const totalPages = Math.ceil(destinations.length / pageSize);
-    const pagedDestinations = destinations.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    const totalPages = Math.ceil(totalDestinations / pageSize);
+    const pagedDestinations = destinations;
 
     useEffect(() => {
         if (slug) {
             fetchCityData();
         }
     }, [slug]);
+
+    useEffect(() => {
+        if (slug) {
+            fetchDestinations();
+        }
+    }, [slug, currentPage]);
 
     useEffect(() => {
         if (cityData) {
@@ -54,11 +51,43 @@ function CityDetail() {
         };
     }, [cityData]);
 
+    const fetchDestinations = async () => {
+        if (!slug) return;
+
+        try {
+            setDestinationsLoading(true);
+            const response = await getDestinationsByCityApi(slug, {
+                limit: pageSize,
+                skip: (currentPage - 1) * pageSize,
+                sort: 'createdAt',
+                order: -1,
+            });
+
+            if (response && response.EC === 0) {
+                setDestinations(response.data.destinations);
+                setTotalDestinations(response.data.total);
+            } else {
+                notification.error({
+                    message: 'Lỗi',
+                    description: response?.data?.EM || 'Không thể tải danh sách địa điểm',
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching destinations:', error);
+            notification.error({
+                message: 'Lỗi',
+                description: 'Có lỗi xảy ra khi tải danh sách địa điểm',
+            });
+        } finally {
+            setDestinationsLoading(false);
+        }
+    };
+
     const fetchCityData = async () => {
         try {
             setLoading(true);
             const response = await getCityBySlugApi(slug);
-
+            console.log(response);
             if (response && response.EC === 0) {
                 setCityData(response.data);
             } else {
@@ -153,30 +182,42 @@ function CityDetail() {
                                 <ResultSorter />
                             </div>
                             <div className={cx('items')}>
-                                <div className={cx('result-list')}>
-                                    {pagedDestinations.map((item) => (
-                                        <div key={item.id} className={cx('result-list-item')}>
-                                            <DestinationCard title={item.title} />
+                                {destinationsLoading ? (
+                                    <div className={cx('loading')}>
+                                        <Spin size="large" />
+                                    </div>
+                                ) : pagedDestinations.length > 0 ? (
+                                    <>
+                                        <div className={cx('result-list')}>
+                                            {pagedDestinations.map((destination) => (
+                                                <div key={destination._id} className={cx('result-list-item')}>
+                                                    <DestinationCard destination={destination} />
+                                                </div>
+                                            ))}
                                         </div>
-                                    ))}
-                                </div>
-                                <div className={cx('pagination')}>
-                                    <button
-                                        disabled={currentPage === 1}
-                                        onClick={() => setCurrentPage(currentPage - 1)}
-                                    >
-                                        {'<'}
-                                    </button>
-                                    <span>
-                                        {currentPage} / {totalPages}
-                                    </span>
-                                    <button
-                                        disabled={currentPage === totalPages}
-                                        onClick={() => setCurrentPage(currentPage + 1)}
-                                    >
-                                        {'>'}
-                                    </button>
-                                </div>
+                                        {totalDestinations > 0 && (
+                                            <div className={cx('pagination')}>
+                                                <button
+                                                    disabled={currentPage === 1}
+                                                    onClick={() => setCurrentPage(currentPage - 1)}
+                                                >
+                                                    {'<'}
+                                                </button>
+                                                <span>
+                                                    {currentPage} / {totalPages}
+                                                </span>
+                                                <button
+                                                    disabled={currentPage === totalPages}
+                                                    onClick={() => setCurrentPage(currentPage + 1)}
+                                                >
+                                                    {'>'}
+                                                </button>
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className={cx('empty-message')}>Chưa có địa điểm nào trong thành phố này</div>
+                                )}
                             </div>
                         </div>
                     </div>

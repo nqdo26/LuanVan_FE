@@ -530,6 +530,11 @@ const getDestinationsByTagsApi = (tagIds, cityId = null, limit = 20) => {
     return axios.get(`${URL_API}?${params.toString()}`);
 };
 
+const getDestinationsByCityApi = (citySlug, params = {}) => {
+    const URL_API = `/v1/api/destinations/city/${citySlug}`;
+    return axios.get(URL_API, { params });
+};
+
 const incrementCityViewsApi = (id) => {
     const URL_API = `/v1/api/cities/${id}/views`;
     return axios.patch(URL_API);
@@ -574,6 +579,7 @@ export {
     deleteDestinationApi,
     getDestinationToEditApi,
     updateDestinationToEditApi,
+    getDestinationsByCityApi,
     incrementDestinationViewsApi,
     getCityDeletionInfoApi,
     incrementCityViewsApi,
