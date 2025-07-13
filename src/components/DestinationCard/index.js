@@ -2,16 +2,19 @@ import { Card, Rate } from 'antd';
 import { motion } from 'framer-motion';
 import { HeartOutlined } from '@ant-design/icons';
 import { AiOutlineEnvironment, AiOutlineClockCircle } from 'react-icons/ai';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import classNames from 'classnames/bind';
 import { useNavigate } from 'react-router-dom';
 
 import styles from './DestinationCard.module.scss';
+import { incrementDestinationViewsApi } from '~/utils/api';
+import viewTracker from '~/utils/viewTracker';
 const cx = classNames.bind(styles);
 
 function DestinationCard({ destination = {} }) {
     const navigate = useNavigate();
     const [liked, setLiked] = useState(false);
+    const isProcessing = useRef(false);
 
     const toggleLike = (e) => {
         e.stopPropagation();
@@ -38,10 +41,41 @@ function DestinationCard({ destination = {} }) {
     const truncateText = (text, maxLength) => {
         return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
     };
+    const handleCardClick = async (e) => {
+        // Prevent multiple executions
+        if (isProcessing.current) {
+            return;
+        }
 
-    const handleCardClick = () => {
-        navigate(`/destination/${destination.slug || 'unknown'}`);
-        window.scrollTo(0, 0);
+        // Prevent event bubbling and default behavior
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        isProcessing.current = true;
+
+        try {
+            // Tăng lượt xem khi click vào destination card - sử dụng viewTracker
+            if (destination._id && viewTracker.canIncrement('destination', destination._id)) {
+                try {
+                    await incrementDestinationViewsApi(destination._id);
+                    console.log('Destination view incremented:', destination._id);
+                } catch (error) {
+                    console.error('Lỗi khi tăng lượt xem:', error);
+                }
+            } else if (destination._id) {
+                console.log('Destination view increment skipped (cooldown):', destination._id);
+            }
+
+            navigate(`/destination/${destination.slug || 'unknown'}`);
+            window.scrollTo(0, 0);
+        } finally {
+            // Reset processing flag after delay
+            setTimeout(() => {
+                isProcessing.current = false;
+            }, 1000);
+        }
     };
 
     const getFirstImage = () => {

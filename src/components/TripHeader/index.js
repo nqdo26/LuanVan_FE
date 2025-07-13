@@ -11,7 +11,8 @@ import {
 import classNames from 'classnames/bind';
 import styles from './TripHeader.module.scss';
 import CardSearchDrawer from '../CardSearchDrawer';
-import { updateTourApi, getCitiesApi, getTagsApi } from '~/utils/api';
+import { updateTourApi, getCitiesApi, getTagsApi, deleteTourApi } from '~/utils/api';
+import { useNavigate } from 'react-router-dom';
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
@@ -20,8 +21,10 @@ import locale from 'antd/es/date-picker/locale/vi_VN';
 const cx = classNames.bind(styles);
 
 function TripHeader({ tour, onTourChange }) {
+    const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
     const [cities, setCities] = useState([]);
     const [filteredCities, setFilteredCities] = useState([]);
     const [selectedCity, setSelectedCity] = useState(null);
@@ -55,7 +58,7 @@ function TripHeader({ tour, onTourChange }) {
 
             try {
                 const citiesResponse = await getCitiesApi();
-              
+
                 if (citiesResponse && citiesResponse.EC === 0) {
                     setCities(citiesResponse.data);
                     setFilteredCities(citiesResponse.data);
@@ -64,7 +67,7 @@ function TripHeader({ tour, onTourChange }) {
                 }
 
                 const tagsResponse = await getTagsApi();
-            
+
                 if (tagsResponse && tagsResponse.EC === 0) {
                     setTags(tagsResponse.data);
                 } else {
@@ -128,8 +131,33 @@ function TripHeader({ tour, onTourChange }) {
     };
 
     const handleDelete = () => {
-        console.log('Xóa chuyến đi');
-        setIsModalOpen(false);
+        Modal.confirm({
+            title: 'Xác nhận xóa chuyến đi',
+            content: 'Bạn có chắc chắn muốn xóa chuyến đi này? Hành động này không thể hoàn tác.',
+            okText: 'Xóa',
+            cancelText: 'Hủy',
+            okType: 'danger',
+            onOk: async () => {
+                setDeleting(true);
+                try {
+                    const response = await deleteTourApi(tour._id);
+
+                    if (response && response.EC === 0) {
+                        message.success('Xóa chuyến đi thành công!');
+                        setIsModalOpen(false);
+                      
+                        navigate('/my-trip');
+                    } else {
+                        message.error(response?.EM || 'Có lỗi xảy ra khi xóa chuyến đi');
+                    }
+                } catch (error) {
+                    console.error('Error deleting tour:', error);
+                    message.error('Có lỗi xảy ra khi xóa chuyến đi');
+                } finally {
+                    setDeleting(false);
+                }
+            },
+        });
     };
 
     const handleSave = async () => {
@@ -370,10 +398,20 @@ function TripHeader({ tour, onTourChange }) {
                     </div>
 
                     <div className={cx('modal-actions')}>
-                        <Button onClick={handleDelete} className={cx('modal-btn', 'delete')}>
+                        <Button
+                            onClick={handleDelete}
+                            className={cx('modal-btn', 'delete')}
+                            loading={deleting}
+                            disabled={saving}
+                        >
                             Xóa chuyến đi
                         </Button>
-                        <Button onClick={handleSave} className={cx('modal-btn', 'save')} loading={saving}>
+                        <Button
+                            onClick={handleSave}
+                            className={cx('modal-btn', 'save')}
+                            loading={saving}
+                            disabled={deleting}
+                        >
                             Lưu
                         </Button>
                     </div>

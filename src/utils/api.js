@@ -97,9 +97,19 @@ const createDestinationApi = (destinationData) => {
     });
 };
 
-const getDestinationsApi = () => {
+const getDestinationsApi = (params = {}) => {
     const URL_API = '/v1/api/destinations';
-    return axios.get(URL_API);
+    return axios.get(URL_API, { params });
+};
+
+const searchDestinationsApi = (query, params = {}) => {
+    const URL_API = '/v1/api/destinations/search';
+    return axios.get(URL_API, {
+        params: {
+            q: query,
+            ...params,
+        },
+    });
 };
 
 const getDestinationByIdApi = (id) => {
@@ -495,6 +505,11 @@ const removeDestinationFromTourApi = (tourId, removeData) => {
     return axios.delete(URL_API, { data: removeData });
 };
 
+const removeNoteFromTourApi = (tourId, removeData) => {
+    const URL_API = `/v1/api/tours/${tourId}/notes`;
+    return axios.delete(URL_API, { data: removeData });
+};
+
 const getDestinationsByTagsApi = (tagIds, cityId = null, limit = 20) => {
     const URL_API = '/v1/api/destinations/by-tags';
     const params = new URLSearchParams();
@@ -513,6 +528,16 @@ const getDestinationsByTagsApi = (tagIds, cityId = null, limit = 20) => {
     params.append('limit', limit.toString());
 
     return axios.get(`${URL_API}?${params.toString()}`);
+};
+
+const incrementCityViewsApi = (id) => {
+    const URL_API = `/v1/api/cities/${id}/views`;
+    return axios.patch(URL_API);
+};
+
+const incrementDestinationViewsApi = (id) => {
+    const URL_API = `/v1/api/destinations/${id}/views`;
+    return axios.patch(URL_API);
 };
 
 export {
@@ -543,12 +568,15 @@ export {
     deleteCityApi,
     createDestinationApi,
     getDestinationsApi,
+    searchDestinationsApi,
     getDestinationByIdApi,
     getDestinationBySlugApi,
     deleteDestinationApi,
     getDestinationToEditApi,
     updateDestinationToEditApi,
+    incrementDestinationViewsApi,
     getCityDeletionInfoApi,
+    incrementCityViewsApi,
     getCitiesWithDestinationCountApi,
     getPopularDestinationsApi,
     getDestinationsByTagsApi,
@@ -565,4 +593,5 @@ export {
     addNoteToTourApi,
     updateDestinationInTourApi,
     removeDestinationFromTourApi,
+    removeNoteFromTourApi,
 };

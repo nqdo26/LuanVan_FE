@@ -25,6 +25,7 @@ function AdminDestinationManage() {
         setLoading(true);
         try {
             const res = await getDestinationsApi();
+            
             if (res && res.data && Array.isArray(res.data)) {
                 setData(res.data);
             } else if (res && res.data && Array.isArray(res.data.data)) {

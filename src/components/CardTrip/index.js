@@ -24,13 +24,15 @@ function CardTrip({
     rating = 0,
     type = 'tourist',
     handleClick,
+    maxTags = 3, // thêm prop này
 }) {
     const [menuVisible, setMenuVisible] = useState(false);
     const menuRef = useRef(null);
 
     const displayTags = tags && tags.length > 0 ? tags : ['Văn hóa', 'Ẩm thực', 'Chụp hình'];
+    const visibleTags = displayTags.slice(0, maxTags);
+    const hasMore = displayTags.length > maxTags;
 
-    // Click outside to close menu
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -124,11 +126,12 @@ function CardTrip({
                     </div>
 
                     <div className={cx('badge-container')}>
-                        {displayTags.map((tag, index) => (
+                        {visibleTags.map((tag, index) => (
                             <span key={index} className={cx('badge', getBadgeClass())}>
                                 {tag}
                             </span>
                         ))}
+                        {hasMore && <span className={cx('more')}>...</span>}
                     </div>
 
                     {location && (

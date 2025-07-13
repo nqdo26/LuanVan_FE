@@ -10,7 +10,6 @@ const { TextArea } = Input;
 const cx = classNames.bind(styles);
 
 function AddDestinationDrawer({ type, open, onClose, onAdd, title, handleAddNote }) {
-    console.log('AddDestinationDrawer props:', { type, open, title, handleAddNote: !!handleAddNote });
     const [selectedTrip, setSelectedTrip] = useState(null);
     const [destinations, setDestinations] = useState([]);
     const [filteredDestinations, setFilteredDestinations] = useState([]);
@@ -72,7 +71,6 @@ function AddDestinationDrawer({ type, open, onClose, onAdd, title, handleAddNote
     }, [searchTerm, debounceSearch]);
 
     const handleSelectTrip = (destination) => {
-        console.log('handleSelectTrip called with:', destination);
         setSelectedTrip(destination);
         onAdd(destination);
         setSelectedTrip(null);
@@ -91,11 +89,9 @@ function AddDestinationDrawer({ type, open, onClose, onAdd, title, handleAddNote
     };
 
     const handleAddNoteClick = () => {
-        console.log('handleAddNoteClick called');
         const finalTitle = noteTitle.trim() || 'Tiêu đề ghi chú';
         const finalContent = noteContent.trim() || 'Đây là nội dung ghi chú mẫu.';
 
-        console.log('Calling handleAddNote with:', { finalTitle, finalContent });
         handleAddNote(finalTitle, finalContent);
         handleClose();
     };
@@ -171,6 +167,7 @@ function AddDestinationDrawer({ type, open, onClose, onAdd, title, handleAddNote
 
                                         return (
                                             <CardTrip
+                                                maxTags={2}
                                                 key={destination._id}
                                                 title={destination.title || 'Không có tên'}
                                                 location={`${destination.location?.address || ''}, ${

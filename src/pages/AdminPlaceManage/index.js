@@ -5,7 +5,13 @@ import styles from './AdminPlaceManage.module.scss';
 import { Button, Table, message, Spin, Modal } from 'antd';
 import { EyeOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { deleteCityApi, getCityDeletionInfoApi, getCitiesWithDestinationCountApi } from '~/utils/api';
+import {
+    deleteCityApi,
+    getCityDeletionInfoApi,
+    getCitiesWithDestinationCountApi,
+    incrementCityViewsApi,
+} from '~/utils/api';
+import viewTracker from '~/utils/viewTracker';
 import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
@@ -101,7 +107,19 @@ function AdminPlaceManage() {
         }
     };
 
-    const handleAccessCity = (record) => {
+    const handleAccessCity = async (record) => {
+        // Tăng lượt xem khi admin access city - sử dụng viewTracker
+        if (record._id && viewTracker.canIncrement('city', record._id)) {
+            try {
+                await incrementCityViewsApi(record._id);
+                console.log('Admin city access view incremented:', record._id);
+            } catch (error) {
+                console.error('Lỗi khi tăng lượt xem city:', error);
+            }
+        } else if (record._id) {
+            console.log('Admin city access view increment skipped (cooldown):', record._id);
+        }
+
         navigate(`/city/${record.slug}`);
     };
 

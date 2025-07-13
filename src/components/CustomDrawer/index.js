@@ -7,7 +7,7 @@ import CardTrip from '../CardTrip';
 
 const cx = classNames.bind(styles);
 
-function CustomDrawer({ open, onClose, onSave, initialTime = '', initialNote = '' }) {
+function CustomDrawer({ open, onClose, onSave, initialTime = '', initialNote = '', editingItem = null }) {
     const formatTime = 'HH:mm';
     const [selectedTime, setSelectedTime] = useState(null);
     const [note, setNote] = useState('');
@@ -47,12 +47,15 @@ function CustomDrawer({ open, onClose, onSave, initialTime = '', initialNote = '
                 <h1 className={cx('drawer-title')}>Thêm ghi chú cho địa điểm</h1>
                 <div className={cx('drawer-content')}>
                     <CardTrip
-                        title="Wimi-Factory"
-                        location="Hẻm 30 đường Lê Anh Xuân"
-                        image="/wimi2-img.png"
+                        maxTags={2}
+                        title={editingItem?.title || 'Wimi-Factory'}
+                        location={editingItem?.address || editingItem?.location || 'Hẻm 30 đường Lê Anh Xuân'}
+                        image={editingItem?.image || '/wimi2-img.png'}
                         showMenu={false}
                         hoverEffect={false}
                         clickEffect={false}
+                        tags={editingItem?.tags || []}
+                        type={editingItem?.destinationType || editingItem?.type || 'tourist'}
                     />
 
                     <div className={cx('drawer-item')}>

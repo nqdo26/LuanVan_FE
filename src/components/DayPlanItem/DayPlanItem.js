@@ -13,6 +13,7 @@ import {
     addNoteToTourApi,
     updateDestinationInTourApi,
     removeDestinationFromTourApi,
+    removeNoteFromTourApi,
     getDestinationByIdApi,
 } from '~/utils/api';
 import { useNavigate } from 'react-router-dom';
@@ -47,7 +48,9 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
     const [selectedType, setSelectedType] = useState('');
     const [selectedTitle, setSelectedTitle] = useState('');
     const [editingItemIndex, setEditingItemIndex] = useState(null);
+    const [editingItem, setEditingItem] = useState(null);
     const [noteMenuIndex, setNoteMenuIndex] = useState(null);
+    const [deletingItemIndex, setDeletingItemIndex] = useState(null);
 
     const dayId = useMemo(() => `day-${day}`, [day]);
     useEffect(() => {
@@ -59,81 +62,85 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                 if (dayData) {
                     const items = [];
 
-                    if (dayData.items && dayData.items.length > 0) {
-                        const sortedItems = dayData.items.sort((a, b) => (a.order || 0) - (b.order || 0));
+                    if (dayData.items !== undefined && dayData.items !== null) {
+                        if (dayData.items.length > 0) {
+                            const sortedItems = dayData.items.sort((a, b) => (a.order || 0) - (b.order || 0));
+                            let noteCounter = 0;
 
-                        for (let index = 0; index < sortedItems.length; index++) {
-                            const item = sortedItems[index];
+                            for (let index = 0; index < sortedItems.length; index++) {
+                                const item = sortedItems[index];
 
-                            if (item.type === 'destination') {
-                                let destinationInfo = item.destinationId;
+                                if (item.type === 'destination') {
+                                    let destinationInfo = item.destinationId;
 
-                                if (destinationInfo && typeof destinationInfo === 'string') {
-                                    try {
-                                        const response = await getDestinationByIdApi(destinationInfo);
-                                        let fetchedData = null;
-                                        if (response.EC === 0 && response.data) {
-                                            fetchedData = response.data;
-                                        } else if (response.data?.EC === 0) {
-                                            fetchedData = response.data.DT || response.data.data;
-                                        } else if (response.data) {
-                                            fetchedData = response.data;
+                                    if (destinationInfo && typeof destinationInfo === 'string') {
+                                        try {
+                                            const response = await getDestinationByIdApi(destinationInfo);
+                                            let fetchedData = null;
+                                            if (response.EC === 0 && response.data) {
+                                                fetchedData = response.data;
+                                            } else if (response.data?.EC === 0) {
+                                                fetchedData = response.data.DT || response.data.data;
+                                            } else if (response.data) {
+                                                fetchedData = response.data;
+                                            }
+                                            if (fetchedData && (fetchedData.name || fetchedData.title)) {
+                                                destinationInfo = {
+                                                    ...fetchedData,
+                                                };
+                                            }
+                                        } catch (error) {
+                                            console.error('Error fetching destination:', error);
+                                            message.error('Không thể tải thông tin địa điểm');
+                                            return;
                                         }
-                                        if (fetchedData && (fetchedData.name || fetchedData.title)) {
-                                            destinationInfo = {
-                                                ...fetchedData,
-                                            };
-                                        }
-                                    } catch (error) {
-                                        console.error('Error fetching destination:', error);
-                                        message.error('Không thể tải thông tin địa điểm');
-                                        return;
                                     }
+
+                                    const iconType = 'place';
+                                    const descriptionIndex = -1;
+
+                                    items.push({
+                                        id: `dest-new-${index}`,
+                                        type: iconType,
+                                        title: destinationInfo?.title,
+                                        content: item.content || '',
+                                        time: item.time || '',
+                                        address: (() => {
+                                            const address =
+                                                destinationInfo?.location?.address || destinationInfo?.address || '';
+                                            const city = destinationInfo?.location?.city?.name || '';
+                                            if (address && city) {
+                                                return `${address}, ${city}`;
+                                            } else if (address) {
+                                                return address;
+                                            } else if (city) {
+                                                return city;
+                                            }
+                                            return 'Chưa có địa chỉ';
+                                        })(),
+                                        image:
+                                            destinationInfo?.album?.space?.[0] || destinationInfo?.images?.[0] || null,
+                                        destinationId: item.destinationId || destinationInfo?._id,
+                                        itemId: item._id,
+                                        descriptionIndex: descriptionIndex,
+                                        tags: destinationInfo?.tags?.map((tag) => tag.title).filter(Boolean) || [],
+                                        destinationType: destinationInfo?.type || 'tourist',
+                                        slug: destinationInfo?.slug,
+                                        order: item.order || index,
+                                        itemType: 'destination',
+                                    });
+                                } else if (item.type === 'note') {
+                                    items.push({
+                                        id: `note-new-${index}`,
+                                        type: 'note',
+                                        title: item.title || 'Ghi chú',
+                                        content: item.content || '',
+                                        noteIndex: noteCounter,
+                                        order: item.order || index,
+                                        itemType: 'note',
+                                    });
+                                    noteCounter++;
                                 }
-
-                                const iconType = 'place';
-
-                                const descriptionIndex = -1;
-
-                                items.push({
-                                    id: `dest-new-${index}`,
-                                    type: iconType,
-                                    title: destinationInfo?.title,
-                                    content: item.content || '',
-                                    time: item.time || '',
-                                    address: (() => {
-                                        const address =
-                                            destinationInfo?.location?.address || destinationInfo?.address || '';
-                                        const city = destinationInfo?.location?.city?.name || '';
-                                        if (address && city) {
-                                            return `${address}, ${city}`;
-                                        } else if (address) {
-                                            return address;
-                                        } else if (city) {
-                                            return city;
-                                        }
-                                        return 'Chưa có địa chỉ';
-                                    })(),
-                                    image: destinationInfo?.album?.space?.[0] || destinationInfo?.images?.[0] || null,
-                                    destinationId: item.destinationId || destinationInfo?._id,
-                                    itemId: item._id,
-                                    descriptionIndex: descriptionIndex,
-                                    tags: destinationInfo?.tags?.map((tag) => tag.title).filter(Boolean) || [],
-                                    destinationType: destinationInfo?.type || 'tourist',
-                                    slug: destinationInfo?.slug,
-                                    order: item.order || index,
-                                    itemType: 'destination',
-                                });
-                            } else if (item.type === 'note') {
-                                items.push({
-                                    id: `note-new-${index}`,
-                                    type: 'note',
-                                    title: item.title || 'Ghi chú',
-                                    content: item.content || '',
-                                    noteIndex: index,
-                                    order: item.order || index,
-                                    itemType: 'note',
-                                });
                             }
                         }
                     } else {
@@ -306,6 +313,7 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
             setTripTime(item.time || '');
             setTripNote(item.content || '');
             setEditingItemIndex(itemIndex);
+            setEditingItem(item);
             setDrawerOpen(true);
         }
     };
@@ -373,7 +381,7 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
             return;
         }
 
-        setLoading(true);
+        setDeletingItemIndex(itemIndex);
         try {
             const removeData = {
                 dayId,
@@ -384,6 +392,12 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
             const response = await removeDestinationFromTourApi(tour._id, removeData);
             if (response && response.EC === 0) {
                 message.success('Xóa địa điểm thành công');
+                console.log('Updated tour data after delete:', response.DT);
+                console.log('Items after delete:', response.DT?.itinerary?.find((day) => day.day === dayId)?.items);
+                console.log(
+                    'Descriptions after delete:',
+                    response.DT?.itinerary?.find((day) => day.day === dayId)?.descriptions,
+                );
                 onTourUpdate?.(response.DT);
             } else {
                 message.error(response.EM || 'Có lỗi xảy ra khi xóa địa điểm');
@@ -391,7 +405,46 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
         } catch (error) {
             message.error('Có lỗi xảy ra khi xóa địa điểm');
         } finally {
-            setLoading(false);
+            setDeletingItemIndex(null);
+        }
+    };
+
+    const handleDeleteNote = async (itemIndex) => {
+        const item = timelineItems[itemIndex];
+        console.log('Deleting note:', { itemIndex, item, noteIndex: item?.noteIndex });
+
+        if (!item || item.type !== 'note') {
+            message.error('Không thể xóa item này');
+            return;
+        }
+
+        if (!tour?._id) {
+            message.error('Thiếu thông tin tour');
+            return;
+        }
+
+        setDeletingItemIndex(itemIndex);
+        try {
+            const removeData = {
+                dayId,
+                noteIndex: item.noteIndex,
+            };
+            console.log('Sending remove data:', removeData);
+
+            const response = await removeNoteFromTourApi(tour._id, removeData);
+
+            if (response && response.EC === 0) {
+                message.success('Xóa ghi chú thành công');
+                onTourUpdate?.(response.DT);
+                setNoteMenuIndex(null);
+            } else {
+                message.error(response.EM || 'Có lỗi xảy ra khi xóa ghi chú');
+            }
+        } catch (error) {
+            console.error('Error deleting note:', error);
+            message.error('Có lỗi xảy ra khi xóa ghi chú');
+        } finally {
+            setDeletingItemIndex(null);
         }
     };
 
@@ -452,7 +505,7 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                     padding: mainExpanded ? '12px' : '0 12px',
                 }}
             >
-                <Spin spinning={destinationLoading}>
+                <Spin spinning={destinationLoading || deletingItemIndex !== null}>
                     <div className={cx('time-line')}>
                         {timelineItems.length === 0 ? (
                             <div className={cx('timeline-row')}>
@@ -474,70 +527,120 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                                     </div>
 
                                     <div className={cx('card-trip-wrapper')}>
-                                        {item.type === 'note' ? (
-                                            <div className={cx('note-box')}>
-                                                <div className={cx('note-header')}>
-                                                    <h4 className={cx('note-title')}>{item.title}</h4>
-                                                    <div
-                                                        className={cx('action')}
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setNoteMenuIndex(index === noteMenuIndex ? null : index);
-                                                        }}
-                                                        ref={noteMenuRef}
-                                                    >
-                                                        <motion.div
-                                                            whileHover={{ scale: 1.2 }}
-                                                            whileTap={{ scale: 0.9 }}
+                                        <Spin spinning={deletingItemIndex === index} tip="Đang xóa...">
+                                            {item.type === 'note' ? (
+                                                <div className={cx('note-box')}>
+                                                    <div className={cx('note-header')}>
+                                                        <h4 className={cx('note-title')}>{item.title}</h4>
+                                                        <div
+                                                            className={cx('action')}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                if (deletingItemIndex !== index) {
+                                                                    setNoteMenuIndex(
+                                                                        index === noteMenuIndex ? null : index,
+                                                                    );
+                                                                }
+                                                            }}
+                                                            ref={noteMenuRef}
+                                                            style={{
+                                                                pointerEvents:
+                                                                    deletingItemIndex === index ? 'none' : 'auto',
+                                                                opacity: deletingItemIndex === index ? 0.5 : 1,
+                                                            }}
                                                         >
-                                                            <Ellipsis size={20} />
-                                                        </motion.div>
-                                                        <AnimatePresence>
-                                                            {noteMenuIndex === index && (
-                                                                <motion.div
-                                                                    className={cx('menu')}
-                                                                    initial={{ opacity: 0, y: -5 }}
-                                                                    animate={{ opacity: 1, y: 0 }}
-                                                                    exit={{ opacity: 0, y: -5 }}
-                                                                    transition={{ duration: 0.2 }}
-                                                                >
-                                                                    <div className={cx('menu-item', 'delete')}>
-                                                                        <Trash2 className={'delete-icon'} size={16} />
-                                                                        <span>Xóa</span>
-                                                                    </div>
-                                                                </motion.div>
-                                                            )}
-                                                        </AnimatePresence>
+                                                            <motion.div
+                                                                whileHover={{ scale: 1.2 }}
+                                                                whileTap={{ scale: 0.9 }}
+                                                            >
+                                                                <Ellipsis size={20} />
+                                                            </motion.div>
+                                                            <AnimatePresence>
+                                                                {noteMenuIndex === index && (
+                                                                    <motion.div
+                                                                        className={cx('menu')}
+                                                                        initial={{ opacity: 0, y: -5 }}
+                                                                        animate={{ opacity: 1, y: 0 }}
+                                                                        exit={{ opacity: 0, y: -5 }}
+                                                                        transition={{ duration: 0.2 }}
+                                                                    >
+                                                                        <div
+                                                                            className={cx('menu-item', 'delete', {
+                                                                                disabled: deletingItemIndex === index,
+                                                                            })}
+                                                                            onClick={() => {
+                                                                                if (deletingItemIndex !== index) {
+                                                                                    handleDeleteNote(index);
+                                                                                }
+                                                                            }}
+                                                                            style={{
+                                                                                pointerEvents:
+                                                                                    deletingItemIndex === index
+                                                                                        ? 'none'
+                                                                                        : 'auto',
+                                                                                opacity:
+                                                                                    deletingItemIndex === index
+                                                                                        ? 0.5
+                                                                                        : 1,
+                                                                            }}
+                                                                        >
+                                                                            <Trash2
+                                                                                className={'delete-icon'}
+                                                                                size={16}
+                                                                            />
+                                                                            <span>
+                                                                                {deletingItemIndex === index
+                                                                                    ? 'Đang xóa...'
+                                                                                    : 'Xóa'}
+                                                                            </span>
+                                                                        </div>
+                                                                    </motion.div>
+                                                                )}
+                                                            </AnimatePresence>
+                                                        </div>
                                                     </div>
+                                                    <p className={cx('note-content')}>{item.content}</p>
                                                 </div>
-                                                <p className={cx('note-content')}>{item.content}</p>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <CardTrip
-                                                    title={item.title}
-                                                    location={item.address || 'Chưa có địa chỉ'}
-                                                    image={item.image || '/wimi2-img.png'}
-                                                    showMenu={true}
-                                                    time={item.time}
-                                                    note={item.content}
-                                                    tags={item.tags || []}
-                                                    type={item.destinationType || 'tourist'}
-                                                    onEdit={() => openDrawer(index)}
-                                                    onDelete={() => handleDeleteDestination(index)}
-                                                    hoverEffect={false}
-                                                    clickEffect={false}
-                                                    handleClick={() => {
-                                                        const slug = item.slug;
-                                                        if (slug && slug !== 'undefined') {
-                                                            navigate(`/destination/${slug}`);
-                                                        } else {
-                                                            message.warning('Địa điểm này chưa có đường dẫn chi tiết');
-                                                        }
-                                                    }}
-                                                />
-                                            </>
-                                        )}
+                                            ) : (
+                                                <>
+                                                    <CardTrip
+                                                        maxTags={5}
+                                                        title={item.title}
+                                                        location={item.address || 'Chưa có địa chỉ'}
+                                                        image={item.image || '/wimi2-img.png'}
+                                                        showMenu={deletingItemIndex !== index}
+                                                        time={item.time}
+                                                        note={item.content}
+                                                        tags={item.tags || []}
+                                                        type={item.destinationType || 'tourist'}
+                                                        onEdit={() => {
+                                                            if (deletingItemIndex !== index) {
+                                                                openDrawer(index);
+                                                            }
+                                                        }}
+                                                        onDelete={() => {
+                                                            if (deletingItemIndex !== index) {
+                                                                handleDeleteDestination(index);
+                                                            }
+                                                        }}
+                                                        hoverEffect={false}
+                                                        clickEffect={false}
+                                                        handleClick={() => {
+                                                            if (deletingItemIndex === index) return;
+
+                                                            const slug = item.slug;
+                                                            if (slug && slug !== 'undefined') {
+                                                                navigate(`/destination/${slug}`);
+                                                            } else {
+                                                                message.warning(
+                                                                    'Địa điểm này chưa có đường dẫn chi tiết',
+                                                                );
+                                                            }
+                                                        }}
+                                                    />
+                                                </>
+                                            )}
+                                        </Spin>
                                     </div>
                                 </div>
                             ))
@@ -595,6 +698,7 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                 onSave={handleSaveDrawer}
                 initialTime={tripTime}
                 initialNote={tripNote}
+                editingItem={editingItem} 
             />
 
             <AddDestinationDrawer
