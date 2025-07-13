@@ -193,6 +193,11 @@ const getAccountApi = () => {
     return axios.get(URL_API);
 };
 
+const getUserByIdApi = (id) => {
+    const URL_API = `/v1/api/users/${id}`;
+    return axios.get(URL_API);
+};
+
 const createUserApi = (fullName, email, password) => {
     const URL_API = '/v1/api/register';
     const data = { fullName, email, password };
@@ -548,6 +553,7 @@ const incrementDestinationViewsApi = (id) => {
 export {
     createUserApi,
     getAccountApi,
+    getUserByIdApi,
     getUsersApi,
     deleteUserApi,
     loginApi,

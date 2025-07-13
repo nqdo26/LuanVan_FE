@@ -50,6 +50,9 @@ function Header() {
                 },
             });
             navigate('/');
+        } else if (key === 'my-profile') {
+            navigate(`/my-profile`);
+            window.scrollTo(0, 0);
         } else {
             navigate('/' + key);
             window.scrollTo(0, 0);
@@ -152,7 +155,7 @@ function Header() {
     }, [isModalRegisterOpen]);
 
     const dropdownItems = [
-        { key: 'profile', label: <span className={cx('menu-avt-item')}>Thông tin cá nhân</span> },
+        { key: 'my-profile', label: <span className={cx('menu-avt-item')}>Thông tin cá nhân</span> },
         { key: 'add-trip', label: <span className={cx('menu-avt-item')}>Lên lịch trình</span> },
         { type: 'divider' },
         { key: 'logout', label: <span className={cx('menu-avt-item')}>Đăng xuất</span> },

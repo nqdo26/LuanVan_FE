@@ -28,7 +28,7 @@ const privateRoutes = [{ path: '/', component: Home }];
 const publicRoutes = [
     { path: '/', component: Home },
     { path: 'search', component: Search },
-    { path: '/profile', component: Profile },
+    { path: '/my-profile', component: Profile },
     { path: '/addtrip', component: AddTrip },
     { path: '/admin', component: Admin, layout: AdminLayout },
     { path: '/admin/users-management', component: AdminUserManage, layout: AdminLayout },

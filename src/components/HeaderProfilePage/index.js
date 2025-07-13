@@ -8,7 +8,7 @@ import Password from 'antd/es/input/Password';
 
 const cx = classNames.bind(styles);
 
-function HeaderProfilePage() {
+function HeaderProfilePage({user}) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isChangePassModalOpen, setIsChangePassModalOpen] = useState(false);
 
@@ -29,8 +29,8 @@ function HeaderProfilePage() {
                 <div className={cx('avatar-section')}>
                     <img className={cx('avatar')} src="/wimi1-img.png" alt="avatar" />
                     <div className={cx('info')}>
-                        <h2 className={cx('name')}>Nguyễn Quang Độ</h2>
-                        <span className={cx('username')}>nguoideptrainhatthegioi@gmail.com</span>
+                        <h2 className={cx('name')}>{user.fullName}</h2>
+                        <span className={cx('username')}>{user.email}</span>
                     </div>
                 </div>
 

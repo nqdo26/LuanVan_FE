@@ -74,6 +74,11 @@
     }
 }
 
+.result-list-item {
+    display: flex;
+    justify-content: center;
+}
+
 .loading,
 .empty-message {
     display: flex;
@@ -93,11 +98,6 @@
     font-size: 18px;
     font-weight: 500;
     color: #555;
-}
-
-.result-list-item {
-    display: flex;
-    justify-content: center;
 }
 
 .loading {
