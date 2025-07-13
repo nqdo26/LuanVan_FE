@@ -26,7 +26,7 @@ function MyTrip() {
         setLoading(true);
         try {
             const response = await getToursApi();
-            console.log('Tours response:', response);
+      
             if (response && response.EC === 0) {
                 setTours(response.DT.tours || []);
             } else {

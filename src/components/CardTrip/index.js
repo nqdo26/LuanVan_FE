@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import classNames from 'classnames/bind';
 import styles from './CardTrip.module.scss';
 import { Rate } from 'antd';
@@ -23,9 +23,29 @@ function CardTrip({
     tags = [],
     rating = 0,
     type = 'tourist',
+    handleClick,
 }) {
     const [menuVisible, setMenuVisible] = useState(false);
-    const displayTags = tags.length > 0 ? tags : ['Văn hóa', 'Ẩm thực', 'Chụp hình'];
+    const menuRef = useRef(null);
+
+    const displayTags = tags && tags.length > 0 ? tags : ['Văn hóa', 'Ẩm thực', 'Chụp hình'];
+
+    // Click outside to close menu
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setMenuVisible(false);
+            }
+        };
+
+        if (menuVisible) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [menuVisible]);
 
     const toggleMenu = (e) => {
         e.stopPropagation();
@@ -56,7 +76,7 @@ function CardTrip({
     };
 
     return (
-        <div className={cx('wrapper')}>
+        <div onClick={handleClick} className={cx('wrapper')}>
             {time && <p className={cx('time')}>{time}</p>}
             <motion.div className={cx('card', { selected: isSelected })} {...motionProps}>
                 <img src={image} alt={title} className={cx('image')} />
@@ -65,7 +85,7 @@ function CardTrip({
                         <div className={cx('title')}>{title}</div>
 
                         {showMenu && (
-                            <div className={cx('action')} onClick={toggleMenu}>
+                            <div className={cx('action')} onClick={toggleMenu} ref={menuRef}>
                                 <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}>
                                     <Ellipsis size={20} />
                                 </motion.div>
@@ -106,7 +126,7 @@ function CardTrip({
                     <div className={cx('badge-container')}>
                         {displayTags.map((tag, index) => (
                             <span key={index} className={cx('badge', getBadgeClass())}>
-                                {typeof tag === 'object' ? tag.title : tag}
+                                {tag}
                             </span>
                         ))}
                     </div>

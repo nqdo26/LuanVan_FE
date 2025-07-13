@@ -55,7 +55,7 @@ function TripHeader({ tour, onTourChange }) {
 
             try {
                 const citiesResponse = await getCitiesApi();
-                console.log('Fetched cities:', citiesResponse);
+              
                 if (citiesResponse && citiesResponse.EC === 0) {
                     setCities(citiesResponse.data);
                     setFilteredCities(citiesResponse.data);
@@ -64,7 +64,7 @@ function TripHeader({ tour, onTourChange }) {
                 }
 
                 const tagsResponse = await getTagsApi();
-                console.log('Fetched tags:', tagsResponse);
+            
                 if (tagsResponse && tagsResponse.EC === 0) {
                     setTags(tagsResponse.data);
                 } else {

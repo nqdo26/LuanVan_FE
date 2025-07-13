@@ -207,7 +207,7 @@ function TripDetail() {
                     >
                         {activeTab === 'trip' && (
                             <div className={cx('trip')}>
-                                <TripItinerary tour={tour} />
+                                <TripItinerary tour={tour} onTourUpdate={handleTourChange} />
                             </div>
                         )}
                         {activeTab === 'suggest' && (
@@ -238,27 +238,36 @@ function TripDetail() {
                                         <Spin />
                                     </div>
                                 ) : (
-                                    <div className={cx('suggest-list')}>
-                                        <div className={cx('result-list')}>
-                                            {pagedDestinations.length > 0 ? (
-                                                pagedDestinations.map((destination) => (
+                                    <div className={cx('suggest')}>
+                                        {pagedDestinations.length > 0 ? (
+                                            <div className={cx('result-list')}>
+                                                {pagedDestinations.map((destination) => (
                                                     <div key={destination._id} className={cx('result-list-item')}>
                                                         <DestinationCard
                                                             destination={destination}
                                                             title={destination.title}
                                                         />
                                                     </div>
-                                                ))
-                                            ) : (
-                                                <div style={{ textAlign: 'center', padding: '20px' }}>
-                                                    {selectedIndexes.length > 0
-                                                        ? 'Không có địa điểm nào phù hợp với bộ lọc đã chọn'
-                                                        : tour?.tags && tour.tags.length > 0
-                                                        ? 'Chưa có địa điểm nào phù hợp với tags của tour này'
-                                                        : 'Tour chưa có tags để gợi ý địa điểm'}
-                                                </div>
-                                            )}
-                                        </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div
+                                                style={{
+                                                    width: '100%',
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    padding: '20px',
+                                                    color: '#999',
+                                                    fontSize: '14px',
+                                                }}
+                                            >
+                                                {selectedIndexes.length > 0
+                                                    ? 'Không có địa điểm nào phù hợp với bộ lọc đã chọn'
+                                                    : tour?.tags && tour.tags.length > 0
+                                                    ? 'Chưa có địa điểm nào phù hợp với tags của tour này'
+                                                    : 'Hãy thêm các thẻ cho hành trình trong phần cài đặt để có gợi ý cá nhân hóa.'}
+                                            </div>
+                                        )}
                                         {totalPages > 1 && (
                                             <div className={cx('pagination')}>
                                                 <button

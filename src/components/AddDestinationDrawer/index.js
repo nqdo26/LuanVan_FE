@@ -10,11 +10,15 @@ const { TextArea } = Input;
 const cx = classNames.bind(styles);
 
 function AddDestinationDrawer({ type, open, onClose, onAdd, title, handleAddNote }) {
+    console.log('AddDestinationDrawer props:', { type, open, title, handleAddNote: !!handleAddNote });
     const [selectedTrip, setSelectedTrip] = useState(null);
     const [destinations, setDestinations] = useState([]);
     const [filteredDestinations, setFilteredDestinations] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(false);
+
+    const [noteTitle, setNoteTitle] = useState('');
+    const [noteContent, setNoteContent] = useState('');
 
     useEffect(() => {
         const fetchDestinations = async () => {
@@ -23,7 +27,6 @@ function AddDestinationDrawer({ type, open, onClose, onAdd, title, handleAddNote
             setLoading(true);
             try {
                 const response = await getDestinationsApi();
-                console.log('Destinations response:', response);
 
                 if (response && response.EC === 0) {
                     setDestinations(response.data);
@@ -69,6 +72,7 @@ function AddDestinationDrawer({ type, open, onClose, onAdd, title, handleAddNote
     }, [searchTerm, debounceSearch]);
 
     const handleSelectTrip = (destination) => {
+        console.log('handleSelectTrip called with:', destination);
         setSelectedTrip(destination);
         onAdd(destination);
         setSelectedTrip(null);
@@ -81,7 +85,19 @@ function AddDestinationDrawer({ type, open, onClose, onAdd, title, handleAddNote
     const handleClose = () => {
         setSearchTerm('');
         setSelectedTrip(null);
+        setNoteTitle('');
+        setNoteContent('');
         onClose();
+    };
+
+    const handleAddNoteClick = () => {
+        console.log('handleAddNoteClick called');
+        const finalTitle = noteTitle.trim() || 'Tiêu đề ghi chú';
+        const finalContent = noteContent.trim() || 'Đây là nội dung ghi chú mẫu.';
+
+        console.log('Calling handleAddNote with:', { finalTitle, finalContent });
+        handleAddNote(finalTitle, finalContent);
+        handleClose();
     };
 
     return (
@@ -96,7 +112,11 @@ function AddDestinationDrawer({ type, open, onClose, onAdd, title, handleAddNote
                         Hủy
                     </Button>
                     {type === 'note' && (
-                        <Button type="primary" className={cx('footer-btn', 'add-note-btn')} onClick={handleAddNote}>
+                        <Button
+                            type="primary"
+                            className={cx('footer-btn', 'add-note-btn')}
+                            onClick={handleAddNoteClick}
+                        >
                             Thêm ghi chú
                         </Button>
                     )}
@@ -110,7 +130,12 @@ function AddDestinationDrawer({ type, open, onClose, onAdd, title, handleAddNote
                         <>
                             <div className={cx('note-item')}>
                                 <p className={cx('note-title')}>Tiêu đề</p>
-                                <Input placeholder="Nhập tiêu đề ghi chú" maxLength={80} />
+                                <Input
+                                    placeholder="Nhập tiêu đề ghi chú"
+                                    maxLength={80}
+                                    value={noteTitle}
+                                    onChange={(e) => setNoteTitle(e.target.value)}
+                                />
                             </div>
                             <div className={cx('note-item')}>
                                 <p className={cx('note-title')}>Nội dung ghi chú</p>
@@ -118,6 +143,8 @@ function AddDestinationDrawer({ type, open, onClose, onAdd, title, handleAddNote
                                     placeholder="Nhập nội dung ghi chú"
                                     rows={4}
                                     className={cx('drawer-textarea')}
+                                    value={noteContent}
+                                    onChange={(e) => setNoteContent(e.target.value)}
                                 />
                             </div>
                         </>
@@ -138,28 +165,35 @@ function AddDestinationDrawer({ type, open, onClose, onAdd, title, handleAddNote
                                         <Spin size="large" />
                                     </div>
                                 ) : filteredDestinations.length > 0 ? (
-                                    filteredDestinations.map((destination) => (
-                                        <CardTrip
-                                            key={destination._id}
-                                            title={destination.title || 'Không có tên'}
-                                            location={`${destination.location?.address || ''}, ${
-                                                destination.location?.city?.name || ''
-                                            }`}
-                                            image={
-                                                destination.album?.highlight?.[0] ||
-                                                destination.album?.space?.[0] ||
-                                                destination.album?.fnb?.[0] ||
-                                                destination.album?.extra?.[0] ||
-                                                '/wimi2-img.png'
-                                            }
-                                            tags={destination.tags || []}
-                                            rating={destination.statistics?.averageRating}
-                                            type={destination.type}
-                                            showMenu={false}
-                                            onClick={() => handleSelectTrip(destination)}
-                                            isSelected={selectedTrip?._id === destination._id}
-                                        />
-                                    ))
+                                    filteredDestinations.map((destination) => {
+                                        const processedTags =
+                                            destination.tags?.map((tag) => tag.title).filter(Boolean) || [];
+
+                                        return (
+                                            <CardTrip
+                                                key={destination._id}
+                                                title={destination.title || 'Không có tên'}
+                                                location={`${destination.location?.address || ''}, ${
+                                                    destination.location?.city?.name || ''
+                                                }`
+                                                    .replace(/^,\s*/, '')
+                                                    .replace(/,\s*$/, '')}
+                                                image={
+                                                    destination.album?.highlight?.[0] ||
+                                                    destination.album?.space?.[0] ||
+                                                    destination.album?.fnb?.[0] ||
+                                                    destination.album?.extra?.[0] ||
+                                                    '/wimi2-img.png'
+                                                }
+                                                tags={processedTags}
+                                                rating={destination.statistics?.averageRating}
+                                                type={destination.type}
+                                                showMenu={false}
+                                                onClick={() => handleSelectTrip(destination)}
+                                                isSelected={selectedTrip?._id === destination._id}
+                                            />
+                                        );
+                                    })
                                 ) : (
                                     <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
                                         {searchTerm ? 'Không tìm thấy địa điểm nào phù hợp' : 'Chưa có địa điểm nào'}

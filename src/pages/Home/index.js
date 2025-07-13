@@ -42,7 +42,7 @@ function Home() {
         try {
             setDestinationsLoading(true);
             const response = await getPopularDestinationsApi();
-            console.log('Destinations response:', response);
+         
             if (response && response.EC === 0) {
                 setDestinations(response.data);
             }

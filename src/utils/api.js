@@ -474,6 +474,27 @@ const deleteTourApi = (id) => {
     return axios.delete(URL_API);
 };
 
+// Tour itinerary management APIs
+const addDestinationToTourApi = (tourId, destinationData) => {
+    const URL_API = `/v1/api/tours/${tourId}/destinations`;
+    return axios.post(URL_API, destinationData);
+};
+
+const addNoteToTourApi = (tourId, noteData) => {
+    const URL_API = `/v1/api/tours/${tourId}/notes`;
+    return axios.post(URL_API, noteData);
+};
+
+const updateDestinationInTourApi = (tourId, updateData) => {
+    const URL_API = `/v1/api/tours/${tourId}/destinations`;
+    return axios.put(URL_API, updateData);
+};
+
+const removeDestinationFromTourApi = (tourId, removeData) => {
+    const URL_API = `/v1/api/tours/${tourId}/destinations`;
+    return axios.delete(URL_API, { data: removeData });
+};
+
 const getDestinationsByTagsApi = (tagIds, cityId = null, limit = 20) => {
     const URL_API = '/v1/api/destinations/by-tags';
     const params = new URLSearchParams();
@@ -539,4 +560,9 @@ export {
     getTourBySlugApi,
     updateTourApi,
     deleteTourApi,
+    // Tour itinerary management APIs
+    addDestinationToTourApi,
+    addNoteToTourApi,
+    updateDestinationInTourApi,
+    removeDestinationFromTourApi,
 };

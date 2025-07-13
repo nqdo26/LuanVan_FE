@@ -39,7 +39,7 @@ const generateDays = (startDateStr, endDateStr, numDays) => {
     return result;
 };
 
-export default function TripItinerary({ tour }) {
+export default function TripItinerary({ tour, onTourUpdate }) {
     const [selectedDay, setSelectedDay] = useState(1);
     const [days, setDays] = useState([]);
     const dayRefs = useRef({});
@@ -113,7 +113,7 @@ export default function TripItinerary({ tour }) {
                     <div className={cx('day-content')}>
                         {days.map(({ id, date }) => (
                             <div key={id} id={`day-${id}`} ref={(el) => (dayRefs.current[id] = el)}>
-                                <DayPlanItem day={id} date={date} />
+                                <DayPlanItem day={id} date={date} tour={tour} onTourUpdate={onTourUpdate} />
                             </div>
                         ))}
                     </div>
