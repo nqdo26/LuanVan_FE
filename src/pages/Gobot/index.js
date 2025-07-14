@@ -228,7 +228,7 @@ function Gobot() {
                         closable
                         onClose={() => setIsDrawerVisible(false)}
                         visible={isDrawerVisible}
-                        bodyStyle={{ padding: 0 }}
+                        styles={{ body: { padding: 0 } }}
                     >
                         <ChatHistorySidebar
                             chats={chatHistory}

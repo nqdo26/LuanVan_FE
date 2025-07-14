@@ -21,9 +21,9 @@ function SearchBar() {
     useEffect(() => {
         const loadPopularDestinations = async () => {
             try {
-                const response = await getDestinationsApi({ limit: 4 });
+                const response = await getDestinationsApi({ limit: 2 });
                 if (response && response.data) {
-                    setPopularDestinations(response.data.slice(0, 4));
+                    setPopularDestinations(response.data.slice(0, 2));
                 }
             } catch (error) {
                 console.error('Error loading popular destinations:', error);

@@ -92,7 +92,7 @@
     }
 }
 
-.btn-submit {
+.submit-btn {
     background-color: #000000;
     color: #ffffff;
     border: none;
@@ -105,5 +105,24 @@
     &:hover {
         background-color: #333333 !important;
         color: #ffffff !important;
+    }
+}
+
+.cancel-btn {
+    background-color: #ffffff;
+    color: #000000;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 5px;
+    border: 1px solid #e2e2e2;
+
+    &:hover {
+        background-color: #e2e2e2 !important;
+        color: #000000 !important;
+
+        border: 1px solid #e2e2e2 !important;
     }
 }

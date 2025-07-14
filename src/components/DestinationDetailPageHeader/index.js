@@ -14,9 +14,8 @@ function DestinationDetailPageHeader({
     handleAddComment,
     handleSave,
     handleShare,
-    destinationType = 'tourist', // Thêm prop này
+    destinationType = 'tourist', 
 }) {
-    // Function để lấy class cho badge
     const getBadgeClass = () => {
         return destinationType === 'restaurant' ? 'badge-restaurant' : 'badge-tourist';
     };
@@ -51,7 +50,7 @@ function DestinationDetailPageHeader({
 
             <div className={cx('review-section')}>
                 <div className={cx('rating-location')}>
-                    <Rate disabled defaultValue={averageRating} className={cx('rating')} />
+                    <Rate allowHalf disabled defaultValue={averageRating} className={cx('rating')} />
 
                     <span className={cx('review-count')}>
                         {comments.length === 0 ? 'Chưa có đánh giá' : `${comments.length} đánh giá`}

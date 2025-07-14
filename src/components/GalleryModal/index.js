@@ -29,7 +29,7 @@ function GalleryModal({ detinationName, visible, onClose, categories, selectedCa
             className={cx('gallery-modal')}
             width={isMobile ? '100vw' : 1000}
             style={isMobile ? { top: 0, padding: 0 } : {}}
-            bodyStyle={isMobile ? { padding: 0 } : {}}
+            styles={{ body: isMobile ? { padding: 0 } : {} }}
         >
             <div className={cx('modal-container')}>
                 <div className={cx('modal-header')}>

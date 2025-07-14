@@ -29,7 +29,6 @@ function DestinationCard({ destination = {}, showRemoveMode = false, onRemove, o
 
         try {
             if (isInFavorites) {
-                // Remove from favorites
                 const response = await removeFromFavoritesApi(destination._id);
                 if (response.EC === 0) {
                     setIsInFavorites(false);
@@ -39,14 +38,12 @@ function DestinationCard({ destination = {}, showRemoveMode = false, onRemove, o
                     message.error('Có lỗi xảy ra khi xóa khỏi yêu thích');
                 }
             } else {
-                // Add to favorites
                 const response = await addToFavoritesApi(destination._id);
                 if (response.EC === 0) {
                     setIsInFavorites(true);
                     message.success('Đã thêm vào danh sách yêu thích');
                     if (onFavoriteChange) onFavoriteChange();
 
-                    // Add heart animation
                     const button = e.currentTarget;
                     for (let i = 0; i < 10; i++) {
                         const particle = document.createElement('span');

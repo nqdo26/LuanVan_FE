@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Avatar, Rate, List, Select, Progress, Button, Dropdown, Spin, message, Modal } from 'antd';
+import { Avatar, Rate, List, Select, Progress, Button, Dropdown, Spin, message, Modal, Image } from 'antd';
 import classNames from 'classnames/bind';
 import styles from './CustomComment.module.scss';
-import { EditOutlined, EllipsisOutlined, LikeOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { EditOutlined, EllipsisOutlined, DeleteOutlined } from '@ant-design/icons';
 import { getCommentsByDestinationApi, deleteCommentApi } from '~/utils/api';
 import { AuthContext } from '~/components/Context/auth.context';
 
@@ -11,10 +10,11 @@ const cx = classNames.bind(styles);
 
 function CustomComment({ type = '', destinationId = null, handleAddComment }) {
     const [filter, setFilter] = useState('newest');
-    const [isDetailsVisible, setIsDetailsVisible] = useState(false);
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(false);
     const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalComments: 0 });
+    const [expandedComments, setExpandedComments] = useState({});
+    const [showAll, setShowAll] = useState(false);
     const { auth } = useContext(AuthContext);
 
     useEffect(() => {
@@ -65,6 +65,21 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
         });
     };
 
+    const averageRating =
+        reviews.length > 0
+            ? (
+                  reviews.reduce((sum, review) => {
+                      if (review.detail) {
+                          const avg =
+                              Object.values(review.detail).reduce((s, v) => s + v, 0) /
+                              Object.keys(review.detail).length;
+                          return sum + avg;
+                      }
+                      return sum;
+                  }, 0) / reviews.length
+              ).toFixed(1)
+            : 0;
+
     const ratingCount = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
     reviews.forEach((review) => {
         if (review.detail) {
@@ -100,6 +115,26 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
         return items;
     };
 
+    const toggleCommentDetails = (commentId) => {
+        setExpandedComments((prev) => ({
+            ...prev,
+            [commentId]: !prev[commentId],
+        }));
+    };
+
+    const getFilteredReviews = () => {
+        let filtered = [...reviews];
+        if (filter === 'newest') {
+            filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        } else if (filter === 'oldest') {
+            filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        }
+        if (!showAll) {
+            return filtered.slice(0, 2);
+        }
+        return filtered;
+    };
+
     return (
         <div className={cx('wrapper')}>
             <h3 className={cx('title')}>Nhận xét & Đánh giá</h3>
@@ -107,8 +142,8 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
                 <div className={cx('custom-comment-sidebar')}>
                     <div className={cx('custom-comment-rating')}>
                         <div className={cx('rating')}>
-                            <span>0</span>
-                            <Rate allowHalf disabled defaultValue={0} />
+                            <span>{averageRating}</span>
+                            <Rate allowHalf disabled value={Number(averageRating)} />
                         </div>
                         <p className={cx('total-review')}>({reviews.length})</p>
                     </div>
@@ -149,7 +184,7 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
                             className={cx('custom-comment-select')}
                         >
                             <Select.Option value="all">Tất cả</Select.Option>
-                            <Select.Option value="mostliked">Nhiều lượt thích nhất</Select.Option>
+
                             <Select.Option value="newest">Mới nhất</Select.Option>
                             <Select.Option value="oldest">Cũ nhất</Select.Option>
                         </Select>
@@ -171,7 +206,7 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
                     ) : reviews.length > 0 ? (
                         <List
                             itemLayout="horizontal"
-                            dataSource={reviews}
+                            dataSource={getFilteredReviews()}
                             renderItem={(item) => (
                                 <List.Item className={cx('custom-comment-item')}>
                                     <List.Item.Meta
@@ -232,12 +267,14 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
                                                 </p>
                                                 <p className={cx('custom-comment-text')}>{item.content}</p>
                                                 <div
-                                                    onClick={() => setIsDetailsVisible(!isDetailsVisible)}
+                                                    onClick={() => toggleCommentDetails(item._id)}
                                                     className={cx('view-details-btn')}
                                                 >
-                                                    {isDetailsVisible ? 'Ẩn chi tiết' : 'Xem chi tiết đánh giá'}
+                                                    {expandedComments[item._id]
+                                                        ? 'Ẩn chi tiết'
+                                                        : 'Xem chi tiết đánh giá'}
                                                 </div>
-                                                {isDetailsVisible && (
+                                                {expandedComments[item._id] && (
                                                     <div className={cx('rating-details')}>
                                                         <table>
                                                             <tbody>
@@ -279,7 +316,7 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
                                                 {item.images && item.images.length > 0 && (
                                                     <div className={cx('comment-images')}>
                                                         {item.images.slice(0, 4).map((img, idx) => (
-                                                            <img
+                                                            <Image
                                                                 key={idx}
                                                                 src={img}
                                                                 alt={`review-img-${idx}`}
@@ -306,6 +343,14 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
                     ) : (
                         <div style={{ textAlign: 'center', padding: '40px' }}>
                             <p style={{ fontSize: '16px', color: '#666' }}>Chưa có đánh giá nào cho địa điểm này</p>
+                        </div>
+                    )}
+
+                    {!showAll && reviews.length > 2 && (
+                        <div style={{ textAlign: 'center', margin: '16px 0' }}>
+                            <Button className={cx('show-all-btn')} type="link" onClick={() => setShowAll(true)}>
+                                <p> Xem tất cả bình luận</p>
+                            </Button>
                         </div>
                     )}
                 </div>

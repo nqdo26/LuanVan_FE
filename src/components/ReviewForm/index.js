@@ -236,10 +236,12 @@ function ReviewForm({ type = 'restaurant', onSubmit, destinationId, destinationD
             </div>
 
             <div className={cx('form-group-submit')}>
-                <Button type="primary" onClick={handleSubmit} loading={loading} disabled={loading}>
+                <Button className={cx('submit-btn')} onClick={handleSubmit} loading={loading} disabled={loading}>
                     Gửi đánh giá
                 </Button>
-                <Button onClick={handleCancel}>Hủy bỏ</Button>
+                <Button className={cx('cancel-btn')} onClick={handleCancel}>
+                    Hủy bỏ
+                </Button>
             </div>
         </div>
     );

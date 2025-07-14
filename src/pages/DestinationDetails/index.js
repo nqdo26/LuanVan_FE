@@ -8,7 +8,7 @@ import DestinationDetailPageHeader from '~/components/DestinationDetailPageHeade
 import DestinationGallery from '~/components/DestinationGallery';
 import DestinationOverview from '~/components/DestinationOverview';
 import CustomComment from '~/components/CustomComment';
-import { getDestinationBySlugApi } from '~/utils/api';
+import { getDestinationBySlugApi, addToFavoritesApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
 
@@ -108,10 +108,23 @@ function DestinationDetails() {
         navigate(`/write-review/${destinationData.slug}`);
     };
 
-    const handleSave = () => {
-        notification.success({
-            description: 'Đã thêm địa điểm vào danh sách yêu thích',
-        });
+    const handleSave = async () => {
+        try {
+            const response = await addToFavoritesApi(destinationData._id);
+            if (response && response.EC === 0) {
+                notification.success({
+                    description: 'Đã thêm địa điểm vào danh sách yêu thích',
+                });
+            } else {
+                notification.error({
+                    description: response?.EM || 'Thêm vào yêu thích thất bại',
+                });
+            }
+        } catch (error) {
+            notification.error({
+                description: 'Có lỗi xảy ra khi thêm vào yêu thích',
+            });
+        }
     };
 
     const handleShare = () => {

@@ -613,6 +613,11 @@ const getCommentByIdApi = (commentId) => {
     return axios.get(URL_API);
 };
 
+const filterDestinationsApi = (params = {}) => {
+    const URL_API = '/v1/api/destinations/filter';
+    return axios.get(URL_API, { params });
+};
+
 export {
     createUserApi,
     getAccountApi,
@@ -655,6 +660,7 @@ export {
     getCitiesWithDestinationCountApi,
     getPopularDestinationsApi,
     getDestinationsByTagsApi,
+    filterDestinationsApi,
     // Tour APIs
     createTourApi,
     getToursApi,

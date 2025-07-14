@@ -235,6 +235,23 @@
     }
 }
 
+.show-all-btn {
+    margin-top: 12px;
+    color: #000;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 14px;
+
+    &:hover {
+        color: #000;
+        text-decoration: none;
+        p {
+            color: #000;
+            text-decoration: none;
+        }
+    }
+}
+
 :global {
     .ant-select-focused .ant-select-selector,
     .ant-select-selector:focus,
@@ -306,6 +323,7 @@
     .custom-comment-select {
         width: 100%;
         font-size: 13px;
+        background: #000000;
     }
     .custom-comment-item {
         font-size: 13px;

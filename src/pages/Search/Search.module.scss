@@ -18,7 +18,7 @@
 
 .inner-wrapper {
     margin: 20px 0 50px;
-    width: 61.1%;
+    width: 67%;
     display: flex;
     justify-content: center;
     border-radius: 10px;
@@ -31,13 +31,15 @@
 }
 
 .sidebar {
-    width: 23%;
+    width: 260px;
     min-width: 260px;
+    max-width: 260px;
     align-self: flex-start;
+    flex-shrink: 0;
 }
 
 .content-wrapper {
-    width: 77%;
+    flex: 3;
     display: flex;
     justify-content: center;
 }
@@ -58,7 +60,7 @@
 .result-list {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
+    gap: 8px;
     width: 100%;
 }
 
