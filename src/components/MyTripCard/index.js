@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Typography, Dropdown, Menu, message } from 'antd';
+import { Card, Typography, Dropdown, Menu, message, Modal } from 'antd';
 import { Ellipsis, Share2, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import classNames from 'classnames/bind';
@@ -43,24 +43,33 @@ function MyTripCard({ tour, onDelete }) {
             });
     };
 
-    const handleDelete = async () => {
-        setLoading(true);
-        try {
-            const response = await deleteTourApi(tour._id);
-            if (response && response.EC === 0) {
-                message.success('Đã xóa chuyến đi thành công!');
-                if (onDelete) {
-                    onDelete();
+    const handleDelete = () => {
+        Modal.confirm({
+            title: 'Xác nhận xóa chuyến đi',
+            content: `Bạn có chắc chắn muốn xóa chuyến đi "${tour.name}"? Hành động này không thể hoàn tác.`,
+            okText: 'Xóa',
+            cancelText: 'Hủy',
+            okType: 'danger',
+            onOk: async () => {
+                setLoading(true);
+                try {
+                    const response = await deleteTourApi(tour._id);
+                    if (response && response.EC === 0) {
+                        message.success('Đã xóa chuyến đi thành công!');
+                        if (onDelete) {
+                            onDelete();
+                        }
+                    } else {
+                        message.error('Có lỗi xảy ra khi xóa chuyến đi');
+                    }
+                } catch (error) {
+                    console.error('Error deleting tour:', error);
+                    message.error('Có lỗi xảy ra khi xóa chuyến đi');
+                } finally {
+                    setLoading(false);
                 }
-            } else {
-                message.error('Có lỗi xảy ra khi xóa chuyến đi');
-            }
-        } catch (error) {
-            console.error('Error deleting tour:', error);
-            message.error('Có lỗi xảy ra khi xóa chuyến đi');
-        } finally {
-            setLoading(false);
-        }
+            },
+        });
     };
 
     const handleCardClick = () => {

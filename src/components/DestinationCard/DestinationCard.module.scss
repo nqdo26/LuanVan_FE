@@ -185,3 +185,22 @@
     margin: 5px 0px 5px 0px;
 }
 
+.remove-btn {
+    &:hover {
+        background: rgba(255, 77, 79, 0.1);
+        transform: scale(1.05);
+        background-color: #ffdfe0;
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
+.remove-icon {
+    transition: color 0.3s ease;
+
+    &:hover {
+        color: #d32f2f !important;
+    }
+}

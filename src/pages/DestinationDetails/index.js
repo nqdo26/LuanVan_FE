@@ -172,7 +172,11 @@ function DestinationDetails() {
                         />
                     </div>
                     <div id="rate">
-                        <CustomComment handleAddComment={handleAddComment} />
+                        <CustomComment
+                            type={destinationData.type}
+                            destinationId={destinationData._id}
+                            handleAddComment={handleAddComment}
+                        />
                     </div>
                 </div>
             </div>

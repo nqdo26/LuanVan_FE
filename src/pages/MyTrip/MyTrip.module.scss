@@ -65,7 +65,29 @@
     padding-top: 20px;
 }
 
-/* Chỉ 1 media query cho mobile/tablet nhỏ */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    width: 100%;
+}
+
+.empty-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    text-align: center;
+    color: #888;
+    font-size: 16px;
+    font-style: italic;
+}
+
+.empty-message p {
+    margin: 0;
+}
+
 @media (max-width: 768px) {
     .wrapper {
         width: 95%;

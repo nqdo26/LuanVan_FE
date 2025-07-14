@@ -1,40 +1,75 @@
-import { Card, Rate } from 'antd';
+import { Card, Rate, message } from 'antd';
 import { motion } from 'framer-motion';
-import { HeartOutlined } from '@ant-design/icons';
+import { HeartOutlined, HeartFilled } from '@ant-design/icons';
 import { AiOutlineEnvironment, AiOutlineClockCircle } from 'react-icons/ai';
-import { useState, useRef } from 'react';
+import { useState, useRef, useContext, useEffect } from 'react';
 import classNames from 'classnames/bind';
 import { useNavigate } from 'react-router-dom';
 
 import styles from './DestinationCard.module.scss';
-import { incrementDestinationViewsApi } from '~/utils/api';
+import { incrementDestinationViewsApi, addToFavoritesApi, removeFromFavoritesApi } from '~/utils/api';
 import viewTracker from '~/utils/viewTracker';
+import { Trash2 } from 'lucide-react';
+import { AuthContext } from '~/components/Context/auth.context';
 const cx = classNames.bind(styles);
 
-function DestinationCard({ destination = {} }) {
+function DestinationCard({ destination = {}, showRemoveMode = false, onRemove, onFavoriteChange }) {
     const navigate = useNavigate();
-    const [liked, setLiked] = useState(false);
+    const { auth } = useContext(AuthContext);
+    const [isInFavorites, setIsInFavorites] = useState(false);
     const isProcessing = useRef(false);
 
-    const toggleLike = (e) => {
+    const toggleLike = async (e) => {
         e.stopPropagation();
-        setLiked(!liked);
 
-        if (!liked) {
-            const button = e.currentTarget;
-            for (let i = 0; i < 10; i++) {
-                const particle = document.createElement('span');
-                particle.className = cx('heart-particles');
+        if (!auth.isAuthenticated) {
+            message.warning('Vui lòng đăng nhập để thêm vào yêu thích');
+            return;
+        }
 
-                particle.style.setProperty('--x', `${Math.random() * 80 - 40}px`);
-                particle.style.setProperty('--y', `${Math.random() * 80 - 40}px`);
+        try {
+            if (isInFavorites) {
+                // Remove from favorites
+                const response = await removeFromFavoritesApi(destination._id);
+                if (response.EC === 0) {
+                    setIsInFavorites(false);
+                    message.success('Đã xóa khỏi danh sách yêu thích');
+                    if (onFavoriteChange) onFavoriteChange();
+                } else {
+                    message.error('Có lỗi xảy ra khi xóa khỏi yêu thích');
+                }
+            } else {
+                // Add to favorites
+                const response = await addToFavoritesApi(destination._id);
+                if (response.EC === 0) {
+                    setIsInFavorites(true);
+                    message.success('Đã thêm vào danh sách yêu thích');
+                    if (onFavoriteChange) onFavoriteChange();
 
-                button.appendChild(particle);
+                    // Add heart animation
+                    const button = e.currentTarget;
+                    for (let i = 0; i < 10; i++) {
+                        const particle = document.createElement('span');
+                        particle.className = cx('heart-particles');
 
-                setTimeout(() => {
-                    particle.remove();
-                }, 700);
+                        particle.style.setProperty('--x', `${Math.random() * 80 - 40}px`);
+                        particle.style.setProperty('--y', `${Math.random() * 80 - 40}px`);
+
+                        button.appendChild(particle);
+
+                        setTimeout(() => {
+                            particle.remove();
+                        }, 700);
+                    }
+                } else if (response.EC === 1 && response.EM === 'Destination already in favorites') {
+                    message.warning('Địa điểm này đã có trong danh sách yêu thích');
+                } else {
+                    message.error(response.EM || 'Có lỗi xảy ra khi thêm vào yêu thích');
+                }
             }
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
+            message.error('Có lỗi xảy ra khi xử lý yêu thích');
         }
     };
 
@@ -42,12 +77,10 @@ function DestinationCard({ destination = {} }) {
         return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
     };
     const handleCardClick = async (e) => {
-   
         if (isProcessing.current) {
             return;
         }
 
-     
         if (e) {
             e.preventDefault();
             e.stopPropagation();
@@ -56,7 +89,6 @@ function DestinationCard({ destination = {} }) {
         isProcessing.current = true;
 
         try {
-      
             if (destination._id && viewTracker.canIncrement('destination', destination._id)) {
                 try {
                     await incrementDestinationViewsApi(destination._id);
@@ -71,10 +103,16 @@ function DestinationCard({ destination = {} }) {
             navigate(`/destination/${destination.slug || 'unknown'}`);
             window.scrollTo(0, 0);
         } finally {
-
             setTimeout(() => {
                 isProcessing.current = false;
             }, 1000);
+        }
+    };
+
+    const handleRemove = (e) => {
+        e.stopPropagation();
+        if (onRemove && typeof onRemove === 'function') {
+            onRemove(destination);
         }
     };
 
@@ -136,7 +174,6 @@ function DestinationCard({ destination = {} }) {
         return 'Đang đóng cửa';
     };
 
-
     const getBadgeClass = () => {
         return destination.type === 'restaurant' ? 'badge-restaurant' : 'badge-tourist';
     };
@@ -168,11 +205,23 @@ function DestinationCard({ destination = {} }) {
                             src={getFirstImage()}
                             className={cx('card-image')}
                         />
-                        <button className={cx('favorite-btn')} onClick={toggleLike}>
-                            <HeartOutlined
-                                className={cx('favourite-icon', { liked })}
-                                style={{ fontSize: '22px', transition: 'color 0.3s ease' }}
-                            />
+                        <button
+                            className={cx('favorite-btn', { 'remove-btn': showRemoveMode })}
+                            onClick={showRemoveMode ? handleRemove : toggleLike}
+                        >
+                            {showRemoveMode ? (
+                                <Trash2 className={cx('remove-icon')} style={{ fontSize: '22px', color: '#ff4d4f' }} />
+                            ) : isInFavorites ? (
+                                <HeartFilled
+                                    className={cx('favourite-icon', 'liked')}
+                                    style={{ fontSize: '22px', color: '#ff4d4f', transition: 'color 0.3s ease' }}
+                                />
+                            ) : (
+                                <HeartOutlined
+                                    className={cx('favourite-icon')}
+                                    style={{ fontSize: '22px', transition: 'color 0.3s ease' }}
+                                />
+                            )}
                         </button>
                     </div>
                 }

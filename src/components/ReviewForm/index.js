@@ -3,25 +3,46 @@ import { Rate, Input, DatePicker, Button, Upload, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import styles from './ReviewForm.module.scss';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { createCommentApi } from '~/utils/api';
+import { AuthContext } from '~/components/Context/auth.context';
 
 const cx = classNames.bind(styles);
 const { TextArea } = Input;
 
+const ratingLabels = {
+    restaurant: {
+        criteria1: 'Đồ ăn/Thức uống',
+        criteria2: 'Không gian',
+        criteria3: 'Dịch vụ',
+        criteria4: 'Vệ sinh',
+        criteria5: 'Giá cả',
+        criteria6: 'Độ thuận tiện',
+    },
+    tourist: {
+        criteria1: 'Cảnh quan',
+        criteria2: 'Hoạt động trải nghiệm',
+        criteria3: 'Nét đặc trưng',
+        criteria4: 'Vệ sinh',
+        criteria5: 'Chi phí tham quan',
+        criteria6: 'Độ thuận tiện',
+    },
+};
+
 function ReviewForm({ type = 'restaurant', onSubmit, destinationId, destinationData }) {
     const navigate = useNavigate();
+    const { auth } = useContext(AuthContext);
+    const [loading, setLoading] = useState(false);
     const [form, setForm] = useState({
-        author: '',
-        rating: 0,
-        landscape: 0,
-        service: 0,
-        price: 0,
-        cleanliness: 0,
-        convenience: 0,
-        activities: 0,
+        criteria1: 0,
+        criteria2: 0,
+        criteria3: 0,
+        criteria4: 0,
+        criteria5: 0,
+        criteria6: 0,
         title: '',
         content: '',
-        date: null,
+        visitDate: null,
         images: [],
     });
 
@@ -30,8 +51,7 @@ function ReviewForm({ type = 'restaurant', onSubmit, destinationId, destinationD
         if (rating >= 3.5) return 'Tốt';
         if (rating >= 2.5) return 'Bình thường';
         if (rating >= 1.5) return 'Tệ';
-        if (rating >= 0) return 'Rất tệ';
-        return '';
+        return 'Rất tệ';
     };
 
     const getRatingColor = (rating) => {
@@ -39,28 +59,16 @@ function ReviewForm({ type = 'restaurant', onSubmit, destinationId, destinationD
         if (rating >= 4) return '#66FF66';
         if (rating >= 3) return '#FFD700';
         if (rating >= 2) return '#FF8C00';
-        if (rating >= 1) return '#FF0000';
         return '#FF0000';
     };
 
     const handleChange = (key, value) => {
         setForm((prev) => {
-            const newForm = {
-                ...prev,
-                [key]: value,
-            };
-
-            const rateKeys = ['landscape', 'service', 'price', 'cleanliness', 'convenience', 'activities'];
-
-            if (rateKeys.includes(key)) {
-                const validRates = rateKeys.map((k) => newForm[k]).filter((v) => v > 0);
-
-                const total = validRates.reduce((sum, val) => sum + val, 0);
-                const average = validRates.length ? total / validRates.length : 0;
-
-                newForm.rating = Math.round(average * 2) / 2;
-            }
-
+            const newForm = { ...prev, [key]: value };
+            const rateKeys = Object.keys(ratingLabels[type]).filter((k) => ratingLabels[type][k]);
+            const validRates = rateKeys.map((k) => newForm[k]).filter((v) => v > 0);
+            const total = validRates.reduce((sum, val) => sum + val, 0);
+            newForm.rating = validRates.length ? Math.round((total / validRates.length) * 2) / 2 : 0;
             return newForm;
         });
     };
@@ -73,40 +81,68 @@ function ReviewForm({ type = 'restaurant', onSubmit, destinationId, destinationD
         setForm((prev) => ({ ...prev, images: fileList }));
     };
 
-    const handleSubmit = () => {
-        if (!form.title.trim()) {
-            message.error('Vui lòng nhập tiêu đề đánh giá');
+    const handleSubmit = async () => {
+        if (!auth.isAuthenticated) {
+            message.error('Vui lòng đăng nhập để viết đánh giá');
             return;
         }
+
+        if (!form.title.trim()) {
+            message.error('Vui lòng nhập tiêu đề');
+            return;
+        }
+
         if (!form.content.trim()) {
             message.error('Vui lòng nhập nội dung đánh giá');
             return;
         }
-        if (form.rating === 0) {
-            message.error('Vui lòng đánh giá ít nhất một tiêu chí');
+
+        if (!form.visitDate) {
+            message.error('Vui lòng chọn thời gian trải nghiệm');
             return;
         }
 
-        console.log('Review gửi đi:', form);
-        if (onSubmit) {
-            onSubmit(form);
-        } else {
-            message.success('Gửi đánh giá thành công!');
+        const rateKeys = Object.keys(ratingLabels[type]).filter((k) => ratingLabels[type][k]);
+        const allRated = rateKeys.every((key) => form[key] > 0);
+        if (!allRated) {
+            message.error('Vui lòng đánh giá đầy đủ tất cả tiêu chí');
+            return;
+        }
 
-            if (destinationData?.slug) {
+        try {
+            setLoading(true);
+            const commentData = {
+                destinationId,
+                title: form.title,
+                content: form.content,
+                visitDate: form.visitDate,
+                images: form.images,
+                detail: {
+                    criteria1: form.criteria1,
+                    criteria2: form.criteria2,
+                    criteria3: form.criteria3,
+                    criteria4: form.criteria4,
+                    criteria5: form.criteria5,
+                    criteria6: form.criteria6,
+                },
+            };
+            const response = await createCommentApi(commentData);
+            if (response && response.EC === 0) {
+                message.success('Đánh giá của bạn đã được gửi thành công!');
                 navigate(`/destination/${destinationData.slug}`);
             } else {
-                navigate(-1);
+                message.error(response?.EM || 'Có lỗi xảy ra khi gửi đánh giá');
             }
+        } catch (error) {
+            console.error('Error submitting review:', error);
+            message.error('Có lỗi xảy ra khi gửi đánh giá');
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleCancel = () => {
-        if (destinationData?.slug) {
-            navigate(`/destination/${destinationData.slug}`);
-        } else {
-            navigate(-1);
-        }
+        navigate(destinationData?.slug ? `/destination/${destinationData.slug}` : -1);
     };
 
     return (
@@ -115,7 +151,6 @@ function ReviewForm({ type = 'restaurant', onSubmit, destinationId, destinationD
                 <label>Tiêu đề đánh giá:</label>
                 <Input
                     value={form.title}
-                    className={cx('title-input')}
                     onChange={(e) => handleChange('title', e.target.value)}
                     placeholder="Ví dụ: Khung cảnh tuyệt đẹp, đồ ăn xuất sắc!"
                 />
@@ -124,21 +159,24 @@ function ReviewForm({ type = 'restaurant', onSubmit, destinationId, destinationD
             <div className={cx('form-group')}>
                 <label>Nội dung đánh giá:</label>
                 <TextArea
-                    className={cx('content-input')}
                     rows={4}
+                    maxLength={1000}
                     value={form.content}
                     onChange={(e) => handleChange('content', e.target.value)}
                     placeholder="Hãy chia sẻ trải nghiệm của bạn..."
                 />
+                <div style={{ textAlign: 'right', fontSize: '12px', color: '#888' }}>
+                    {form.content.length} / 1000 ký tự
+                </div>
             </div>
 
             <div className={cx('form-group')}>
                 <label>Thời gian trải nghiệm:</label>
                 <DatePicker
                     placeholder="Chọn ngày"
-                    picker="day"
-                    value={form.date}
-                    onChange={(value) => handleChange('date', value)}
+                    format="DD/MM/YYYY"
+                    value={form.visitDate}
+                    onChange={(value) => handleChange('visitDate', value)}
                 />
             </div>
 
@@ -158,114 +196,23 @@ function ReviewForm({ type = 'restaurant', onSubmit, destinationId, destinationD
                     )}
                 </div>
             </div>
+
             <div className={cx('rating-details')}>
                 <table>
                     <tbody>
-                        {type === 'restaurant' ? (
-                            <tr>
-                                <td className={cx('rating-details-label')}>Đồ ăn/Thức uống:</td>
-                                <td className={cx('rating-stars')}>
-                                    <Rate
-                                        allowHalf
-                                        value={form.activities}
-                                        onChange={(value) => handleChange('activities', value)}
-                                    />
-                                </td>
-                            </tr>
-                        ) : (
-                            <tr>
-                                <td className={cx('rating-details-label')}>Cảnh quan:</td>
-                                <td className={cx('rating-stars')}>
-                                    <Rate
-                                        allowHalf
-                                        value={form.landscape}
-                                        onChange={(value) => handleChange('landscape', value)}
-                                    />
-                                </td>
-                            </tr>
-                        )}
-
-                        {type === 'restaurant' ? (
-                            <tr>
-                                <td className={cx('rating-details-label')}>Không gian:</td>
-                                <td className={cx('rating-stars')}>
-                                    <Rate
-                                        allowHalf
-                                        value={form.landscape}
-                                        onChange={(value) => handleChange('landscape', value)}
-                                    />
-                                </td>
-                            </tr>
-                        ) : (
-                            <tr>
-                                <td className={cx('rating-details-label')}>Hoạt động trải nghiệm:</td>
-                                <td className={cx('rating-stars')}>
-                                    <Rate
-                                        allowHalf
-                                        value={form.activities}
-                                        onChange={(value) => handleChange('activities', value)}
-                                    />
-                                </td>
-                            </tr>
-                        )}
-
-                        {type === 'restaurant' ? (
-                            <tr>
-                                <td className={cx('rating-details-label')}>Phục vụ:</td>
-                                <td className={cx('rating-stars')}>
-                                    <Rate
-                                        allowHalf
-                                        value={form.service}
-                                        onChange={(value) => handleChange('service', value)}
-                                    />
-                                </td>
-                            </tr>
-                        ) : (
-                            <tr>
-                                <td className={cx('rating-details-label')}>Chi phí tham quan:</td>
-                                <td className={cx('rating-stars')}>
-                                    <Rate
-                                        allowHalf
-                                        value={form.price}
-                                        onChange={(value) => handleChange('price', value)}
-                                    />
-                                </td>
-                            </tr>
-                        )}
-
-                        <tr>
-                            <td className={cx('rating-details-label')}>Vệ sinh:</td>
-                            <td className={cx('rating-stars')}>
-                                <Rate
-                                    allowHalf
-                                    value={form.cleanliness}
-                                    onChange={(value) => handleChange('cleanliness', value)}
-                                />
-                            </td>
-                        </tr>
-
-                        {type === 'restaurant' ? (
-                            <tr>
-                                <td className={cx('rating-details-label')}>Giá cả:</td>
-                                <td className={cx('rating-stars')}>
-                                    <Rate
-                                        allowHalf
-                                        value={form.price}
-                                        onChange={(value) => handleChange('price', value)}
-                                    />
-                                </td>
-                            </tr>
-                        ) : (
-                            <tr>
-                                <td className={cx('rating-details-label')}>Độ thuận tiện đường đi:</td>
-                                <td className={cx('rating-stars')}>
-                                    <Rate
-                                        allowHalf
-                                        value={form.convenience}
-                                        onChange={(value) => handleChange('convenience', value)}
-                                    />
-                                </td>
-                            </tr>
+                        {Object.entries(ratingLabels[type]).map(([criteriaKey, label]) =>
+                            label ? (
+                                <tr key={criteriaKey}>
+                                    <td className={cx('rating-details-label')}>{label}:</td>
+                                    <td className={cx('rating-stars')}>
+                                        <Rate
+                                            allowHalf
+                                            value={form[criteriaKey]}
+                                            onChange={(value) => handleChange(criteriaKey, value)}
+                                        />
+                                    </td>
+                                </tr>
+                            ) : null,
                         )}
                     </tbody>
                 </table>
@@ -289,12 +236,10 @@ function ReviewForm({ type = 'restaurant', onSubmit, destinationId, destinationD
             </div>
 
             <div className={cx('form-group-submit')}>
-                <Button type="primary" className={cx('btn-submit')} onClick={handleSubmit}>
+                <Button type="primary" onClick={handleSubmit} loading={loading} disabled={loading}>
                     Gửi đánh giá
                 </Button>
-                <Button className={cx('btn-cancel')} onClick={handleCancel}>
-                    Hủy bỏ
-                </Button>
+                <Button onClick={handleCancel}>Hủy bỏ</Button>
             </div>
         </div>
     );

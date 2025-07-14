@@ -550,6 +550,69 @@ const incrementDestinationViewsApi = (id) => {
     return axios.patch(URL_API);
 };
 
+const getUserToursApi = (page = 1, limit = 10) => {
+    const URL_API = `/v1/api/tours/user?page=${page}&limit=${limit}`;
+    return axios.get(URL_API);
+};
+
+// Favorites APIs
+const addToFavoritesApi = (destinationId) => {
+    const URL_API = '/v1/api/favorites';
+    return axios.post(URL_API, { destinationId });
+};
+
+const removeFromFavoritesApi = (destinationId) => {
+    const URL_API = `/v1/api/favorites/${destinationId}`;
+    return axios.delete(URL_API);
+};
+
+const getUserFavoritesApi = () => {
+    const URL_API = '/v1/api/favorites';
+    return axios.get(URL_API);
+};
+
+// Comments APIs
+const createCommentApi = (commentData) => {
+    const URL_API = '/v1/api/comments';
+    const formData = new FormData();
+
+    formData.append('destinationId', commentData.destinationId);
+    formData.append('title', commentData.title);
+    formData.append('content', commentData.content);
+    formData.append('detail', JSON.stringify(commentData.detail));
+
+    if (commentData.visitDate) {
+        formData.append('visitDate', commentData.visitDate);
+    }
+
+    if (commentData.images && commentData.images.length > 0) {
+        commentData.images.forEach((file) => {
+            formData.append('images', file.originFileObj || file);
+        });
+    }
+
+    return axios.post(URL_API, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+};
+
+const getCommentsByDestinationApi = (destinationId, page = 1, limit = 10) => {
+    const URL_API = `/v1/api/comments/destination/${destinationId}?page=${page}&limit=${limit}`;
+    return axios.get(URL_API);
+};
+
+const deleteCommentApi = (commentId) => {
+    const URL_API = `/v1/api/comments/${commentId}`;
+    return axios.delete(URL_API);
+};
+
+const getCommentByIdApi = (commentId) => {
+    const URL_API = `/v1/api/comments/${commentId}`;
+    return axios.get(URL_API);
+};
+
 export {
     createUserApi,
     getAccountApi,
@@ -606,4 +669,14 @@ export {
     updateDestinationInTourApi,
     removeDestinationFromTourApi,
     removeNoteFromTourApi,
+    getUserToursApi,
+    // Favorites APIs
+    addToFavoritesApi,
+    removeFromFavoritesApi,
+    getUserFavoritesApi,
+    // Comments APIs
+    createCommentApi,
+    getCommentsByDestinationApi,
+    deleteCommentApi,
+    getCommentByIdApi,
 };

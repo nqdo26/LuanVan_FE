@@ -527,7 +527,7 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                                     </div>
 
                                     <div className={cx('card-trip-wrapper')}>
-                                        <Spin spinning={deletingItemIndex === index} tip="Đang xóa...">
+                                        <Spin spinning={deletingItemIndex === index}>
                                             {item.type === 'note' ? (
                                                 <div className={cx('note-box')}>
                                                     <div className={cx('note-header')}>
@@ -698,7 +698,7 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                 onSave={handleSaveDrawer}
                 initialTime={tripTime}
                 initialNote={tripNote}
-                editingItem={editingItem} 
+                editingItem={editingItem}
             />
 
             <AddDestinationDrawer

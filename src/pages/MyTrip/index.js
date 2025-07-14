@@ -7,7 +7,7 @@ import MyTripCard from '~/components/MyTripCard';
 import { CirclePlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AddTripDrawer from '~/components/AddTripDrawer';
-import { getToursApi } from '~/utils/api';
+import { getUserToursApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
 const MotionBox = motion.div;
@@ -25,8 +25,8 @@ function MyTrip() {
     const fetchTours = async () => {
         setLoading(true);
         try {
-            const response = await getToursApi();
-      
+            const response = await getUserToursApi(1, 20);
+
             if (response && response.EC === 0) {
                 setTours(response.DT.tours || []);
             } else {
@@ -49,7 +49,6 @@ function MyTrip() {
     };
 
     const handleAddTrip = (newTour) => {
-        // Thêm tour mới vào danh sách
         if (newTour) {
             setTours((prev) => [newTour, ...prev]);
         }
@@ -101,16 +100,10 @@ function MyTrip() {
                                 <Spin size="large" />
                             </div>
                         ) : tours.length > 0 ? (
-                            tours.map((tour) => (
-                                <MyTripCard
-                                    key={tour._id}
-                                    tour={tour}
-                                    onDelete={fetchTours} 
-                                />
-                            ))
+                            tours.map((tour) => <MyTripCard key={tour._id} tour={tour} onDelete={fetchTours} />)
                         ) : (
-                            <div className={cx('empty-state')}>
-                                <Empty description="Bạn chưa có lịch trình nào" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                            <div className={cx('empty-message')}>
+                                <p>Bạn chưa có lịch trình nào. Lên kế hoạch cho chuyến đi sắp tới thôi!</p>
                             </div>
                         )}
                     </div>

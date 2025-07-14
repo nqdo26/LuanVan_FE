@@ -169,7 +169,7 @@
 }
 
 .custom-comment-visit-date {
-    font-size: 15px;
+    font-size: 14px;
     color: #333;
     font-weight: normal;
     margin-bottom: 10px;
@@ -181,6 +181,8 @@
 }
 
 .custom-comment-create-at {
+    display: flex;
+    gap: 4px;
     font-size: 14px;
     color: #999;
     margin-top: 10px;
@@ -197,12 +199,25 @@
     margin-top: 10px;
 }
 
-.rating-details td {
-    padding-right: 10px;
-}
+.rating-details {
+    margin: 12px 0;
 
-.rating-label {
-    color: #494949;
+    table {
+        width: 100%;
+        border-spacing: 0;
+    }
+
+    td {
+        padding: 2px 8px 2px 0;
+        vertical-align: middle;
+    }
+
+    .rating-label {
+        color: #494949;
+        font-size: 13px;
+        width: 80px;
+        min-width: 80px;
+    }
 }
 
 .comment-images {

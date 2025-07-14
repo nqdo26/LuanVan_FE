@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Avatar, Rate, List, Select, Progress, Button, Dropdown, Spin } from 'antd';
+import React, { useState, useEffect, useContext } from 'react';
+import { Avatar, Rate, List, Select, Progress, Button, Dropdown, Spin, message, Modal } from 'antd';
 import classNames from 'classnames/bind';
 import styles from './CustomComment.module.scss';
-import { EditOutlined, EllipsisOutlined, LikeOutlined } from '@ant-design/icons';
+import { EditOutlined, EllipsisOutlined, LikeOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { getCommentsByDestinationApi, deleteCommentApi } from '~/utils/api';
+import { AuthContext } from '~/components/Context/auth.context';
 
 const cx = classNames.bind(styles);
 
@@ -12,36 +14,90 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
     const [isDetailsVisible, setIsDetailsVisible] = useState(false);
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
+    const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalComments: 0 });
+    const { auth } = useContext(AuthContext);
 
     useEffect(() => {
         if (destinationId) {
+            fetchComments();
         }
     }, [destinationId]);
 
+    const fetchComments = async (page = 1) => {
+        try {
+            setLoading(true);
+            const response = await getCommentsByDestinationApi(destinationId, page, 10);
+            if (response && response.EC === 0) {
+                setReviews(response.data.comments);
+                setPagination(response.data.pagination);
+            } else {
+                console.error('Error fetching comments:', response?.EM);
+            }
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+            message.error('Có lỗi xảy ra khi tải bình luận');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDeleteComment = (commentId) => {
+        Modal.confirm({
+            title: 'Xác nhận xóa bình luận',
+            content: 'Bạn có chắc chắn muốn xóa bình luận này không?',
+            okText: 'Xóa',
+            okType: 'danger',
+            cancelText: 'Hủy',
+            onOk: async () => {
+                try {
+                    const response = await deleteCommentApi(commentId);
+                    if (response && response.EC === 0) {
+                        message.success('Xóa bình luận thành công');
+                        fetchComments(pagination.currentPage);
+                    } else {
+                        message.error(response?.EM || 'Có lỗi xảy ra khi xóa bình luận');
+                    }
+                } catch (error) {
+                    console.error('Error deleting comment:', error);
+                    message.error('Có lỗi xảy ra khi xóa bình luận');
+                }
+            },
+        });
+    };
+
     const ratingCount = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-    const totalReviews = reviews.length;
+    reviews.forEach((review) => {
+        if (review.detail) {
+            const avg = Object.values(review.detail).reduce((sum, v) => sum + v, 0) / Object.keys(review.detail).length;
+            ratingCount[Math.round(avg)]++;
+        }
+    });
 
     const handleFilterChange = (value) => {
         setFilter(value);
     };
 
-    const handleMenuClick = ({ key }) => {
+    const handleMenuClick = ({ key }, commentId) => {
         if (key === 'report') {
-            navigate('/hehe');
-            window.scrollTo(0, 0);
+            message.info('Chức năng báo cáo đang phát triển');
+        } else if (key === 'delete') {
+            handleDeleteComment(commentId);
         }
     };
 
-    const menuItems = [
-        {
-            key: 'report',
-            label: <span>Báo cáo bình luận</span>,
-        },
-    ];
-
-    const toggleDetails = () => {
-        setIsDetailsVisible((prev) => !prev);
+    const getMenuItems = (comment) => {
+        const items = [];
+        if (auth.isAuthenticated && (auth.user.id === comment.userId._id || auth.user.role === 'admin')) {
+            items.push({
+                key: 'delete',
+                label: (
+                    <span style={{ color: '#ff4d4f' }}>
+                        <DeleteOutlined /> Xóa bình luận
+                    </span>
+                ),
+            });
+        }
+        return items;
     };
 
     return (
@@ -54,7 +110,7 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
                             <span>0</span>
                             <Rate allowHalf disabled defaultValue={0} />
                         </div>
-                        <p className={cx('total-review')}>({totalReviews})</p>
+                        <p className={cx('total-review')}>({reviews.length})</p>
                     </div>
 
                     <div className={cx('rating-levels')}>
@@ -75,13 +131,9 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
                                     </p>
                                     <Progress
                                         className={cx('progress')}
-                                        percent={totalReviews > 0 ? (count / totalReviews) * 100 : 0}
-                                        showInfo={true}
-                                        strokeColor={
-                                            totalReviews > 0 && (count / totalReviews) * 100 >= 50
-                                                ? '#4caf50'
-                                                : '#f44336'
-                                        }
+                                        percent={reviews.length > 0 ? (count / reviews.length) * 100 : 0}
+                                        showInfo
+                                        strokeColor={(count / reviews.length) * 100 >= 50 ? '#4caf50' : '#f44336'}
                                         format={() => `${count} `}
                                     />
                                 </div>
@@ -123,208 +175,102 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
                             renderItem={(item) => (
                                 <List.Item className={cx('custom-comment-item')}>
                                     <List.Item.Meta
-                                        avatar={<Avatar src={item.avatar} />}
+                                        avatar={<Avatar src={item.userId?.avatar || '/default-avatar.png'} />}
                                         title={
                                             <span className={cx('title-wrapper')}>
-                                                <strong className={cx('custom-comment-author')}>{item.author}</strong>
+                                                <strong className={cx('custom-comment-author')}>
+                                                    {item.userId?.fullName || 'Ẩn danh'}
+                                                </strong>
                                                 <div className={cx('reaction')}>
-                                                    <Button
-                                                        icon={<LikeOutlined />}
-                                                        className={cx('like-btn')}
-                                                        type="text"
-                                                    >
-                                                        <span className={cx('like-count')}> {item.likes || 0}</span>
-                                                    </Button>
-
-                                                    <Dropdown
-                                                        menu={{
-                                                            items: menuItems,
-                                                            onClick: handleMenuClick,
-                                                        }}
-                                                        trigger={['click']}
-                                                        placement="bottomRight"
-                                                        arrow={true}
-                                                    >
-                                                        <Button
-                                                            icon={
-                                                                <EllipsisOutlined
-                                                                    style={{ fontSize: '23px', fontWeight: 'bold' }}
+                                                    {auth.isAuthenticated &&
+                                                        (auth.user.id === item.userId._id ||
+                                                            auth.user.role === 'admin') && (
+                                                            <Dropdown
+                                                                menu={{
+                                                                    items: getMenuItems(item),
+                                                                    onClick: (info) => handleMenuClick(info, item._id),
+                                                                }}
+                                                                trigger={['click']}
+                                                                placement="bottomRight"
+                                                                arrow
+                                                            >
+                                                                <Button
+                                                                    icon={
+                                                                        <EllipsisOutlined
+                                                                            style={{
+                                                                                fontSize: '23px',
+                                                                                fontWeight: 'bold',
+                                                                            }}
+                                                                        />
+                                                                    }
+                                                                    className={cx('more-btn')}
+                                                                    type="text"
                                                                 />
-                                                            }
-                                                            className={cx('more-btn')}
-                                                            type="text"
-                                                        />
-                                                    </Dropdown>
+                                                            </Dropdown>
+                                                        )}
                                                 </div>
                                             </span>
                                         }
                                         description={
                                             <>
                                                 <div className={cx('rating-and-reaction')}>
-                                                    <Rate className={cx('rating-title')} disabled value={item.rating} />
+                                                    <Rate
+                                                        className={cx('rating-title')}
+                                                        disabled
+                                                        value={
+                                                            Object.values(item.detail || {}).reduce(
+                                                                (a, b) => a + b,
+                                                                0,
+                                                            ) / (Object.keys(item.detail || {}).length || 1)
+                                                        }
+                                                    />
                                                 </div>
                                                 <p className={cx('custom-comment-title')}>{item.title}</p>
                                                 <p className={cx('custom-comment-visit-date')}>
-                                                    Đã đến trải nghiệm vào: {item.visitDate}
+                                                    Đã đến trải nghiệm vào:{' '}
+                                                    {new Date(item.createdAt).toLocaleDateString('vi-VN')}
                                                 </p>
                                                 <p className={cx('custom-comment-text')}>{item.content}</p>
-                                                <div onClick={toggleDetails} className={cx('view-details-btn')}>
+                                                <div
+                                                    onClick={() => setIsDetailsVisible(!isDetailsVisible)}
+                                                    className={cx('view-details-btn')}
+                                                >
                                                     {isDetailsVisible ? 'Ẩn chi tiết' : 'Xem chi tiết đánh giá'}
                                                 </div>
-
                                                 {isDetailsVisible && (
                                                     <div className={cx('rating-details')}>
                                                         <table>
                                                             <tbody>
-                                                                {type === 'restaurant' ? (
-                                                                    <>
-                                                                        <tr>
-                                                                            <td className={cx('rating-label')}>
-                                                                                Đồ ăn/Thức uống:
-                                                                            </td>
-                                                                            <td className={cx('rating-stars')}>
-                                                                                <Rate
-                                                                                    allowHalf
-                                                                                    disabled
-                                                                                    value={item.ratings?.food || 0}
-                                                                                />
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td className={cx('rating-label')}>
-                                                                                Không gian:
-                                                                            </td>
-                                                                            <td className={cx('rating-stars')}>
-                                                                                <Rate
-                                                                                    allowHalf
-                                                                                    disabled
-                                                                                    value={item.ratings?.space || 0}
-                                                                                />
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td className={cx('rating-label')}>
-                                                                                Phục vụ:
-                                                                            </td>
-                                                                            <td className={cx('rating-stars')}>
-                                                                                <Rate
-                                                                                    allowHalf
-                                                                                    disabled
-                                                                                    value={item.ratings?.service || 0}
-                                                                                />
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td className={cx('rating-label')}>
-                                                                                Vệ sinh:
-                                                                            </td>
-                                                                            <td className={cx('rating-stars')}>
-                                                                                <Rate
-                                                                                    allowHalf
-                                                                                    disabled
-                                                                                    value={
-                                                                                        item.ratings?.cleanliness || 0
-                                                                                    }
-                                                                                />
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td className={cx('rating-label')}>
-                                                                                Giá cả:
-                                                                            </td>
-                                                                            <td className={cx('rating-stars')}>
-                                                                                <Rate
-                                                                                    allowHalf
-                                                                                    disabled
-                                                                                    value={item.ratings?.price || 0}
-                                                                                />
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td className={cx('rating-label')}>
-                                                                                Độ thuận tiện đường đi:
-                                                                            </td>
-                                                                            <td className={cx('rating-stars')}>
-                                                                                <Rate
-                                                                                    allowHalf
-                                                                                    disabled
-                                                                                    value={
-                                                                                        item.ratings?.convenience || 0
-                                                                                    }
-                                                                                />
-                                                                            </td>
-                                                                        </tr>
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <tr>
-                                                                            <td className={cx('rating-label')}>
-                                                                                Cảnh quan:
-                                                                            </td>
-                                                                            <td className={cx('rating-stars')}>
-                                                                                <Rate
-                                                                                    allowHalf
-                                                                                    disabled
-                                                                                    value={item.ratings?.landscape || 0}
-                                                                                />
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td className={cx('rating-label')}>
-                                                                                Hoạt động trải nghiệm:
-                                                                            </td>
-                                                                            <td className={cx('rating-stars')}>
-                                                                                <Rate
-                                                                                    allowHalf
-                                                                                    disabled
-                                                                                    value={
-                                                                                        item.ratings?.activities || 0
-                                                                                    }
-                                                                                />
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td className={cx('rating-label')}>
-                                                                                Chi phí tham quan:
-                                                                            </td>
-                                                                            <td className={cx('rating-stars')}>
-                                                                                <Rate
-                                                                                    allowHalf
-                                                                                    disabled
-                                                                                    value={item.ratings?.price || 0}
-                                                                                />
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td className={cx('rating-label')}>
-                                                                                Vệ sinh:
-                                                                            </td>
-                                                                            <td className={cx('rating-stars')}>
-                                                                                <Rate
-                                                                                    allowHalf
-                                                                                    disabled
-                                                                                    value={
-                                                                                        item.ratings?.cleanliness || 0
-                                                                                    }
-                                                                                />
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td className={cx('rating-label')}>
-                                                                                Độ thuận tiện đường đi:
-                                                                            </td>
-                                                                            <td className={cx('rating-stars')}>
-                                                                                <Rate
-                                                                                    allowHalf
-                                                                                    disabled
-                                                                                    value={
-                                                                                        item.ratings?.convenience || 0
-                                                                                    }
-                                                                                />
-                                                                            </td>
-                                                                        </tr>
-                                                                    </>
-                                                                )}
+                                                                {Object.entries(
+                                                                    type === 'restaurant'
+                                                                        ? {
+                                                                              criteria1: 'Đồ ăn/Thức uống',
+                                                                              criteria2: 'Không gian',
+                                                                              criteria3: 'Dịch vụ',
+                                                                              criteria4: 'Vệ sinh',
+                                                                              criteria5: 'Giá cả',
+                                                                              criteria6: 'Độ thuận tiện',
+                                                                          }
+                                                                        : {
+                                                                              criteria1: 'Cảnh quan',
+                                                                              criteria2: 'Hoạt động trải nghiệm',
+                                                                              criteria3: 'Nét đặc trưng',
+                                                                              criteria4: 'Vệ sinh',
+                                                                              criteria5: 'Chi phí tham quan',
+                                                                              criteria6: 'Độ thuận tiện',
+                                                                          },
+                                                                ).map(([criteriaKey, label]) => (
+                                                                    <tr key={criteriaKey}>
+                                                                        <td className={cx('rating-label')}>{label}:</td>
+                                                                        <td>
+                                                                            <Rate
+                                                                                allowHalf
+                                                                                disabled
+                                                                                value={item.detail?.[criteriaKey] || 0}
+                                                                            />
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
                                                             </tbody>
                                                         </table>
                                                     </div>
@@ -342,9 +288,14 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
                                                         ))}
                                                     </div>
                                                 )}
-
                                                 <div className={cx('custom-comment-create-at')}>
-                                                    Đánh giá vào lúc: {item.createAt}
+                                                    Đánh giá vào lúc: {''}
+                                                    {new Date(item.createdAt).toLocaleTimeString('vi-VN', {
+                                                        hour: '2-digit',
+                                                        minute: '2-digit',
+                                                    })}{' '}
+                                                    {''}
+                                                    {new Date(item.createdAt).toLocaleDateString('vi-VN')}
                                                 </div>
                                             </>
                                         }
