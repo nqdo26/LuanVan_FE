@@ -23,7 +23,6 @@ import Search from '~/pages/Search';
 import TripDetail from '~/pages/TripDetail';
 import WriteReview from '~/pages/WriteReview';
 
-// Các route cần đăng nhập
 const privateRoutes = [
     { path: '/my-profile', component: Profile },
     { path: '/addtrip', component: AddTrip },
