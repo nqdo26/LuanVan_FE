@@ -10,6 +10,7 @@ import AdminCategoriesManage from '~/pages/AdminCategoriesManage';
 import AdminDestinationManage from '~/pages/AdminDestinationManage';
 import AdminPlaceManage from '~/pages/AdminPlaceManage';
 import AdminUserManage from '~/pages/AdminUserManage';
+import Categories from '~/pages/Categories';
 import CityDetail from '~/pages/CityDetail';
 import DestinationDetails from '~/pages/DestinationDetails';
 import EditCity from '~/pages/EditCity';
@@ -48,6 +49,7 @@ const publicRoutes = [
     { path: '/destination/:slug', component: DestinationDetails },
     { path: 'city/:id', component: CityDetail },
     { path: '/trip-detail/:slug', component: TripDetail },
+    { path: '/categories', component: Categories },
 ];
 
 export { publicRoutes, privateRoutes };
