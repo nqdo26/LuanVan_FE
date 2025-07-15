@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import { Spin, notification } from 'antd';
@@ -6,7 +6,7 @@ import styles from './WriteReview.module.scss';
 import CardReview from '~/components/CardReview';
 import ReviewForm from '~/components/ReviewForm';
 import { getDestinationBySlugApi } from '~/utils/api';
-import { AuthContext } from '~/components/Context/auth.context';
+
 
 const cx = classNames.bind(styles);
 
@@ -15,7 +15,6 @@ function WriteReview() {
     const [destinationData, setDestinationData] = useState(null);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-    const auth = useContext(AuthContext);
 
     useEffect(() => {
         if (slug) {
@@ -46,15 +45,6 @@ function WriteReview() {
             setLoading(false);
         }
     };
-
-    useEffect(() => {
-        if (!auth.user) {
-            notification.warning({
-                description: 'Vui lòng đăng nhập để viết đánh giá.',
-            });
-            navigate(-1);
-        }
-    }, [auth, navigate]);
 
     if (loading) {
         return (

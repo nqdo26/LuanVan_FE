@@ -16,16 +16,7 @@ const MotionBox = motion.div;
 
 function MyTrip() {
     const navigate = useNavigate();
-    const auth = useContext(AuthContext);
 
-    useEffect(() => {
-        if (!auth.user) {
-            notification.warning({
-                description: 'Vui lòng đăng nhập để xem lịch trình của bạn.',
-            });
-            navigate('/');
-        }
-    }, [auth, navigate]);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [tours, setTours] = useState([]);
     const [loading, setLoading] = useState(true);

@@ -26,14 +26,13 @@ export default function Search() {
     const [query, setQuery] = useState('');
     const [cityDestinations, setCityDestinations] = useState(null);
 
-    // Luôn cập nhật query khi URL thay đổi (khi SearchBar chuyển trang hoặc user thao tác)
     useEffect(() => {
         const updateQueryFromUrl = () => {
             const params = new URLSearchParams(window.location.search);
             setQuery(params.get('q') || '');
         };
         updateQueryFromUrl();
-        // Listen for both popstate and pushState/replaceState (SPA navigation)
+
         const handleUrlChange = () => updateQueryFromUrl();
         window.addEventListener('popstate', handleUrlChange);
         const origPushState = window.history.pushState;
@@ -54,7 +53,6 @@ export default function Search() {
     }, []);
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [selectedOptions, setSelectedOptions] = useState([]);
-    // Nếu lọc theo thành phố thì tính theo cityDestinations, ngược lại searchResults
     const totalPages = Math.ceil((cityDestinations ? cityDestinations.length : searchResults.length) / pageSize);
 
     useEffect(() => {
@@ -67,7 +65,7 @@ export default function Search() {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [drawerOpen, query, selectedLocation]);
+    }, [drawerOpen, query, selectedLocation, sortOption]);
 
     useEffect(() => {
         const fetchSearchResults = async () => {
@@ -92,7 +90,6 @@ export default function Search() {
         fetchSearchResults();
     }, [query]);
 
-    // Khi chọn thành phố, gọi API lấy địa điểm theo thành phố
     useEffect(() => {
         const fetchCityDestinations = async () => {
             if (!selectedLocation || !selectedLocation.slug) {
@@ -223,8 +220,14 @@ export default function Search() {
         }
         return filtered;
     };
-    const pagedPopular = getFilteredPopular().slice((currentPage - 1) * pageSize, currentPage * pageSize);
-    const pagedDestinations = getFilteredResults().slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    const pagedPopular = getSortedResults(getFilteredPopular()).slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize,
+    );
+    const pagedDestinations = getSortedResults(getFilteredResults()).slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize,
+    );
 
     const contentVariants = {
         hidden: { opacity: 0, x: -20 },
@@ -331,7 +334,6 @@ export default function Search() {
                                         )}
                                     </div>
 
-                                    {/* Pagination giờ chỉ render khi loading = false */}
                                     <div className={cx('pagination')}>
                                         <button
                                             disabled={currentPage === 1}

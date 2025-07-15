@@ -1,6 +1,7 @@
 import { Fragment, useContext, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { publicRoutes } from '~/routes';
+import { publicRoutes, privateRoutes } from '~/routes';
+import PrivateRoute from './components/PrivateRoute';
 import { DefaultLayout } from '~/components/Layouts';
 import { AuthContext } from './components/Context/auth.context';
 import { Spin } from 'antd';
@@ -59,13 +60,11 @@ function App() {
                         {publicRoutes.map((route, index) => {
                             const Page = route.component;
                             let Layout = DefaultLayout;
-
                             if (route.layout) {
                                 Layout = route.layout;
                             } else if (route.layout === null) {
                                 Layout = Fragment;
                             }
-
                             return (
                                 <Route
                                     key={index}
@@ -74,6 +73,29 @@ function App() {
                                         <Layout>
                                             <Page />
                                         </Layout>
+                                    }
+                                />
+                            );
+                        })}
+
+                        {privateRoutes.map((route, index) => {
+                            const Page = route.component;
+                            let Layout = DefaultLayout;
+                            if (route.layout) {
+                                Layout = route.layout;
+                            } else if (route.layout === null) {
+                                Layout = Fragment;
+                            }
+                            return (
+                                <Route
+                                    key={'private-' + index}
+                                    path={route.path}
+                                    element={
+                                        <PrivateRoute>
+                                            <Layout>
+                                                <Page />
+                                            </Layout>
+                                        </PrivateRoute>
                                     }
                                 />
                             );

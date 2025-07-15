@@ -23,13 +23,13 @@ import Search from '~/pages/Search';
 import TripDetail from '~/pages/TripDetail';
 import WriteReview from '~/pages/WriteReview';
 
-const privateRoutes = [{ path: '/', component: Home }];
-
-const publicRoutes = [
-    { path: '/', component: Home },
-    { path: 'search', component: Search },
+// Các route cần đăng nhập
+const privateRoutes = [
     { path: '/my-profile', component: Profile },
     { path: '/addtrip', component: AddTrip },
+    { path: '/add-trip', component: AddTrip },
+    { path: '/my-trip', component: MyTrip },
+    { path: '/gobot-assistant', component: Gobot },
     { path: '/admin', component: Admin, layout: AdminLayout },
     { path: '/admin/users-management', component: AdminUserManage, layout: AdminLayout },
     { path: '/admin/destinations-management', component: AdminDestinationManage, layout: AdminLayout },
@@ -39,13 +39,16 @@ const publicRoutes = [
     { path: '/admin/categories-management', component: AdminCategoriesManage, layout: AdminLayout },
     { path: '/admin/city/edit/:id', component: EditCity },
     { path: '/admin/destination/edit/:id', component: EditDestination },
-    { path: '/destination/:slug', component: DestinationDetails },
     { path: '/write-review/:slug', component: WriteReview },
+];
+
+// Các route công khai
+const publicRoutes = [
+    { path: '/', component: Home },
+    { path: 'search', component: Search },
+    { path: '/destination/:slug', component: DestinationDetails },
     { path: 'city/:id', component: CityDetail },
-    { path: '/add-trip', component: AddTrip },
     { path: '/trip-detail/:slug', component: TripDetail },
-    { path: '/my-trip', component: MyTrip },
-    { path: '/gobot-assistant', component: Gobot },
 ];
 
 export { publicRoutes, privateRoutes };

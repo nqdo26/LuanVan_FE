@@ -35,21 +35,6 @@ function AddTrip() {
     const navigate = useNavigate();
     const auth = useContext(AuthContext);
 
-    useEffect(() => {
-        if (!auth.user) {
-            navigate('/');
-            notification.warning({
-                description: 'Vui lòng đăng nhập để tạo hành trình.',
-            });
-        }
-    }, [auth, navigate]);
-
-    const handleAddTrip = ({ tripName, destination }) => {
-        navigate('/trip-detail/hehe');
-        window.scrollTo(0, 0);
-        setOpenDrawer(false);
-    };
-
     const handleCreateTripWithAI = () => {
         navigate('/gobot-assistant');
         window.scrollTo(0, 0);
@@ -118,7 +103,7 @@ function AddTrip() {
                 </div>
             </div>
 
-            <AddTripDrawer open={openDrawer} onClose={() => setOpenDrawer(false)} onAdd={handleAddTrip} />
+            <AddTripDrawer open={openDrawer} onClose={() => setOpenDrawer(false)} />
         </motion.div>
     );
 }
