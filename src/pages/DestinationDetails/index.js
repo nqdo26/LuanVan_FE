@@ -116,8 +116,8 @@ function DestinationDetails() {
                     description: 'Đã thêm địa điểm vào danh sách yêu thích',
                 });
             } else {
-                notification.error({
-                    description: response?.EM || 'Thêm vào yêu thích thất bại',
+                notification.warning({
+                    description: response?.EM || 'Vui lòng đăng nhập để thêm vào yêu thích',
                 });
             }
         } catch (error) {

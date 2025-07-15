@@ -1,6 +1,9 @@
 // src/pages/Gobot.jsx
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
+import { notification } from 'antd';
+import { AuthContext } from '~/components/Context/auth.context';
+import { useNavigate } from 'react-router-dom';
 import { ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { Drawer, Button } from 'antd';
@@ -118,6 +121,17 @@ const fakeChatHistory = [
 ];
 
 function Gobot() {
+    const auth = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!auth.user) {
+            notification.warning({
+                description: 'Vui lòng đăng nhập để sử dụng Gobot AI.',
+            });
+            navigate('/');
+        }
+    }, [auth, navigate]);
     const [messages, setMessages] = useState(fakeChatHistory[0].messages);
     const [isTyping, setIsTyping] = useState(false);
     const [showChat, setShowChat] = useState(false);

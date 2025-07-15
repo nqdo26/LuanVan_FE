@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, use } from 'react';
 import classNames from 'classnames/bind';
 import { motion } from 'framer-motion';
 import styles from './AdminUserManage.module.scss';
@@ -6,18 +6,31 @@ import { Button, Table, Switch, Popconfirm, message, notification } from 'antd';
 import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import { getUsersApi, updateUserAdminApi, deleteUserApi } from '~/utils/api';
 import { AuthContext } from '~/components/Context/auth.context';
+import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
 function AdminUserManage() {
+    const navigate = useNavigate();
+
     const { auth } = useContext(AuthContext);
-    const currentUserId = auth?.user?.id; // id của user đang đăng nhập
+    const currentUserId = auth?.user?.id; 
 
     const [users, setUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 7;
     const [loading, setLoading] = useState(false);
     const [actionLoading, setActionLoading] = useState({});
+
+    useEffect(() => {
+        if (auth && auth.user && !auth.user.isAdmin) {
+            if (navigate) {
+                navigate('/');
+            } else if (window.location) {
+                navigate = window.location;
+            }
+        }
+    }, [auth]);
 
     useEffect(() => {
         const fetchUser = async () => {

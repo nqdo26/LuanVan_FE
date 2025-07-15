@@ -3,11 +3,11 @@ import { motion } from 'framer-motion';
 import styles from './AddTrip.module.scss';
 import CustomTitle from '~/components/CustomTitle';
 import { AimOutlined, EnvironmentOutlined, HeartOutlined, TeamOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
+import { Button, notification } from 'antd';
 import AddTripDrawer from '~/components/AddTripDrawer';
-import { useState } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { AuthContext } from '~/components/Context/auth.context';
 
 const cx = classNames.bind(styles);
 
@@ -33,6 +33,16 @@ const features = [
 function AddTrip() {
     const [openDrawer, setOpenDrawer] = useState(false);
     const navigate = useNavigate();
+    const auth = useContext(AuthContext);
+
+    useEffect(() => {
+        if (!auth.user) {
+            navigate('/');
+            notification.warning({
+                description: 'Vui lòng đăng nhập để tạo hành trình.',
+            });
+        }
+    }, [auth, navigate]);
 
     const handleAddTrip = ({ tripName, destination }) => {
         navigate('/trip-detail/hehe');

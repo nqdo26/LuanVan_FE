@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import { motion } from 'framer-motion';
@@ -7,15 +7,24 @@ import { Button, Table, Popconfirm, message } from 'antd';
 import { EyeOutlined, DeleteOutlined, StarFilled, EditOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { getDestinationsApi } from '~/utils/api';
+import { AuthContext } from '~/components/Context/auth.context';
 
 const cx = classNames.bind(styles);
 
 function AdminDestinationManage() {
+    const { auth } = useContext(AuthContext);
+
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 5;
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (auth && auth.user && !auth.user.isAdmin) {
+            navigate('/');
+        }
+    }, [auth, navigate]);
 
     useEffect(() => {
         fetchDestinations();
@@ -25,7 +34,7 @@ function AdminDestinationManage() {
         setLoading(true);
         try {
             const res = await getDestinationsApi();
-            
+
             if (res && res.data && Array.isArray(res.data)) {
                 setData(res.data);
             } else if (res && res.data && Array.isArray(res.data.data)) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import classNames from 'classnames/bind';
 import { motion } from 'framer-motion';
 import styles from './AdminPlaceManage.module.scss';
@@ -13,16 +13,24 @@ import {
 } from '~/utils/api';
 import viewTracker from '~/utils/viewTracker';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '~/components/Context/auth.context';
 
 const cx = classNames.bind(styles);
 
 function AdminPlaceManage() {
+    const { auth } = useContext(AuthContext);
     const [cities, setCities] = useState([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 5;
-
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (auth && auth.user && !auth.user.isAdmin) {
+            navigate('/');
+        }
+    }, [auth, navigate]);
+
     useEffect(() => {
         fetchCities();
     }, []);

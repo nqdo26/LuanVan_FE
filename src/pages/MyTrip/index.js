@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { notification } from 'antd';
+import { AuthContext } from '~/components/Context/auth.context';
 import classNames from 'classnames/bind';
 import { motion } from 'framer-motion';
 import { Spin, message, Empty } from 'antd';
@@ -14,6 +16,16 @@ const MotionBox = motion.div;
 
 function MyTrip() {
     const navigate = useNavigate();
+    const auth = useContext(AuthContext);
+
+    useEffect(() => {
+        if (!auth.user) {
+            notification.warning({
+                description: 'Vui lòng đăng nhập để xem lịch trình của bạn.',
+            });
+            navigate('/');
+        }
+    }, [auth, navigate]);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [tours, setTours] = useState([]);
     const [loading, setLoading] = useState(true);

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { Spin } from 'antd';
 import classNames from 'classnames/bind';
 import { motion } from 'framer-motion';
 import styles from './Admin.module.scss';
@@ -17,13 +18,27 @@ import {
     Line,
 } from 'recharts';
 import { getAdminStatisticsApi } from '~/utils/api';
+import { AuthContext } from '~/components/Context/auth.context';
+import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 const COLORS = ['#64c5ff', '#1c1f4a', '#ffc658', '#ff8042'];
 
 function Admin() {
+    const navigate = useNavigate();
     const [statistics, setStatistics] = useState(null);
     const [loading, setLoading] = useState(true);
+    const { auth } = useContext(AuthContext);
+
+    useEffect(() => {
+        if (auth && auth.user && !auth.user.isAdmin) {
+            if (navigate) {
+                navigate('/');
+            } else if (window.location) {
+                navigate = window.location;
+            }
+        }
+    }, [auth]);
 
     useEffect(() => {
         const fetchStatistics = async () => {
@@ -41,7 +56,11 @@ function Admin() {
     }, []);
 
     if (loading) {
-        return <div style={{ textAlign: 'center', padding: '40px' }}>Đang tải thống kê...</div>;
+        return (
+            <div style={{ textAlign: 'center', padding: '40px' }}>
+                <Spin size="large" />
+            </div>
+        );
     }
     if (!statistics) {
         return (
