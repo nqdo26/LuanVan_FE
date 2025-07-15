@@ -626,8 +626,14 @@ export const updateUserNameApi = async (fullName) => {
     } catch (err) {
         // Nếu BE trả về lỗi dạng {EC, EM} thì trả về luôn cho FE xử lý
         if (err && err.EC !== undefined && err.EM) return err;
-        return { EC: 2, EM: 'Lỗi không xác định khi đổi tên' };
+        // ...existing code...
     }
+};
+
+// Thống kê admin
+const getAdminStatisticsApi = () => {
+    const URL_API = '/v1/api/admin/statistics';
+    return axios.get(URL_API);
 };
 // Đổi mật khẩu user
 export const updateUserPasswordApi = (oldPassword, newPassword) => {
@@ -709,4 +715,5 @@ export {
     getCommentsByDestinationApi,
     deleteCommentApi,
     getCommentByIdApi,
+    getAdminStatisticsApi,
 };

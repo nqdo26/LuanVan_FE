@@ -107,18 +107,34 @@ function AdminUserManage() {
             dataIndex: 'fullName',
         },
         {
-            title: 'Chỉ số',
-            key: 'metrics',
-            render: (record) => (
-                <div>
-                    <div>
-                        Lịch trình cá nhân: <b>{record.personalItineraries}</b>
-                    </div>
-                    <div>
-                        Lượt đánh giá: <b>{record.reviewCount}</b>
-                    </div>
-                </div>
-            ),
+            title: 'Ngày tạo',
+            dataIndex: 'createdAt',
+            render: (createdAt) => {
+                if (!createdAt) return '';
+                const d = new Date(createdAt);
+                return d.toLocaleString('vi-VN', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                });
+            },
+        },
+        {
+            title: 'Ngày chỉnh sửa',
+            dataIndex: 'updatedAt',
+            render: (updatedAt) => {
+                if (!updatedAt) return '';
+                const d = new Date(updatedAt);
+                return d.toLocaleString('vi-VN', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                });
+            },
         },
         {
             title: 'Quản trị',

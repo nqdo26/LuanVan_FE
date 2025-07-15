@@ -1,248 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
 import { motion } from 'framer-motion';
 import styles from './Admin.module.scss';
-import { Button, Table, Popconfirm, message } from 'antd';
-import { EyeOutlined, DeleteOutlined, EditOutlined, StarFilled } from '@ant-design/icons';
-import dayjs from 'dayjs';
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    PieChart,
+    Pie,
+    Cell,
+    LineChart,
+    Line,
+} from 'recharts';
+import { getAdminStatisticsApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
-
-// DATA GIẢ: Địa điểm
-const fakePlaces = Array.from({ length: 20 }, (_, i) => ({
-    _id: `d${i + 1}`,
-    name: `Địa điểm ${i + 1}`,
-    city: `Thành phố ${Math.floor(i / 3) + 1}`,
-    statistics: {
-        views: Math.floor(Math.random() * 5000) + 1000,
-        totalSave: Math.floor(Math.random() * 300) + 10,
-        averageRating: +(Math.random() * 5).toFixed(1),
-    },
-    commentCount: Math.floor(Math.random() * 40) + 3,
-    createdAt: dayjs().subtract(i, 'day').format('YYYY-MM-DD HH:mm'),
-    updatedAt: dayjs()
-        .subtract(Math.floor(i / 2), 'hour')
-        .format('YYYY-MM-DD HH:mm'),
-}));
-
-// DATA GIẢ: Thành phố
-const fakeCities = Array.from({ length: 20 }, (_, i) => ({
-    _id: `c${i + 1}`,
-    city: `Thành phố ${i + 1}`,
-    numberOfDestinations: Math.floor(Math.random() * 100) + 1,
-    views: Math.floor(Math.random() * 5000) + 1000,
-    createdAt: dayjs().subtract(i, 'day').format('YYYY-MM-DD HH:mm'),
-    updatedAt: dayjs()
-        .subtract(Math.floor(i / 2), 'hour')
-        .format('YYYY-MM-DD HH:mm'),
-}));
+const COLORS = ['#64c5ff', '#1c1f4a', '#ffc658', '#ff8042'];
 
 function Admin() {
-    // Hiển thị đúng 5 item đầu tiên của mỗi bảng, không phân trang
-    const [places, setPlaces] = useState(fakePlaces.slice(0, 5));
-    const [cities, setCities] = useState(fakeCities.slice(0, 5));
+    const [statistics, setStatistics] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    const handleDeletePlace = (record) => {
-        setPlaces((prev) => prev.filter((item) => item._id !== record._id));
-        message.success('Xóa địa điểm thành công!');
-    };
+    useEffect(() => {
+        const fetchStatistics = async () => {
+            try {
+                const res = await getAdminStatisticsApi();
+                console.log('Admin statistics response:', res);
+                setStatistics(res);
+            } catch (err) {
+                setStatistics(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStatistics();
+    }, []);
 
-    const handleAccessPlace = (record) => {
-        alert(`Truy cập địa điểm: ${record.name}`);
-    };
+    if (loading) {
+        return <div style={{ textAlign: 'center', padding: '40px' }}>Đang tải thống kê...</div>;
+    }
+    if (!statistics) {
+        return (
+            <div style={{ textAlign: 'center', padding: '40px', color: 'red' }}>Không thể tải dữ liệu thống kê!</div>
+        );
+    }
 
-    const handleEditPlace = (record) => {
-        alert(`Chỉnh sửa địa điểm: ${record.name}`);
-    };
+    const { userCount, adminCount, cityCount, destinationCount, placeStats, cityStats, recentUsers } = statistics;
 
-    const columnsPlaces = [
-        {
-            title: 'STT',
-            key: 'index',
-            width: 60,
-            align: 'center',
-            render: (_, __, index) => index + 1,
-        },
-        {
-            title: 'ID',
-            dataIndex: '_id',
-            width: 60,
-        },
-        {
-            title: 'Tên địa điểm',
-            dataIndex: 'name',
-        },
-        {
-            title: 'Thành phố',
-            dataIndex: 'city',
-        },
-        {
-            title: 'Chỉ số',
-            key: 'metrics',
-            render: (record) => (
-                <div style={{ minWidth: 120, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <span>
-                        Lượt xem: <b>{record.statistics.views}</b>
-                    </span>
-                    <span>
-                        Lượt lưu: <b>{record.statistics.totalSave}</b>
-                    </span>
-                    <span>
-                        Bình luận: <b>{record.commentCount}</b>
-                    </span>
-                </div>
-            ),
-        },
-        {
-            title: 'Đánh giá',
-            key: 'rating',
-            width: 100,
-            align: 'center',
-            render: (record) => (
-                <span
-                    style={{
-                        fontWeight: 600,
-                        color: '#faad14',
-                        fontSize: 16,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    {record.statistics.averageRating}
-                    <StarFilled style={{ marginLeft: 4, color: '#faad14' }} />
-                </span>
-            ),
-        },
-        {
-            title: 'Ngày tạo',
-            dataIndex: 'createdAt',
-            width: 140,
-            render: (val) => <span>{val}</span>,
-        },
-        {
-            title: 'Ngày chỉnh sửa',
-            dataIndex: 'updatedAt',
-            width: 140,
-            render: (val) => <span>{val}</span>,
-        },
-        {
-            title: 'Tùy chọn',
-            key: 'action',
-            render: (record) => (
-                <div style={{ display: 'flex', gap: 10 }}>
-                    <Button
-                        type="primary"
-                        icon={<EyeOutlined />}
-                        onClick={() => handleAccessPlace(record)}
-                        title="Xem chi tiết"
-                    />
-                    <Button
-                        icon={<EditOutlined />}
-                        onClick={() => handleEditPlace(record)}
-                        title="Chỉnh sửa địa điểm"
-                    />
-                    <Popconfirm
-                        title="Bạn có chắc chắn muốn xóa địa điểm này?"
-                        onConfirm={() => handleDeletePlace(record)}
-                        okText="Đồng ý"
-                        cancelText="Hủy"
-                    >
-                        <Button danger icon={<DeleteOutlined />} />
-                    </Popconfirm>
-                </div>
-            ),
-            width: 180,
-        },
-    ];
-
-    const handleDeleteCity = (record) => {
-        setCities((prev) => prev.filter((item) => item._id !== record._id));
-        message.success('Xóa thành phố thành công!');
-    };
-
-    const handleAccessCity = (record) => {
-        alert(`Truy cập thành phố: ${record.city}`);
-    };
-
-    const handleEditCity = (record) => {
-        alert(`Chỉnh sửa thành phố: ${record.city}`);
-    };
-
-    const columnsCity = [
-        {
-            title: 'STT',
-            key: 'index',
-            width: 60,
-            align: 'center',
-            render: (_, __, index) => index + 1,
-        },
-        {
-            title: 'ID',
-            dataIndex: '_id',
-            width: 60,
-        },
-        {
-            title: 'Tên thành phố',
-            dataIndex: 'city',
-        },
-        {
-            title: 'Số lượng địa điểm',
-            dataIndex: 'numberOfDestinations',
-            render: (val) => <b>{val}</b>,
-            width: 160,
-        },
-        {
-            title: 'Chỉ số',
-            key: 'metrics',
-            render: (record) => (
-                <div>
-                    Lượt xem: <b>{record.views}</b>
-                </div>
-            ),
-            width: 120,
-        },
-        {
-            title: 'Ngày tạo',
-            dataIndex: 'createdAt',
-            width: 140,
-            render: (val) => <span>{val}</span>,
-        },
-        {
-            title: 'Ngày chỉnh sửa',
-            dataIndex: 'updatedAt',
-            width: 140,
-            render: (val) => <span>{val}</span>,
-        },
-        {
-            title: 'Tùy chọn',
-            key: 'action',
-            render: (record) => (
-                <div style={{ display: 'flex', gap: 10 }}>
-                    <Button
-                        type="primary"
-                        icon={<EyeOutlined />}
-                        onClick={() => handleAccessCity(record)}
-                        title="Xem chi tiết"
-                    />
-                    <Button
-                        icon={<EditOutlined />}
-                        onClick={() => handleEditCity(record)}
-                        title="Chỉnh sửa thành phố"
-                    />
-                    <Popconfirm
-                        title="Bạn có chắc chắn muốn xóa thành phố này?"
-                        onConfirm={() => handleDeleteCity(record)}
-                        okText="Đồng ý"
-                        cancelText="Hủy"
-                    >
-                        <Button danger icon={<DeleteOutlined />} />
-                    </Popconfirm>
-                </div>
-            ),
-            width: 180,
-        },
-    ];
+    const topCityStats = [...(cityStats || [])].sort((a, b) => b.totalViews - a.totalViews).slice(0, 5);
 
     return (
         <motion.div
@@ -257,31 +66,74 @@ function Admin() {
                     <div className={cx('section-1-items')}>
                         <div className={cx('small-card')}>
                             <p className={cx('small-card-title')}>Tài khoản người dùng:</p>
-                            <p className={cx('small-card-value')}>1,234</p>
+                            <p className={cx('small-card-value')}>{userCount}</p>
                         </div>
                         <div className={cx('small-card')}>
                             <p className={cx('small-card-title')}>Tài khoản admin:</p>
-                            <p className={cx('small-card-value')}>5</p>
+                            <p className={cx('small-card-value')}>{adminCount}</p>
                         </div>
                         <div className={cx('small-card')}>
                             <p className={cx('small-card-title')}>Thành phố:</p>
-                            <p className={cx('small-card-value')}>{cities.length}</p>
+                            <p className={cx('small-card-value')}>{cityCount}</p>
                         </div>
                         <div className={cx('small-card')}>
                             <p className={cx('small-card-title')}>Địa điểm:</p>
-                            <p className={cx('small-card-value')}>{places.length}</p>
+                            <p className={cx('small-card-value')}>{destinationCount}</p>
                         </div>
                     </div>
                 </div>
 
-                <div className={cx('table-wrapper')}>
-                    <h1 className={cx('table-title')}>Danh sách địa điểm</h1>
-                    <Table dataSource={places} columns={columnsPlaces} bordered rowKey="_id" pagination={false} />
-                </div>
+                <div className={cx('charts')}>
+                    <h2>Thống kê địa điểm theo lượt xem và lượt đánh giá</h2>
+                    <BarChart
+                        width={900}
+                        height={300}
+                        data={placeStats}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis yAxisId="left" domain={[0, 100]} ticks={[0, 10, 20, 50, 100]} />
+                        <YAxis yAxisId="right" orientation="right" domain={[0, 5]} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar yAxisId="left" dataKey="statistics.views" name="Lượt xem" fill="#64c5ff" />
+                        <Bar yAxisId="right" dataKey="statistics.averageRating" name="Đánh giá" fill="#1c1f4a" />
+                    </BarChart>
 
-                <div className={cx('table-wrapper')}>
-                    <h1 className={cx('table-title')}>Danh sách thành phố</h1>
-                    <Table dataSource={cities} columns={columnsCity} bordered rowKey="_id" pagination={false} />
+                    <h2>Thống kê thành phố theo lượt xem</h2>
+                    <PieChart width={400} height={300}>
+                        <Pie
+                            data={topCityStats}
+                            dataKey="totalViews"
+                            nameKey="city"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={100}
+                            label
+                        >
+                            {topCityStats.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                            ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend />
+                    </PieChart>
+
+                    <h2>Thống kê số tài khoản đăng ký theo ngày</h2>
+                    <LineChart
+                        width={800}
+                        height={300}
+                        data={recentUsers}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="_id" />
+                        <YAxis domain={[0, 10]} ticks={[0, 2, 4, 6, 8, 10]} />
+                        <Tooltip />
+                        <Legend />
+                        <Line type="monotone" dataKey="users" stroke="#1c1f4a" activeDot={{ r: 8 }} name="Số user" />
+                    </LineChart>
                 </div>
             </div>
         </motion.div>

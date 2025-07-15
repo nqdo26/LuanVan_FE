@@ -182,7 +182,7 @@ function AdminDestinationManage() {
                         <div className={cx('small-card')}>
                             <p className={cx('small-card-title')}>Lượt đánh giá:</p>
                             <p className={cx('small-card-value')}>
-                                {data.reduce((sum, d) => sum + (d.statistics?.totalReview || 0), 0)}
+                                {data.reduce((sum, d) => sum + (d.statistics?.totalRate || 0), 0)}
                             </p>
                         </div>
                     </div>

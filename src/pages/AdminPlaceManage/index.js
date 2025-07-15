@@ -108,7 +108,6 @@ function AdminPlaceManage() {
     };
 
     const handleAccessCity = async (record) => {
-        // Tăng lượt xem khi admin access city - sử dụng viewTracker
         if (record._id && viewTracker.canIncrement('city', record._id)) {
             try {
                 await incrementCityViewsApi(record._id);
@@ -158,7 +157,7 @@ function AdminPlaceManage() {
         {
             title: 'Địa điểm',
             dataIndex: 'destinationCount',
-            render: (count) => <b>{count || 0}</b>,
+            render: (count) => <b>{(count || 0).toLocaleString()}</b>,
             width: 120,
         },
         {
