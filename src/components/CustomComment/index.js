@@ -168,8 +168,11 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
                                         className={cx('progress')}
                                         percent={reviews.length > 0 ? (count / reviews.length) * 100 : 0}
                                         showInfo
-                                        strokeColor={(count / reviews.length) * 100 >= 50 ? '#4caf50' : '#f44336'}
-                                        format={() => `${count} `}
+                                        strokeColor={{
+                                            '0%': '#64c5ff', // primary
+                                            '100%': '#1c1f4a', // secondary
+                                        }}
+                                        format={() => `${count}`}
                                     />
                                 </div>
                             ))}
@@ -250,6 +253,7 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
                                             <>
                                                 <div className={cx('rating-and-reaction')}>
                                                     <Rate
+                                                        allowHalf
                                                         className={cx('rating-title')}
                                                         disabled
                                                         value={

@@ -12,7 +12,7 @@ import { AuthContext } from '~/components/Context/auth.context';
 const cx = classNames.bind(styles);
 
 function Profile() {
-    const { auth } = useContext(AuthContext);
+    const { auth, setAuth } = useContext(AuthContext);
     const [user, setUser] = useState(null);
     const [tours, setTours] = useState([]);
     const [favorites, setFavorites] = useState([]);
@@ -31,7 +31,7 @@ function Profile() {
                 setLoading(false);
                 return;
             }
-
+            console.log(auth.user);
             try {
                 setLoading(true);
 
@@ -153,6 +153,30 @@ function Profile() {
         }
     };
 
+    const reloadUser = async () => {
+        if (!auth.isAuthenticated || !auth.user.id) return;
+        try {
+            const response = await getUserByIdApi(auth.user.id);
+            if (response && response.EC === 0) {
+                setUser(response.data);
+
+                setAuth((prev) => {
+                    const newAuth = {
+                        ...prev,
+                        user: {
+                            ...prev.user,
+                            avatar: response.data.avatar,
+                            fullName: response.data.fullName,
+                        },
+                    };
+
+                    localStorage.setItem('user', JSON.stringify(newAuth.user));
+                    return newAuth;
+                });
+            }
+        } catch {}
+    };
+
     if (loading || toursLoading || favoritesLoading) {
         return (
             <div
@@ -189,7 +213,12 @@ function Profile() {
             className={cx('wrapper')}
         >
             <div className={cx('header')}>
-                <HeaderProfilePage user={user} />
+                <HeaderProfilePage
+                    user={user}
+                    favouriteCount={favorites.length}
+                    tourCount={tours.length}
+                    onUserUpdated={reloadUser}
+                />
             </div>
             <div className={cx('body')}>
                 <div className={cx('item')}>

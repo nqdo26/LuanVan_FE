@@ -618,6 +618,30 @@ const filterDestinationsApi = (params = {}) => {
     return axios.get(URL_API, { params });
 };
 
+// Đổi tên user
+export const updateUserNameApi = async (fullName) => {
+    try {
+        const res = await axios.patch('/v1/api/users/update-name', { fullName });
+        return res;
+    } catch (err) {
+        // Nếu BE trả về lỗi dạng {EC, EM} thì trả về luôn cho FE xử lý
+        if (err && err.EC !== undefined && err.EM) return err;
+        return { EC: 2, EM: 'Lỗi không xác định khi đổi tên' };
+    }
+};
+// Đổi mật khẩu user
+export const updateUserPasswordApi = (oldPassword, newPassword) => {
+    return axios.patch('/v1/api/users/update-password', { oldPassword, newPassword });
+};
+// Đổi avatar user
+export const updateUserAvatarApi = (avatarFile) => {
+    const formData = new FormData();
+    formData.append('avatar', avatarFile);
+    return axios.patch('/v1/api/users/update-avatar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
+};
+
 export {
     createUserApi,
     getAccountApi,

@@ -235,7 +235,7 @@ function Header() {
                             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                                 <Avatar
                                     size={40}
-                                    icon={<UserOutlined />}
+                                    src={auth.user.avatar}
                                     className={cx('avatar')}
                                     style={{ cursor: 'pointer' }}
                                 />

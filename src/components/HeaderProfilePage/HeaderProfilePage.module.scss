@@ -87,15 +87,43 @@
     margin: 20px 0 10px 0;
 
     p {
-        color: #2e7d32;
+        color: #0a0a0a;
         font-weight: 600;
         cursor: pointer;
         transition: text-decoration 0.3s ease;
 
         &:hover {
             text-decoration: underline;
+            color: #1c1f4a;
         }
     }
+}
+.update-avt-btn {
+    &:hover {
+        color: #000000 !important;
+        border: 1px solid #000000 !important;
+    }
+}
+
+.ok-btn {
+    background: #000 !important;
+    color: #fff !important;
+    border: none !important;
+}
+.ok-btn:hover,
+.ok-btn:focus {
+    background: #5a5a5a !important;
+    color: #fff !important;
+}
+.cancel-btn {
+    background: #fff !important;
+    color: #000 !important;
+    border: 1px solid #000 !important;
+}
+.cancel-btn:hover,
+.cancel-btn:focus {
+    background: #bdbdbd !important;
+    color: #000 !important;
 }
 
 @media (max-width: 768px) {
