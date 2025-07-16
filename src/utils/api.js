@@ -1,3 +1,5 @@
+// Lấy city theo typeSlug (biển, nui, van-hoa)
+
 import axios from './axios.custiomize';
 const createDestinationApi = (destinationData) => {
     const URL_API = '/v1/api/destination';
@@ -330,6 +332,11 @@ const getCityByIdApi = (id) => {
     return axios.get(URL_API);
 };
 
+const getCityByTypeApi = (typeSlug) => {
+    const URL_API = `/v1/api/cities/type/${typeSlug}`;
+    return axios.get(URL_API);
+};
+
 const getCityBySlugApi = (slug) => {
     const URL_API = `/v1/api/city/${slug}`;
     return axios.get(URL_API);
@@ -350,27 +357,22 @@ const getCityByIdAndUpdateApi = (id, cityData = null) => {
         formData.append('type', JSON.stringify(cityData.type));
     }
 
-    // Xử lý ảnh - phân loại ảnh cũ (URL string) và ảnh mới (File object)
     if (cityData.images && cityData.images.length > 0) {
         const existingImages = [];
         const newFiles = [];
 
         cityData.images.forEach((image) => {
             if (image.url && !image.originFileObj) {
-                // Ảnh cũ (có URL, không có originFileObj)
                 existingImages.push(image.url);
             } else if (image.originFileObj) {
-                // Ảnh mới (có originFileObj)
                 newFiles.push(image);
             }
         });
 
-        // Gửi danh sách ảnh cũ còn lại
         if (existingImages.length > 0) {
             formData.append('existing_images', JSON.stringify(existingImages));
         }
 
-        // Gửi ảnh mới
         newFiles.forEach((file) => {
             formData.append('images', file.originFileObj);
         });
@@ -399,27 +401,22 @@ const updateCityApi = (id, cityData) => {
         formData.append('type', JSON.stringify(cityData.type));
     }
 
-    // Xử lý ảnh - phân loại ảnh cũ (URL string) và ảnh mới (File object)
     if (cityData.images && cityData.images.length > 0) {
         const existingImages = [];
         const newFiles = [];
 
         cityData.images.forEach((image) => {
             if (typeof image === 'string') {
-                // Ảnh cũ (URL)
                 existingImages.push(image);
             } else {
-                // Ảnh mới (File object)
                 newFiles.push(image);
             }
         });
 
-        // Gửi danh sách ảnh cũ còn lại
         if (existingImages.length > 0) {
             formData.append('existing_images', JSON.stringify(existingImages));
         }
 
-        // Gửi ảnh mới
         newFiles.forEach((file) => {
             formData.append('images', file.originFileObj || file);
         });
@@ -450,6 +447,11 @@ const getCityDeletionInfoApi = (id) => {
 
 const getCitiesWithDestinationCountApi = () => {
     const URL_API = '/v1/api/cities-with-count';
+    return axios.get(URL_API);
+};
+
+const getCitiesByTypeApi = (typeSlug) => {
+    const URL_API = `/v1/api/cities/type/${typeSlug}`;
     return axios.get(URL_API);
 };
 
@@ -515,11 +517,10 @@ const removeNoteFromTourApi = (tourId, removeData) => {
     return axios.delete(URL_API, { data: removeData });
 };
 
+//
 const getDestinationsByTagsApi = (tagIds, cityId = null, limit = 20) => {
     const URL_API = '/v1/api/destinations/by-tags';
     const params = new URLSearchParams();
-
-    // Convert tagIds to JSON string if it's an array
     if (Array.isArray(tagIds)) {
         params.append('tags', JSON.stringify(tagIds));
     } else {
@@ -618,28 +619,24 @@ const filterDestinationsApi = (params = {}) => {
     return axios.get(URL_API, { params });
 };
 
-// Đổi tên user
 export const updateUserNameApi = async (fullName) => {
     try {
         const res = await axios.patch('/v1/api/users/update-name', { fullName });
         return res;
     } catch (err) {
-        // Nếu BE trả về lỗi dạng {EC, EM} thì trả về luôn cho FE xử lý
         if (err && err.EC !== undefined && err.EM) return err;
-        // ...existing code...
     }
 };
 
-// Thống kê admin
 const getAdminStatisticsApi = () => {
     const URL_API = '/v1/api/admin/statistics';
     return axios.get(URL_API);
 };
-// Đổi mật khẩu user
+
 export const updateUserPasswordApi = (oldPassword, newPassword) => {
     return axios.patch('/v1/api/users/update-password', { oldPassword, newPassword });
 };
-// Đổi avatar user
+
 export const updateUserAvatarApi = (avatarFile) => {
     const formData = new FormData();
     formData.append('avatar', avatarFile);
@@ -654,27 +651,44 @@ export {
     getUserByIdApi,
     getUsersApi,
     deleteUserApi,
+
+    // Login APIs
     loginApi,
     updateUserAdminApi,
+
+    // Tag APIs
     createTagApi,
     getTagsApi,
     updateTagApi,
     deleteTagApi,
+
+    // City Type APIs
     createCityTypeApi,
     getCityTypesApi,
     updateCityTypeApi,
     deleteCityTypeApi,
+
+    // Destination Type APIs
     createDestinationTypeApi,
     getDestinationTypesApi,
     updateDestinationTypeApi,
     deleteDestinationTypeApi,
+
+    // City APIs
     createCityApi,
     getCitiesApi,
     getCityByIdApi,
+    getCityByTypeApi,
     getCityBySlugApi,
     getCityByIdAndUpdateApi,
     updateCityApi,
     deleteCityApi,
+    getCitiesByTypeApi,
+    getCityDeletionInfoApi,
+    incrementCityViewsApi,
+    getCitiesWithDestinationCountApi,
+
+    // Destination APIs
     createDestinationApi,
     getDestinationsApi,
     searchDestinationsApi,
@@ -685,9 +699,6 @@ export {
     updateDestinationToEditApi,
     getDestinationsByCityApi,
     incrementDestinationViewsApi,
-    getCityDeletionInfoApi,
-    incrementCityViewsApi,
-    getCitiesWithDestinationCountApi,
     getPopularDestinationsApi,
     getDestinationsByTagsApi,
     filterDestinationsApi,

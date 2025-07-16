@@ -6,7 +6,7 @@ import styles from './AdminDestinationManage.module.scss';
 import { Button, Table, Popconfirm, message } from 'antd';
 import { EyeOutlined, DeleteOutlined, StarFilled, EditOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { getDestinationsApi } from '~/utils/api';
+import { deleteDestinationApi, getDestinationsApi } from '~/utils/api';
 import { AuthContext } from '~/components/Context/auth.context';
 
 const cx = classNames.bind(styles);
@@ -53,9 +53,19 @@ function AdminDestinationManage() {
         }
     };
 
-    const handleDelete = (record) => {
-        setData((prev) => prev.filter((item) => item._id !== record._id));
-        message.success('Xóa địa điểm thành công!');
+    const handleDelete = async (record) => {
+        try {
+            const res = await deleteDestinationApi(record._id);
+            console.log('Delete response:', res);
+            if (res && res.EC === 0) {
+                setData((prev) => prev.filter((item) => item._id !== record._id));
+                message.success('Xóa địa điểm thành công!');
+            } else {
+                message.error(res?.data?.EM || 'Xóa địa điểm thất bại!');
+            }
+        } catch (error) {
+            message.error('Có lỗi xảy ra khi xóa địa điểm!');
+        }
     };
 
     const handleAccess = (record) => {

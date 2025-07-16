@@ -169,8 +169,8 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
                                         percent={reviews.length > 0 ? (count / reviews.length) * 100 : 0}
                                         showInfo
                                         strokeColor={{
-                                            '0%': '#64c5ff', // primary
-                                            '100%': '#1c1f4a', // secondary
+                                            '0%': '#64c5ff',
+                                            '100%': '#1c1f4a', 
                                         }}
                                         format={() => `${count}`}
                                     />

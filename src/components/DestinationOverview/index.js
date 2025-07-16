@@ -193,7 +193,7 @@ function DestinationOverview({ destination = {}, handleSave, handleAddComment, h
         <div className={cx('overview-item')}>
             <h2 className={cx('title')}>Địa chỉ & Thông tin liên hệ</h2>
             <p className={cx('address')}>
-                <EnvironmentOutlined style={{ color: 'black' }} />
+                <EnvironmentOutlined style={{ color: 'black', marginRight: 4 }} />
                 {destination.location?.address || 'Chưa có địa chỉ'}
                 {destination.location?.city?.name && `, ${destination.location.city.name}`}
             </p>

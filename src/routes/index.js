@@ -49,7 +49,7 @@ const publicRoutes = [
     { path: '/destination/:slug', component: DestinationDetails },
     { path: 'city/:id', component: CityDetail },
     { path: '/trip-detail/:slug', component: TripDetail },
-    { path: '/categories', component: Categories },
+    { path: '/categories/:type', component: Categories },
 ];
 
 export { publicRoutes, privateRoutes };

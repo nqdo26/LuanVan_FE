@@ -47,7 +47,7 @@ function DestinationDetails() {
         try {
             setLoading(true);
             const response = await getDestinationBySlugApi(slug);
-            console.log('Response from API:', response);
+
             if (response && response.EC === 0) {
                 setDestinationData(response.data);
             } else {
@@ -185,11 +185,13 @@ function DestinationDetails() {
                         />
                     </div>
                     <div id="rate">
-                        <CustomComment
-                            type={destinationData.type}
-                            destinationId={destinationData._id}
-                            handleAddComment={handleAddComment}
-                        />
+                        {destinationData && destinationData._id ? (
+                            <CustomComment
+                                type={destinationData.type}
+                                destinationId={destinationData._id}
+                                handleAddComment={handleAddComment}
+                            />
+                        ) : null}
                     </div>
                 </div>
             </div>
