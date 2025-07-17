@@ -60,3 +60,169 @@
 .day-content {
     margin-top: 20px;
 }
+
+.wrapper {
+    padding: 16px 0;
+}
+
+.empty-itinerary {
+    text-align: center;
+    padding: 60px 20px;
+
+    h3 {
+        color: #666;
+        font-size: 18px;
+        margin-bottom: 12px;
+        font-weight: 500;
+    }
+
+    p {
+        color: #999;
+        font-size: 14px;
+        line-height: 1.5;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+}
+
+.day-list {
+    margin-bottom: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 16px;
+}
+
+.add-button {
+    margin-top: 8px;
+}
+
+.day-button {
+    padding: 8px 32px;
+    border-radius: 100px;
+    border: 1px solid #d9d9d9;
+    background-color: transparent;
+    color: inherit;
+    font-weight: normal;
+    cursor: pointer;
+    user-select: none;
+    display: inline-block;
+    transition: background-color 0.2s, border-color 0.2s;
+
+    &:hover {
+        border: 1px solid black;
+        background-color: #e0e0e0;
+    }
+
+    &.selected {
+        border: 2px solid black;
+        background-color: #e0e0e0;
+        color: black;
+        font-weight: 600;
+    }
+}
+
+.day-content {
+    margin-top: 20px;
+}
+
+/* ==== PDF Header Section ==== */
+.pdf-header {
+    display: none;
+    text-align: center;
+    margin-bottom: 20px;
+
+    .logo {
+        width: 100px;
+        margin-bottom: 10px;
+    }
+
+    .trip-title {
+        font-size: 28px;
+        font-weight: 600;
+        color: #1c1f4a;
+        margin-top: 8px;
+    }
+
+    .date {
+        font-size: 14px;
+        color: #666;
+    }
+}
+
+/* ==== Shared Layout ==== */
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding-left: 0px;
+}
+
+.logo-icon {
+    height: 26px;
+    width: 26px;
+    object-fit: cover;
+    transition: transform 0.3s ease-in-out;
+
+    &:hover {
+        transform: scale(1.05);
+    }
+}
+
+.title {
+    font-size: 20px;
+    font-weight: 500;
+    color: #1c1f4a;
+}
+
+.meta {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: left;
+
+    p {
+        margin: 2px 0;
+        font-size: 16px;
+        color: #000000;
+    }
+
+    strong {
+        font-weight: 600;
+        font-size: 16px;
+        color: #000000;
+    }
+}
+
+.description {
+    text-align: left;
+    font-size: 16px;
+    color: #444;
+}
+
+/* ==== PDF-Only Elements ==== */
+.pdf-only {
+    display: none;
+}
+
+.show-pdf {
+    display: block !important;
+}
+
+/* ==== Display Rules for Printing ==== */
+@media print {
+    .pdf-header {
+        display: block !important;
+    }
+
+    .pdf-only {
+        display: block !important;
+    }
+}
+
+/* ==== Optional: Hide pdf-only on screen ==== */
+@media screen {
+    .pdf-only {
+        display: none;
+    }
+}

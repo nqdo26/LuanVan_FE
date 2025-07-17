@@ -117,7 +117,7 @@
     flex: 1;
     width: 100%;
     max-width: 100%;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .trip-items {
@@ -224,18 +224,19 @@
     }
 
     .menu {
+        z-index: 9999;
         position: absolute;
-        top: 24px;
+        top: 32px;
         right: 0;
         background: #fff;
         border: 1px solid #e0e0e0;
         border-radius: 8px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        z-index: 10;
         min-width: 140px;
-        overflow: hidden;
+        overflow: visible;
 
         .menu-item {
+            z-index: 9999;
             display: flex;
             align-items: center;
             padding: 8px 14px;

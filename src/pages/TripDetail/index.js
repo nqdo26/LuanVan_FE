@@ -16,6 +16,7 @@ const cx = classNames.bind(styles);
 const items = [
     { key: 'trip', label: 'Lịch trình' },
     { key: 'suggest', label: 'Địa điểm nổi bậc' },
+    { key: 'favourities', label: 'Địa điểm yêu thích' },
 ];
 
 const scrollToSection = (id) => {
@@ -32,6 +33,27 @@ function TripDetail() {
     const [filteredDestinations, setFilteredDestinations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [destinationsLoading, setDestinationsLoading] = useState(false);
+    const [favorites, setFavorites] = useState([]);
+    const [favoritesLoading, setFavoritesLoading] = useState(true);
+    const [isExporting, setIsExporting] = useState(false);
+    useEffect(() => {
+        const fetchFavorites = async () => {
+            try {
+                setFavoritesLoading(true);
+                const res = await import('~/utils/api').then((mod) => mod.getUserFavoritesApi());
+                if (res && res.EC === 0) {
+                    setFavorites(res.data || []);
+                } else {
+                    setFavorites([]);
+                }
+            } catch (error) {
+                setFavorites([]);
+            } finally {
+                setFavoritesLoading(false);
+            }
+        };
+        fetchFavorites();
+    }, []);
 
     const pageSize = 6;
 
@@ -158,6 +180,54 @@ function TripDetail() {
         setTour(updatedTour);
     };
 
+    const handleShare = () => {
+        const shareUrl = `${window.location.origin}/trip/${slug}`;
+        if (navigator.share) {
+            navigator
+                .share({
+                    title: tour?.name || 'Hành trình',
+                    text: `Khám phá hành trình: ${tour?.name || ''}`,
+                    url: shareUrl,
+                })
+                .catch((error) => message.error('Lỗi khi chia sẻ: ' + error.message));
+        } else {
+            navigator.clipboard.writeText(shareUrl);
+            message.info('Đã sao chép liên kết hành trình vào clipboard!');
+        }
+    };
+
+    const handleDownload = async () => {
+        try {
+            const html2pdf = (await import('html2pdf.js')).default;
+
+            setIsExporting(true); // 👉 Bật chế độ xuất PDF
+            setTimeout(async () => {
+                const itineraryElement = document.getElementById('trip-itinerary');
+                if (!itineraryElement) {
+                    message.error('Không tìm thấy lịch trình để tải xuống');
+                    setIsExporting(false);
+                    return;
+                }
+
+                const filename = tour?.slug;
+                const opt = {
+                    margin: 0.5,
+                    filename: filename,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+                };
+
+                await html2pdf().from(itineraryElement).set(opt).save();
+                message.success('Đã tải lịch trình thành PDF!');
+                setIsExporting(false); // 👉 Tắt chế độ xuất sau khi xong
+            }, 100); // Delay nhỏ để DOM cập nhật
+        } catch (error) {
+            setIsExporting(false);
+            message.error('Lỗi khi tải xuống lịch trình: ' + error.message);
+        }
+    };
+
     if (loading) {
         return (
             <div
@@ -186,7 +256,12 @@ function TripDetail() {
         >
             <div className={cx('inner')}>
                 <div className={cx('main')}>
-                    <TripHeader tour={tour} onTourChange={handleTourChange} />
+                    <TripHeader
+                        tour={tour}
+                        handleShare={handleShare}
+                        handleDownload={handleDownload}
+                        onTourChange={handleTourChange}
+                    />
                     <Tabs
                         className={cx('tabs')}
                         onChange={(key) => {
@@ -206,8 +281,27 @@ function TripDetail() {
                         transition={{ duration: 0.3 }}
                     >
                         {activeTab === 'trip' && (
-                            <div className={cx('trip')}>
-                                <TripItinerary tour={tour} onTourUpdate={handleTourChange} />
+                            <div className={cx('trip')} style={{ position: 'relative' }}>
+                                {isExporting && (
+                                    <div
+                                        style={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            left: 0,
+                                            width: '100%',
+                                            height: '100%',
+                                            background: 'white',
+                                            zIndex: 10,
+                                            display: 'flex',
+
+                                            justifyContent: 'center',
+                                            transition: 'opacity 0.3s',
+                                        }}
+                                    >
+                                        <Spin style={{ marginTop: 80 }} size="large" tip="Đang xuất PDF..." />
+                                    </div>
+                                )}
+                                <TripItinerary tour={tour} onTourUpdate={handleTourChange} isExporting={isExporting} />
                             </div>
                         )}
                         {activeTab === 'suggest' && (
@@ -287,6 +381,29 @@ function TripDetail() {
                                                 </button>
                                             </div>
                                         )}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        {activeTab === 'favourities' && (
+                            <div className={cx('favourities')}>
+                                {favoritesLoading ? (
+                                    <div style={{ textAlign: 'center', padding: '40px' }}>
+                                        <Spin size="large" />
+                                    </div>
+                                ) : favorites && favorites.length > 0 ? (
+                                    <div className={cx('result-list')}>
+                                        {favorites.map((destination) => (
+                                            <DestinationCard
+                                                key={destination._id}
+                                                destination={destination}
+                                                title={destination.title}
+                                            />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+                                        <p>Bạn chưa có địa điểm yêu thích nào.</p>
                                     </div>
                                 )}
                             </div>

@@ -17,10 +17,11 @@ import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
 import locale from 'antd/es/date-picker/locale/vi_VN';
+import { Download } from 'lucide-react';
 
 const cx = classNames.bind(styles);
 
-function TripHeader({ tour, onTourChange }) {
+function TripHeader({ tour, onTourChange, handleShare, handleDownload }) {
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -145,7 +146,6 @@ function TripHeader({ tour, onTourChange }) {
                     if (response && response.EC === 0) {
                         message.success('Xóa chuyến đi thành công!');
                         setIsModalOpen(false);
-                      
                         navigate('/my-trip');
                     } else {
                         message.error(response?.EM || 'Có lỗi xảy ra khi xóa chuyến đi');
@@ -215,7 +215,20 @@ function TripHeader({ tour, onTourChange }) {
                     <div className={cx('header')}>
                         <div className={cx('actions')}>
                             <Tooltip title="Chia sẻ">
-                                <Button shape="circle" icon={<ShareAltOutlined />} className={cx('actionBtn')} />
+                                <Button
+                                    shape="circle"
+                                    icon={<ShareAltOutlined />}
+                                    onClick={handleShare}
+                                    className={cx('actionBtn')}
+                                />
+                            </Tooltip>
+                            <Tooltip title="Tải xuống">
+                                <Button
+                                    shape="circle"
+                                    icon={<Download size="18" />}
+                                    onClick={handleDownload}
+                                    className={cx('actionBtn')}
+                                />
                             </Tooltip>
                             <Tooltip title="Cài đặt">
                                 <Button
@@ -307,9 +320,9 @@ function TripHeader({ tour, onTourChange }) {
                                         {selectedTags.length === 0 && (
                                             <span className={cx('placeholder')}>Chọn thẻ...</span>
                                         )}
-                                        {selectedTags.map((tag) => (
+                                        {selectedTags.map((tag, idx) => (
                                             <span
-                                                key={tag._id}
+                                                key={tag._id || idx}
                                                 className={cx('tag-item', 'selected')}
                                                 onClick={(e) => {
                                                     e.stopPropagation();

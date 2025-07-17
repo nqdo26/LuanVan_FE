@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// ...existing code...
 import classNames from 'classnames/bind';
 import styles from './CustomDrawer.module.scss';
 import { Drawer, Button, TimePicker, Input } from 'antd';
@@ -8,9 +9,16 @@ import CardTrip from '../CardTrip';
 const cx = classNames.bind(styles);
 
 function CustomDrawer({ open, onClose, onSave, initialTime = '', initialNote = '', editingItem = null }) {
+    // Thêm nhận prop isNoteEdit
+    const isNoteEdit = typeof arguments[0]?.isNoteEdit !== 'undefined' ? arguments[0].isNoteEdit : false;
     const formatTime = 'HH:mm';
     const [selectedTime, setSelectedTime] = useState(null);
     const [note, setNote] = useState('');
+    const [noteTitleInput, setNoteTitleInput] = useState(
+        isNoteEdit ? editingItem?.title || editingItem?.name || editingItem?.noteTitle || '' : '',
+    );
+    // Lấy tiêu đề ghi chú nếu có
+    const noteTitle = isNoteEdit ? editingItem?.title || editingItem?.name || editingItem?.noteTitle || '' : '';
 
     useEffect(() => {
         if (initialTime) {
@@ -19,10 +27,17 @@ function CustomDrawer({ open, onClose, onSave, initialTime = '', initialNote = '
             setSelectedTime(null);
         }
         setNote(initialNote || '');
-    }, [initialTime, initialNote, open]);
+        if (isNoteEdit) {
+            setNoteTitleInput(editingItem?.title || editingItem?.name || editingItem?.noteTitle || '');
+        }
+    }, [initialTime, initialNote, open, isNoteEdit, editingItem]);
 
     const handleSave = () => {
-        onSave(selectedTime ? selectedTime.format(formatTime) : '', note);
+        if (isNoteEdit) {
+            onSave(selectedTime ? selectedTime.format(formatTime) : '', note, noteTitleInput);
+        } else {
+            onSave(selectedTime ? selectedTime.format(formatTime) : '', note);
+        }
     };
 
     return (
@@ -44,31 +59,45 @@ function CustomDrawer({ open, onClose, onSave, initialTime = '', initialNote = '
             }
         >
             <div className={cx('drawer-inner')}>
-                <h1 className={cx('drawer-title')}>Thêm ghi chú cho địa điểm</h1>
-                <div className={cx('drawer-content')}>
-                    <CardTrip
-                        maxTags={2}
-                        title={editingItem?.title || 'Wimi-Factory'}
-                        location={editingItem?.address || editingItem?.location || 'Hẻm 30 đường Lê Anh Xuân'}
-                        image={editingItem?.image || '/wimi2-img.png'}
-                        showMenu={false}
-                        hoverEffect={false}
-                        clickEffect={false}
-                        tags={editingItem?.tags || []}
-                        type={editingItem?.destinationType || editingItem?.type || 'tourist'}
-                    />
-
+                <h1 className={cx('drawer-title')}>{isNoteEdit ? 'Chỉnh sửa ghi chú' : 'Thêm ghi chú cho địa điểm'}</h1>
+                {isNoteEdit && (
                     <div className={cx('drawer-item')}>
-                        <label className={cx('drawer-label')}>Thời gian</label>
-
-                        <TimePicker
-                            placeholder={null}
-                            format="HH:mm"
-                            value={selectedTime}
-                            onChange={setSelectedTime}
-                            showNow={false}
+                        <label className={cx('drawer-label')}>Tiêu đề ghi chú</label>
+                        <Input
+                            value={noteTitleInput}
+                            maxLength={40}
+                            placeholder="Nhập tiêu đề ghi chú"
+                            onChange={(e) => setNoteTitleInput(e.target.value)}
                         />
                     </div>
+                )}
+                <div className={cx('drawer-content')}>
+                    {!isNoteEdit && (
+                        <CardTrip
+                            maxTags={2}
+                            title={editingItem?.title || 'Wimi-Factory'}
+                            location={editingItem?.address || editingItem?.location || 'Hẻm 30 đường Lê Anh Xuân'}
+                            image={editingItem?.image || '/wimi2-img.png'}
+                            showMenu={false}
+                            hoverEffect={false}
+                            clickEffect={false}
+                            tags={editingItem?.tags || []}
+                            type={editingItem?.destinationType || editingItem?.type || 'tourist'}
+                        />
+                    )}
+                    {!isNoteEdit && (
+                        <div className={cx('drawer-item')}>
+                            <label className={cx('drawer-label')}>Thời gian</label>
+                            <TimePicker
+                                allowClear
+                                placeholder={null}
+                                format="HH:mm"
+                                value={selectedTime}
+                                onChange={setSelectedTime}
+                                showNow={false}
+                            />
+                        </div>
+                    )}
                     <div className={cx('drawer-item')}>
                         <label className={cx('drawer-label')}>Ghi chú</label>
                         <Input.TextArea

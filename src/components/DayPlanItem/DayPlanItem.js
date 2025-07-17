@@ -15,6 +15,7 @@ import {
     removeDestinationFromTourApi,
     removeNoteFromTourApi,
     getDestinationByIdApi,
+    updateNoteInTourApi,
 } from '~/utils/api';
 import { useNavigate } from 'react-router-dom';
 
@@ -44,6 +45,8 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
     const [addDrawerOpen, setAddDrawerOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [destinationLoading, setDestinationLoading] = useState(false);
+    const [editingNoteIndex, setEditingNoteIndex] = useState(null);
+    const [editingNote, setEditingNote] = useState(null);
 
     const [selectedType, setSelectedType] = useState('');
     const [selectedTitle, setSelectedTitle] = useState('');
@@ -306,6 +309,55 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
             setAddDrawerOpen(false);
         }
     };
+    const handleEditNote = (itemIndex) => {
+        const item = timelineItems[itemIndex];
+        if (item && item.type === 'note') {
+            setTripNote(item.content || '');
+            setEditingNoteIndex(itemIndex);
+            setEditingNote(item);
+            setTripTime(''); // Đảm bảo initialTime là rỗng khi chỉnh sửa ghi chú
+            setDrawerOpen(true);
+        }
+    };
+
+    const handleSaveNoteEdit = (_unusedTime, note, _noteTitle) => {
+        if (editingNoteIndex === null || !tour?._id) {
+            message.error('Không tìm thấy thông tin ghi chú');
+            return;
+        }
+        const item = timelineItems[editingNoteIndex];
+        if (!item || item.type !== 'note') {
+            message.error('Không tìm thấy ghi chú');
+            return;
+        }
+        setLoading(true);
+        const requestData = {
+            dayId,
+            noteIndex: item.noteIndex,
+            content: note,
+            title: _noteTitle, // Include the title in the request data
+        };
+        updateNoteInTourApi(tour._id, requestData)
+            .then((response) => {
+               
+                if (response && response.EC === 0) {
+                    message.success('Cập nhật ghi chú thành công');
+                    setTripNote(note);
+                    onTourUpdate?.(response.DT);
+                    setDrawerOpen(false);
+                    setEditingNoteIndex(null);
+                    setEditingNote(null);
+                } else {
+                    message.error(response.EM || 'Có lỗi xảy ra khi cập nhật ghi chú');
+                }
+            })
+            .catch(() => {
+                message.error('Có lỗi xảy ra khi cập nhật ghi chú');
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    };
 
     const openDrawer = (itemIndex) => {
         const item = timelineItems[itemIndex];
@@ -392,12 +444,7 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
             const response = await removeDestinationFromTourApi(tour._id, removeData);
             if (response && response.EC === 0) {
                 message.success('Xóa địa điểm thành công');
-                console.log('Updated tour data after delete:', response.DT);
-                console.log('Items after delete:', response.DT?.itinerary?.find((day) => day.day === dayId)?.items);
-                console.log(
-                    'Descriptions after delete:',
-                    response.DT?.itinerary?.find((day) => day.day === dayId)?.descriptions,
-                );
+
                 onTourUpdate?.(response.DT);
             } else {
                 message.error(response.EM || 'Có lỗi xảy ra khi xóa địa điểm');
@@ -565,6 +612,17 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                                                                         transition={{ duration: 0.2 }}
                                                                     >
                                                                         <div
+                                                                            className={cx('menu-item', 'edit')}
+                                                                            onClick={() => {
+                                                                                if (deletingItemIndex !== index) {
+                                                                                    setNoteMenuIndex(null);
+                                                                                    handleEditNote(index);
+                                                                                }
+                                                                            }}
+                                                                        >
+                                                                            <span>Chỉnh sửa</span>
+                                                                        </div>
+                                                                        <div
                                                                             className={cx('menu-item', 'delete', {
                                                                                 disabled: deletingItemIndex === index,
                                                                             })}
@@ -694,11 +752,16 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
 
             <CustomDrawer
                 open={drawerOpen}
-                onClose={() => setDrawerOpen(false)}
-                onSave={handleSaveDrawer}
-                initialTime={tripTime}
+                onClose={() => {
+                    setDrawerOpen(false);
+                    setEditingNoteIndex(null);
+                    setEditingNote(null);
+                }}
+                onSave={editingNoteIndex !== null ? handleSaveNoteEdit : handleSaveDrawer}
+                initialTime={editingNoteIndex !== null ? '' : tripTime}
                 initialNote={tripNote}
-                editingItem={editingItem}
+                editingItem={editingNoteIndex !== null ? editingNote : editingItem}
+                isNoteEdit={editingNoteIndex !== null}
             />
 
             <AddDestinationDrawer

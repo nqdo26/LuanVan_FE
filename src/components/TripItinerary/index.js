@@ -39,7 +39,7 @@ const generateDays = (startDateStr, endDateStr, numDays) => {
     return result;
 };
 
-export default function TripItinerary({ tour, onTourUpdate }) {
+export default function TripItinerary({ tour, onTourUpdate, isExporting }) {
     const [selectedDay, setSelectedDay] = useState(1);
     const [days, setDays] = useState([]);
     const dayRefs = useRef({});
@@ -78,7 +78,52 @@ export default function TripItinerary({ tour, onTourUpdate }) {
     };
 
     return (
-        <div className={cx('wrapper')}>
+        <div id="trip-itinerary" className={cx('wrapper')}>
+            <div className={cx('pdf-header', { 'show-pdf': isExporting })} >
+                <div className={cx('logo')}>
+                    <img className={cx('logo-icon')} src="/logo.png" alt="GoOhNo" />
+                    <span className={cx('title')}>GoOhNo</span>
+                </div>
+
+                <h1 className={cx('trip-title')}>{tour?.name || 'Lịch trình'}</h1>
+                <p className={cx('date')}>Ngày tạo: {new Date().toLocaleDateString('vi-VN')}</p>
+
+                <div className={cx('meta')}>
+                    {tour?.city?.name && (
+                        <p>
+                            <strong>Điểm đến:</strong> {tour.city.name}
+                        </p>
+                    )}
+                    {(tour?.duration?.numDays || (tour?.duration?.starDay && tour?.duration?.endDay)) && (
+                        <p>
+                            <strong>Thời lượng chuyến đi:</strong>{' '}
+                            {(tour.duration.numDays ||
+                                Math.ceil(
+                                    (new Date(tour.duration.endDay) - new Date(tour.duration.starDay)) /
+                                        (1000 * 60 * 60 * 24) +
+                                        1,
+                                )) + ' ngày'}
+                        </p>
+                    )}
+                    {tour?.duration?.starDay && (
+                        <p>
+                            <strong>Ngày bắt đầu:</strong> {new Date(tour.duration.starDay).toLocaleDateString('vi-VN')}
+                        </p>
+                    )}
+                    {tour?.duration?.endDay && (
+                        <p>
+                            <strong>Ngày kết thúc:</strong> {new Date(tour.duration.endDay).toLocaleDateString('vi-VN')}
+                        </p>
+                    )}
+                </div>
+
+                {tour?.description && (
+                    <p className={cx('description')}>
+                        <strong>Mô tả:</strong> {tour.description}
+                    </p>
+                )}
+            </div>
+
             {days.length === 0 ? (
                 <div className={cx('empty-itinerary')}>
                     <h3>Chưa có lịch trình nào</h3>

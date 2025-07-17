@@ -645,6 +645,11 @@ export const updateUserAvatarApi = (avatarFile) => {
     });
 };
 
+const updateNoteInTourApi = (tourId, data) => {
+    const URL_API = `/v1/api/tours/${tourId}/notes`;
+    return axios.put(URL_API, data);
+};
+
 export {
     createUserApi,
     getAccountApi,
@@ -702,6 +707,7 @@ export {
     getPopularDestinationsApi,
     getDestinationsByTagsApi,
     filterDestinationsApi,
+    
     // Tour APIs
     createTourApi,
     getToursApi,
@@ -710,6 +716,7 @@ export {
     getTourBySlugApi,
     updateTourApi,
     deleteTourApi,
+
     // Tour itinerary management APIs
     addDestinationToTourApi,
     addNoteToTourApi,
@@ -717,10 +724,13 @@ export {
     removeDestinationFromTourApi,
     removeNoteFromTourApi,
     getUserToursApi,
+    updateNoteInTourApi,
+
     // Favorites APIs
     addToFavoritesApi,
     removeFromFavoritesApi,
     getUserFavoritesApi,
+
     // Comments APIs
     createCommentApi,
     getCommentsByDestinationApi,

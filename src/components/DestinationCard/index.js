@@ -60,13 +60,10 @@ function DestinationCard({ destination = {}, showRemoveMode = false, onRemove, o
                     }
                 } else if (response.EC === 1 && response.EM === 'Destination already in favorites') {
                     message.warning('Địa điểm này đã có trong danh sách yêu thích');
-                } else {
-                    message.error(response.EM || 'Có lỗi xảy ra khi thêm vào yêu thích');
                 }
             }
         } catch (error) {
             console.error('Error toggling favorite:', error);
-            message.error('Có lỗi xảy ra khi xử lý yêu thích');
         }
     };
 
