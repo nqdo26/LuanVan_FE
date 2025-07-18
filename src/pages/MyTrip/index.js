@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { notification } from 'antd';
-import { AuthContext } from '~/components/Context/auth.context';
+import React, { useState, useEffect } from 'react';
+
 import classNames from 'classnames/bind';
 import { motion } from 'framer-motion';
 import { Spin, message, Empty } from 'antd';
