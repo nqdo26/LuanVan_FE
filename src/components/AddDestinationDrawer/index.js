@@ -54,9 +54,9 @@ function AddDestinationDrawer({ type, open, onClose, onAdd, title, handleAddNote
                             destination.description?.toLowerCase().includes(searchValue.toLowerCase()) ||
                             destination.address?.toLowerCase().includes(searchValue.toLowerCase()),
                     );
-                    setFilteredDestinations(filtered.slice(0, 4));
+                    setFilteredDestinations(filtered.slice(0, 3));
                 } else {
-                    setFilteredDestinations(destinations.slice(0, 4));
+                    setFilteredDestinations(destinations.slice(0, 3));
                 }
             }, 300);
 

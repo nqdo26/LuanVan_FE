@@ -79,6 +79,7 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                                     if (destinationInfo && typeof destinationInfo === 'string') {
                                         try {
                                             const response = await getDestinationByIdApi(destinationInfo);
+                                    
                                             let fetchedData = null;
                                             if (response.EC === 0 && response.data) {
                                                 fetchedData = response.data;
@@ -131,6 +132,7 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                                         slug: destinationInfo?.slug,
                                         order: item.order || index,
                                         itemType: 'destination',
+                                        rating: destinationInfo?.statistics?.averageRating || 0,
                                     });
                                 } else if (item.type === 'note') {
                                     items.push({
@@ -205,6 +207,7 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                                 slug: destinationInfo?.slug,
                                 order: index,
                                 itemType: 'destination',
+                                rating: destinationInfo?.statistics?.averageRating || 0,
                             });
                         }
 
@@ -339,7 +342,6 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
         };
         updateNoteInTourApi(tour._id, requestData)
             .then((response) => {
-               
                 if (response && response.EC === 0) {
                     message.success('Cập nhật ghi chú thành công');
                     setTripNote(note);
@@ -661,8 +663,9 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                                                 </div>
                                             ) : (
                                                 <>
+                                                    {console.log('Rendering CardTrip for item:', item)}
                                                     <CardTrip
-                                                        maxTags={5}
+                                                        maxTags={6}
                                                         title={item.title}
                                                         location={item.address || 'Chưa có địa chỉ'}
                                                         image={item.image || '/wimi2-img.png'}
@@ -671,6 +674,7 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                                                         note={item.content}
                                                         tags={item.tags || []}
                                                         type={item.destinationType || 'tourist'}
+                                                        rating={item.rating || 0}
                                                         onEdit={() => {
                                                             if (deletingItemIndex !== index) {
                                                                 openDrawer(index);

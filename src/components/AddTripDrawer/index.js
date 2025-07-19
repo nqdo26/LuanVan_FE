@@ -165,7 +165,7 @@ function AddTripDrawer({ open, onClose, onAdd }) {
                         <div className={cx('result-list')}>
                             {filteredCities && filteredCities.length > 0 ? (
                                 filteredCities
-                                    .slice(0, 8)
+                                    .slice(0, 4)
                                     .map((city) =>
                                         city && city._id ? (
                                             <CardSearchDrawer
@@ -186,9 +186,6 @@ function AddTripDrawer({ open, onClose, onAdd }) {
                                 </div>
                             )}
                         </div>
-                        {filteredCities.length > 8 && (
-                            <div className={cx('more-results')}>Và {filteredCities.length - 8} thành phố khác...</div>
-                        )}
                     </div>
                 </div>
             </div>
