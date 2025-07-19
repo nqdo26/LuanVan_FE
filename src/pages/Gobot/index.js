@@ -11,7 +11,7 @@ import classNames from 'classnames/bind';
 import styles from './Gobot.module.scss';
 import AIChatPageIntro from '~/components/AIChatPageIntro';
 import ChatHistorySidebar from '~/components/ChatHistorySidebar';
-import { getCitiesApi } from '~/utils/api';
+import { getCitiesApi, chatWithRAGApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
 
@@ -44,11 +44,12 @@ function Gobot() {
             try {
                 setCitiesLoading(true);
                 const response = await getCitiesApi();
+
                 if (response && response.EC === 0) {
                     setCities(
                         response.data.map((city) => ({
                             label: city.name,
-                            value: city.id || city.name,
+                            value: city._id, // luôn dùng _id làm cityId
                         })),
                     );
                 }
@@ -60,19 +61,44 @@ function Gobot() {
         fetchCities();
     }, []);
 
-    const handleSend = (text) => {
+    // cityId mặc định lấy từ cities[0] nếu có, hoặc bạn có thể lưu state cityId khi chọn
+    const [selectedCityId, setSelectedCityId] = useState(null);
+
+    const handleSend = async (text) => {
         const newMsgs = [...messages, { message: text, sender: 'user' }];
         setMessages(newMsgs);
         setIsTyping(true);
         setChatHistory((h) => h.map((c) => (c.id === activeChatId ? { ...c, messages: newMsgs } : c)));
-        setTimeout(() => {
-            const botReply = { message: 'Hehe', sender: 'Gobot' };
+
+        try {
+            // cityId chỉ gửi nếu đã chọn thành phố, nếu không thì bỏ khỏi payload
+            const payload = {
+                messages: newMsgs.map((m) => ({
+                    role: m.sender === 'user' ? 'user' : 'assistant',
+                    content: m.message,
+                })),
+                isUseKnowledge: true,
+            };
+            if (selectedCityId) {
+                payload.cityId = selectedCityId;
+            }
+            console.log('Payload gửi đi:', payload);
+            const res = await chatWithRAGApi(payload);
+            const botMsg = res?.choices?.[0]?.message?.content || 'Xin lỗi, Gobot không trả lời được.';
+            const botReply = { message: botMsg, sender: 'Gobot' };
             setMessages((prev) => [...prev, botReply]);
             setChatHistory((h) =>
                 h.map((c) => (c.id === activeChatId ? { ...c, messages: [...c.messages, botReply] } : c)),
             );
+        } catch (e) {
+            const botReply = { message: 'Có lỗi xảy ra khi kết nối Gobot.', sender: 'Gobot' };
+            setMessages((prev) => [...prev, botReply]);
+            setChatHistory((h) =>
+                h.map((c) => (c.id === activeChatId ? { ...c, messages: [...c.messages, botReply] } : c)),
+            );
+        } finally {
             setIsTyping(false);
-        }, 1500);
+        }
     };
 
     const handleSelectChat = (id) => {
@@ -119,9 +145,8 @@ function Gobot() {
                                         style={{ width: 160, marginLeft: 'auto' }}
                                         options={cities}
                                         loading={citiesLoading}
-                                        onChange={(value) => {
-                                            // handle city selection if needed
-                                        }}
+                                        value={selectedCityId}
+                                        onChange={(value) => setSelectedCityId(value)}
                                     />
                                 </div>
                             </div>
@@ -142,6 +167,7 @@ function Gobot() {
                                             <img src="/ai-img.png" alt="Gobot" className={cx('avatar')} />
                                         )}
                                         <Message
+                                            className={cx(msg.sender === 'user' ? 'user-message' : 'ai-message')}
                                             model={{
                                                 message: msg.message,
                                                 sentTime: 'just now',

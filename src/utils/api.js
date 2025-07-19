@@ -1,5 +1,3 @@
-// Lấy city theo typeSlug (biển, nui, van-hoa)
-
 import axios from './axios.custiomize';
 const createDestinationApi = (destinationData) => {
     const URL_API = '/v1/api/destination';
@@ -650,6 +648,13 @@ const updateNoteInTourApi = (tourId, data) => {
     return axios.put(URL_API, data);
 };
 
+
+const chatWithRAGApi = (data) => {
+  
+    const URL_API = '/v1/api/chat/completions';
+    return axios.post(URL_API, data);
+};
+
 export {
     createUserApi,
     getAccountApi,
@@ -737,4 +742,6 @@ export {
     deleteCommentApi,
     getCommentByIdApi,
     getAdminStatisticsApi,
+
+    chatWithRAGApi,
 };
