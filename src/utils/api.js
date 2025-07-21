@@ -648,11 +648,29 @@ const updateNoteInTourApi = (tourId, data) => {
     return axios.put(URL_API, data);
 };
 
-
 const chatWithRAGApi = (data) => {
-  
     const URL_API = '/v1/api/chat/completions';
     return axios.post(URL_API, data);
+};
+
+const createNewChat = (data) => {
+    const URL_API = '/v1/api/chat/new';
+    return axios.post(URL_API, data);
+};
+
+const deleteChat = (chatId) => {
+    const URL_API = `/v1/api/chat/${chatId}`;
+    return axios.delete(URL_API);
+};
+
+const getChatHistoryApi = (userId) => {
+    const URL_API = `/v1/api/chats?userId=${userId}`;
+    return axios.get(URL_API);
+};
+
+const getChatByIdApi = (id) => {
+    const URL_API = `/v1/api/chats/${id}`;
+    return axios.get(URL_API);
 };
 
 export {
@@ -712,7 +730,7 @@ export {
     getPopularDestinationsApi,
     getDestinationsByTagsApi,
     filterDestinationsApi,
-    
+
     // Tour APIs
     createTourApi,
     getToursApi,
@@ -743,5 +761,10 @@ export {
     getCommentByIdApi,
     getAdminStatisticsApi,
 
+    //Chat APIs
     chatWithRAGApi,
+    createNewChat,
+    deleteChat,
+    getChatHistoryApi,
+    getChatByIdApi,
 };
