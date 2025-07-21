@@ -44,7 +44,7 @@ function Admin() {
         const fetchStatistics = async () => {
             try {
                 const res = await getAdminStatisticsApi();
-                console.log('Admin statistics response:', res);
+              
                 setStatistics(res);
             } catch (err) {
                 setStatistics(null);

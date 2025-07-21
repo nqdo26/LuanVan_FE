@@ -33,6 +33,53 @@ function StepDetailTourist({ defaultData, onPrev, onSubmit, loading }) {
 
     const handleInput = (key, value) => setData((prev) => ({ ...prev, [key]: value }));
 
+    // Thời gian mở cửa/đóng cửa
+    const handleOpenHourChange = (day, field, value) => {
+        setData((prev) => ({
+            ...prev,
+            openHour: {
+                ...prev.openHour,
+                [day]: { ...prev.openHour[day], [field]: value },
+            },
+        }));
+    };
+    const handleAllDayChange = () => {
+        setData((prev) => {
+            const newAllDay = !prev.openHour.allday;
+            const newOpenHour = { ...prev.openHour, allday: newAllDay };
+
+            if (newAllDay) {
+                ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].forEach((day) => {
+                    newOpenHour[day] = { open: '00:00', close: '23:59' };
+                });
+            }
+
+            return {
+                ...prev,
+                openHour: newOpenHour,
+            };
+        });
+    };
+    const handleClosedDay = (day) => {
+        setData((prev) => ({
+            ...prev,
+            openHour: {
+                ...prev.openHour,
+                [day]: { open: 'Đóng cửa', close: 'Đóng cửa' },
+            },
+        }));
+    };
+
+    const handleOpenDay = (day) => {
+        setData((prev) => ({
+            ...prev,
+            openHour: {
+                ...prev.openHour,
+                [day]: { open: '', close: '' },
+            },
+        }));
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         setError('');
@@ -60,6 +107,20 @@ function StepDetailTourist({ defaultData, onPrev, onSubmit, loading }) {
             setError('Vui lòng nhập ít nhất 1 giá trị cho Hoạt động đặc trưng.');
             return;
         }
+        // Validate openHour
+        if (!data.openHour.allday) {
+            const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+            for (let day of days) {
+                const oh = data.openHour[day];
+                if (oh.open === 'Đóng cửa' && oh.close === 'Đóng cửa') {
+                    continue;
+                }
+                if (!oh.open || !oh.close) {
+                    setError('Vui lòng nhập đầy đủ thời gian mở cửa cho tất cả các ngày hoặc chọn Mở cả ngày.');
+                    return;
+                }
+            }
+        }
         if (!data.album.space.length) {
             setError('Album Không gian phải có ít nhất 1 ảnh.');
             return;
@@ -73,6 +134,19 @@ function StepDetailTourist({ defaultData, onPrev, onSubmit, loading }) {
             return;
         }
         onSubmit(data);
+    };
+
+    const getDayLabel = (day) => {
+        const map = {
+            mon: 'Thứ 2',
+            tue: 'Thứ 3',
+            wed: 'Thứ 4',
+            thu: 'Thứ 5',
+            fri: 'Thứ 6',
+            sat: 'Thứ 7',
+            sun: 'Chủ nhật',
+        };
+        return map[day] || day;
     };
 
     return (
@@ -128,6 +202,64 @@ function StepDetailTourist({ defaultData, onPrev, onSubmit, loading }) {
                     onRemove={(i) => removeFromList('activities', i)}
                     onInput={(e) => handleInput('newActivities', e.target.value)}
                 />
+
+                {/* Thời gian mở cửa/đóng cửa */}
+                <div className={cx('openhour-section')}>
+                    <label>Thời gian mở cửa</label>
+                    <div style={{ marginBottom: 8 }}>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={data.openHour.allday}
+                                onChange={handleAllDayChange}
+                                style={{ marginRight: 8 }}
+                            />
+                            Mở cả ngày
+                        </label>
+                    </div>
+                    {!data.openHour.allday && (
+                        <div className={cx('openhour-table')}>
+                            {['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].map((day) => (
+                                <div key={day} className={cx('openhour-row')}>
+                                    <span className={cx('oh-day')}>{getDayLabel(day)}:</span>
+                                    {data.openHour[day].open === 'Đóng cửa' ? (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <span style={{ color: '#999' }}>Đóng cửa</span>
+                                            <button
+                                                type="button"
+                                                className={cx('open-btn')}
+                                                onClick={() => handleOpenDay(day)}
+                                            >
+                                                Mở cửa
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <input
+                                                type="time"
+                                                value={data.openHour[day].open}
+                                                onChange={(e) => handleOpenHourChange(day, 'open', e.target.value)}
+                                            />
+                                            <span style={{ margin: '0 3px' }}>đến</span>
+                                            <input
+                                                type="time"
+                                                value={data.openHour[day].close}
+                                                onChange={(e) => handleOpenHourChange(day, 'close', e.target.value)}
+                                            />
+                                            <button
+                                                type="button"
+                                                className={cx('close-btn')}
+                                                onClick={() => handleClosedDay(day)}
+                                            >
+                                                Đóng cửa
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
                 <div className={cx('section-label')}>Album ảnh</div>
                 <div className={cx('album-wrap')}>

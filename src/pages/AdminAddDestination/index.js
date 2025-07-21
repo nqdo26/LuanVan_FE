@@ -14,7 +14,7 @@ const cx = classNames.bind(styles);
 
 const initForm = {
     title: '',
-    aiDescription: '',
+
     type: 'restaurant',
     tags: [],
     address: '',

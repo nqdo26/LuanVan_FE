@@ -277,7 +277,7 @@ function DestinationOverview({ destination = {}, handleSave, handleAddComment, h
     );
 
     const renderOpeningHours = () => {
-        if (!isRestaurant || !destination.openHour) return null;
+        if (!destination.openHour) return null;
 
         return (
             <div className={cx('action-items')}>
