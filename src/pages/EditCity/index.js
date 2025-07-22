@@ -68,6 +68,7 @@ function EditCity() {
             setSubmitting(true);
 
             const response = await getCityByIdAndUpdateApi(id, formData);
+
             if (response && response.EC === 0) {
                 notification.success({
                     message: 'Thành công',

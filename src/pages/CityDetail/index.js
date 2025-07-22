@@ -87,7 +87,6 @@ function CityDetail() {
         try {
             setLoading(true);
             const response = await getCityBySlugApi(slug);
-            console.log(response);
             if (response && response.EC === 0) {
                 setCityData(response.data);
             } else {
