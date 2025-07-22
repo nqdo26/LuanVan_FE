@@ -44,7 +44,7 @@ function Admin() {
         const fetchStatistics = async () => {
             try {
                 const res = await getAdminStatisticsApi();
-              
+
                 setStatistics(res);
             } catch (err) {
                 setStatistics(null);
@@ -69,6 +69,8 @@ function Admin() {
     }
 
     const { userCount, adminCount, cityCount, destinationCount, placeStats, cityStats, recentUsers } = statistics;
+
+    const topPlaceStats = [...(placeStats || [])].sort((a, b) => b.statistics.views - a.statistics.views).slice(0, 5);
 
     const topCityStats = [...(cityStats || [])].sort((a, b) => b.totalViews - a.totalViews).slice(0, 5);
 
@@ -103,56 +105,74 @@ function Admin() {
                 </div>
 
                 <div className={cx('charts')}>
-                    <h2>Thống kê địa điểm theo lượt xem và lượt đánh giá</h2>
-                    <BarChart
-                        width={900}
-                        height={300}
-                        data={placeStats}
-                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                    >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis yAxisId="left" domain={[0, 100]} ticks={[0, 10, 20, 50, 100]} />
-                        <YAxis yAxisId="right" orientation="right" domain={[0, 5]} />
-                        <Tooltip />
-                        <Legend />
-                        <Bar yAxisId="left" dataKey="statistics.views" name="Lượt xem" fill="#64c5ff" />
-                        <Bar yAxisId="right" dataKey="statistics.averageRating" name="Đánh giá" fill="#1c1f4a" />
-                    </BarChart>
+                    <div className={cx('chart-1')}>
+                        <div className={cx('chart-item')}>
+                            <h2>Thống kê địa điểm theo lượt xem và lượt đánh giá</h2>
+                            <BarChart
+                                width={800}
+                                height={300}
+                                data={topPlaceStats}
+                                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="name" />
+                                <YAxis yAxisId="left" domain={[0, 100]} ticks={[0, 10, 20, 50, 100]} />
+                                <YAxis yAxisId="right" orientation="right" domain={[0, 5]} />
+                                <Tooltip />
+                                <Legend />
+                                <Bar yAxisId="left" dataKey="statistics.views" name="Lượt xem" fill="#64c5ff" />
+                                <Bar
+                                    yAxisId="right"
+                                    dataKey="statistics.averageRating"
+                                    name="Đánh giá"
+                                    fill="#1c1f4a"
+                                />
+                            </BarChart>
+                        </div>
+                        <div className={cx('chart-item')}>
+                            <h2>Thống kê thành phố theo lượt xem</h2>
+                            <PieChart width={400} height={300}>
+                                <Pie
+                                    data={topCityStats}
+                                    dataKey="totalViews"
+                                    nameKey="city"
+                                    cx="50%"
+                                    cy="50%"
+                                    outerRadius={100}
+                                    label
+                                >
+                                    {topCityStats.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip />
+                                <Legend />
+                            </PieChart>
+                        </div>
+                    </div>
 
-                    <h2>Thống kê thành phố theo lượt xem</h2>
-                    <PieChart width={400} height={300}>
-                        <Pie
-                            data={topCityStats}
-                            dataKey="totalViews"
-                            nameKey="city"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={100}
-                            label
+                    <div className={cx('chart-item')}>
+                        <h2>Thống kê số tài khoản đăng ký theo ngày</h2>
+                        <LineChart
+                            width={800}
+                            height={300}
+                            data={recentUsers}
+                            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                         >
-                            {topCityStats.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index]} />
-                            ))}
-                        </Pie>
-                        <Tooltip />
-                        <Legend />
-                    </PieChart>
-
-                    <h2>Thống kê số tài khoản đăng ký theo ngày</h2>
-                    <LineChart
-                        width={800}
-                        height={300}
-                        data={recentUsers}
-                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                    >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="_id" />
-                        <YAxis domain={[0, 10]} ticks={[0, 2, 4, 6, 8, 10]} />
-                        <Tooltip />
-                        <Legend />
-                        <Line type="monotone" dataKey="users" stroke="#1c1f4a" activeDot={{ r: 8 }} name="Số user" />
-                    </LineChart>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="_id" />
+                            <YAxis domain={[0, 10]} ticks={[0, 2, 4, 6, 8, 10]} />
+                            <Tooltip />
+                            <Legend />
+                            <Line
+                                type="monotone"
+                                dataKey="users"
+                                stroke="#1c1f4a"
+                                activeDot={{ r: 8 }}
+                                name="Số user"
+                            />
+                        </LineChart>
+                    </div>
                 </div>
             </div>
         </motion.div>

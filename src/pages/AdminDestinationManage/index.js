@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import { motion } from 'framer-motion';
 import styles from './AdminDestinationManage.module.scss';
-import { Button, Table, Popconfirm, message } from 'antd';
+import { Button, Table, Popconfirm, message, notification } from 'antd';
 import { EyeOutlined, DeleteOutlined, StarFilled, EditOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { deleteDestinationApi, getDestinationsApi } from '~/utils/api';
@@ -59,7 +59,10 @@ function AdminDestinationManage() {
             console.log('Delete response:', res);
             if (res && res.EC === 0) {
                 setData((prev) => prev.filter((item) => item._id !== record._id));
-                message.success('Xóa địa điểm thành công!');
+                notification.success({
+                    message: 'Thành công',
+                    description: 'Xóa địa điểm thành công!',
+                });
             } else {
                 message.error(res?.data?.EM || 'Xóa địa điểm thất bại!');
             }

@@ -72,7 +72,7 @@ function EditCity() {
             if (response && response.EC === 0) {
                 notification.success({
                     message: 'Thành công',
-                    description: 'Cập nhật thành phố thành công!',
+                    description: 'Cập nhật thành phố thành công',
                 });
                 navigate('/admin/citys-management');
             } else {

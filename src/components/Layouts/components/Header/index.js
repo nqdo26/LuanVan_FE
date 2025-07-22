@@ -1,8 +1,7 @@
 import classNames from 'classnames/bind';
-import { Layout, Flex, Modal, Button, Avatar, Dropdown, Input, message } from 'antd';
+import { Layout, Flex, Modal, Button, Avatar, Dropdown, Input, message, notification } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { UserOutlined } from '@ant-design/icons';
 import { useState, useEffect, useContext } from 'react';
 import styles from './Header.module.scss';
 import { createUserApi, loginApi } from '~/utils/api';
@@ -82,7 +81,10 @@ function Header() {
             console.log(res.access_token);
             if (res.EC === 0) {
                 localStorage.setItem('access_token', res.access_token);
-                message.success('Đăng nhập thành công!');
+                notification.success({
+                    message: 'Đăng nhập thành công',
+                    description: `Chào mừng ${res.user.fullName} trở lại!`,
+                });
                 setAuth({
                     isAuthenticated: true,
                     user: {
@@ -122,7 +124,9 @@ function Header() {
             const res = await createUserApi(registerName, registerEmail, registerPassword);
             console.log(res);
             if (res.EC === 0) {
-                message.success('Đăng ký thành công!');
+                notification.success({
+                    message: 'Đăng ký thành công',
+                });
                 setIsModalRegisterOpen(false);
                 setIsModalLoginOpen(true);
                 setRegisterName('');

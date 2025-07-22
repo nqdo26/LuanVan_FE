@@ -58,7 +58,7 @@ function DestinationCard({ destination = {}, showRemoveMode = false, onRemove, o
                             particle.remove();
                         }, 700);
                     }
-                } else if (response.EC === 1 && response.EM === 'Destination already in favorites') {
+                } else if (response.EC === 1 && response.EM === 'Địa điểm đã có trong danh sách yêu thích') {
                     message.warning('Địa điểm này đã có trong danh sách yêu thích');
                 }
             }

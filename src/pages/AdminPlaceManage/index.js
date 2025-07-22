@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import classNames from 'classnames/bind';
 import { motion } from 'framer-motion';
 import styles from './AdminPlaceManage.module.scss';
-import { Button, Table, message, Spin, Modal } from 'antd';
+import { Button, Table, message, Spin, Modal, notification } from 'antd';
 import { EyeOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import {
@@ -96,7 +96,10 @@ function AdminPlaceManage() {
                             const response = await deleteCityApi(record._id);
                             if (response && response.EC === 0) {
                                 setCities((prev) => prev.filter((city) => city._id !== record._id));
-                                message.success(response.EM || 'Xóa thành phố thành công!');
+                                notification.success({
+                                    message: 'Thành công',
+                                    description: `Đã xóa thành phố "${cityName}" thành công!`,
+                                });
                             } else {
                                 message.error(response?.EM || 'Xóa thành phố thất bại');
                             }
@@ -119,7 +122,6 @@ function AdminPlaceManage() {
         if (record._id && viewTracker.canIncrement('city', record._id)) {
             try {
                 await incrementCityViewsApi(record._id);
-                console.log('Admin city access view incremented:', record._id);
             } catch (error) {
                 console.error('Lỗi khi tăng lượt xem city:', error);
             }
