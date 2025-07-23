@@ -14,7 +14,7 @@ function AdminUserManage() {
     const navigate = useNavigate();
 
     const { auth } = useContext(AuthContext);
-    const currentUserId = auth?.user?.id; 
+    const currentUserId = auth?.user?.id;
 
     const [users, setUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -58,11 +58,12 @@ function AdminUserManage() {
                 setUsers((prev) =>
                     prev.map((user) => (user._id === record._id ? { ...user, isAdmin: !user.isAdmin } : user)),
                 );
-                message.success(
-                    !record.isAdmin
-                        ? 'Đã cấp quyền quản trị cho tài khoản này!'
-                        : 'Đã hủy quyền quản trị tài khoản này!',
-                );
+                notification.success({
+                    message: 'Cập nhật thành công',
+                    description: `Tài khoản ${record.email} đã ${
+                        !record.isAdmin ? 'được cấp quyền quản trị' : 'bị hủy quyền quản trị'
+                    }.`,
+                });
             } else {
                 notification.error({
                     message: 'Cập nhật quyền quản trị thất bại',
@@ -84,7 +85,10 @@ function AdminUserManage() {
             const res = await deleteUserApi(record._id);
             if (res?.EC === 0) {
                 setUsers((prev) => prev.filter((user) => user._id !== record._id));
-                message.success('Xóa tài khoản thành công!');
+                notification.success({
+                    message: 'Xóa tài khoản thành công',
+                    description: `Tài khoản ${record.email} đã được xóa.`,
+                });
             } else {
                 notification.error({
                     message: 'Xóa tài khoản thất bại',
@@ -98,10 +102,6 @@ function AdminUserManage() {
             });
         }
         setActionLoading((prev) => ({ ...prev, [record._id]: false }));
-    };
-
-    const handleAccessUser = (record) => {
-        alert(`Truy cập người dùng: ${record.fullName}`);
     };
 
     const columns = [
@@ -181,12 +181,6 @@ function AdminUserManage() {
                 const isCurrentUser = record._id === currentUserId;
                 return (
                     <div style={{ display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center' }}>
-                        <Button
-                            type="primary"
-                            icon={<EyeOutlined />}
-                            onClick={() => handleAccessUser(record)}
-                            disabled={isCurrentUser}
-                        ></Button>
                         <Popconfirm
                             title="Bạn có chắc chắn muốn xóa tài khoản này?"
                             onConfirm={() => handleDeleteUser(record)}

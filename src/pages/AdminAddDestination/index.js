@@ -111,7 +111,9 @@ function AdminAddDestination() {
             delete submitData.newCultureType;
             delete submitData.newFee;
             const res = await createDestinationApi(submitData);
-            if (res && res.data && res.EC === 0) {
+            console.log('Response from createDestinationApi:', res);
+
+            if (res && res.data.EC === 0) {
                 notification.success({
                     message: 'Thành công',
                     description: 'Thêm địa điểm thành công!',
@@ -122,7 +124,7 @@ function AdminAddDestination() {
                 setStep(1);
             } else {
                 notification.error({
-                    message: 'Lỗi',
+                    message: 'Thất bại',
                     description: res?.data?.EM || 'Thêm địa điểm thất bại.',
                     duration: 2.5,
                 });
