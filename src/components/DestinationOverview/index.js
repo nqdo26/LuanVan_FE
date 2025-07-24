@@ -95,28 +95,30 @@ function DestinationOverview({ destination = {}, handleSave, handleAddComment, h
         const openStatus = getOpenStatus(hours);
 
         return (
-            <ul className={cx('list-time-open')}>
-                <li style={{ color: openStatus.color }} className={cx('list-time-open-item', 'opening-status')}>
+            <div className={cx('open-hours-wrapper')}>
+                <span style={{ color: openStatus.color }} className={cx('list-time-open-item', 'opening-status')}>
                     <ClockCircleOutlined /> {openStatus.status}
-                </li>
-                {Object.entries(hours)
-                    .filter(([key]) => key !== 'allday')
-                    .map(([key, value]) => {
-                        const isToday = key === todayKey;
-                        const displayTime = hours.allday
-                            ? 'Mở cửa cả ngày'
-                            : value.open === 'Đóng cửa'
-                            ? 'Đóng cửa'
-                            : `${value.open} - ${value.close}`;
+                </span>
+                <div className={cx('list-time-open')}>
+                    {Object.entries(hours)
+                        .filter(([key]) => key !== 'allday')
+                        .map(([key, value]) => {
+                            const isToday = key === todayKey;
+                            const displayTime = hours.allday
+                                ? 'Mở cửa cả ngày'
+                                : value.open === 'Đóng cửa'
+                                ? 'Đóng cửa'
+                                : `${value.open} - ${value.close}`;
 
-                        return (
-                            <li key={key} className={cx('list-time-open-item')}>
-                                <span className={cx('day-bold')}>{days[key]}:</span>{' '}
-                                <span className={cx({ bold: isToday })}>{displayTime}</span>
-                            </li>
-                        );
-                    })}
-            </ul>
+                            return (
+                                <li key={key} className={cx('list-time-open-item')}>
+                                    <span className={cx('day-bold')}>{days[key]}:</span>{' '}
+                                    <span className={cx({ bold: isToday })}>{displayTime}</span>
+                                </li>
+                            );
+                        })}
+                </div>
+            </div>
         );
     };
 
