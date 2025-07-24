@@ -15,13 +15,17 @@
 
 .image-container {
     position: relative;
-    border-radius: 12px 12px 0 0;
+    aspect-ratio: 16 / 9;
     overflow: hidden;
+    border-radius: 12px 12px 0 0;
 }
 
 .card-image {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: 180px;
+    height: 100%;
     object-fit: cover;
 }
 
@@ -30,7 +34,8 @@
     border-radius: 12px;
     transition: all 0.3s ease;
     max-width: 320px;
-    min-width: 320px;
+    width: 320px;
+    min-width: 250px;
 }
 
 .favorite-btn {

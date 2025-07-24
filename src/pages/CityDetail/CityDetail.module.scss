@@ -191,17 +191,20 @@
 @media (max-width: 1023px) {
     .result-list {
         grid-template-columns: repeat(2, 1fr);
+        height: auto;
     }
 }
 
 @media (max-width: 600px) {
     .result-list {
         grid-template-columns: repeat(3, 1fr);
+        height: auto;
     }
 }
 
 @media (max-width: 400px) {
     .result-list {
         grid-template-columns: 1fr;
+        height: auto;
     }
 }

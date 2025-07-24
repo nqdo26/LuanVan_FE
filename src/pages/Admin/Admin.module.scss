@@ -110,38 +110,55 @@
     color: #1c1f4a;
 }
 
-@media (max-width: 900px) {
+@media (min-width: 600px) {
     .inner {
-        width: 95%;
+        padding: 0 20px;
     }
+
+    .section-1-items {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
     .small-card {
-        width: 46%;
-        min-width: 160px;
+        width: 45%;
+        max-width: 220px;
     }
 }
 
-@media (max-width: 600px) {
+// Desktop ≥900px
+@media (min-width: 900px) {
     .inner {
-        width: 100%;
-        padding: 0 8px;
+        width: 70%;
+        margin: 0 auto;
     }
-    .section-1 {
-        gap: 15px;
-        padding: 0 2px;
+
+    .chart-1 {
+        flex-direction: row;
+        height: 400px;
     }
-    .section-1-items {
+
+    .small-card {
+        width: 180px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .chart-1 {
         flex-direction: column;
         align-items: center;
-        gap: 10px;
+        height: auto;
     }
-    .small-card {
+
+    .chart-item {
         width: 100%;
-        padding: 16px;
+        max-width: 100%;
+        overflow-x: auto;
+        height: 400px;
     }
-    .small-card-title {
-        font-size: 13px;
-    }
-    .small-card-value {
-        font-size: 24px;
+
+    .charts {
+        gap: 40px;
     }
 }

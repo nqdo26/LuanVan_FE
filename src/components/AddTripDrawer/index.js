@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
-import { Drawer, Button, Input, message } from 'antd';
+import { Drawer, Button, Input, message, notification } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import styles from './AddTripDrawer.module.scss';
 import CardSearchDrawer from '~/components/CardSearchDrawer';
@@ -76,7 +76,10 @@ function AddTripDrawer({ open, onClose, onAdd }) {
             console.log('Create tour response:', response);
 
             if (response && response.EC === 0) {
-                message.success('Tạo hành trình thành công!');
+                notification.success({
+                    message: 'Thành công',
+                    description: 'Hành trình đã được tạo thành công!',
+                });
                 const tour = response.DT;
 
                 if (onAdd) {

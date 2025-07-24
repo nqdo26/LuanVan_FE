@@ -73,7 +73,7 @@ function Home() {
                     <CustomCarousel
                         title="Điểm đến phổ biến"
                         number={4}
-                        destinations={destinations}
+                        destinations={destinations.slice(0, 8)}
                         loading={destinationsLoading}
                     />
                 </div>

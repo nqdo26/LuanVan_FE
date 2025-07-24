@@ -10,6 +10,13 @@
     text-align: center;
 }
 
+.loading-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .item {
     margin-top: 5px;
     border-radius: 12px;

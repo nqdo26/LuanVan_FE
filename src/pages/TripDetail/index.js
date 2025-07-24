@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
 import styles from './TripDetail.module.scss';
 import { motion } from 'framer-motion';
@@ -6,7 +7,7 @@ import CityInfo from '~/components/CityInfo';
 import { Tabs, Spin, message } from 'antd';
 import DestinationCard from '~/components/DestinationCard';
 import TripNav from '~/components/TripNav';
-import { useState, useEffect } from 'react';
+
 import TripItinerary from '~/components/TripItinerary';
 import { useParams } from 'react-router-dom';
 import { getTourBySlugApi, getDestinationsByTagsApi } from '~/utils/api';
@@ -165,8 +166,17 @@ function TripDetail() {
 
             setFilteredDestinations(filtered);
         }
+    }, [selectedIndexes, destinations, tripNavOptions]);
 
-        setCurrentPage(1);
+    const prevSelectedIndexesRef = React.useRef(selectedIndexes);
+    useEffect(() => {
+        if (
+            prevSelectedIndexesRef.current !== selectedIndexes &&
+            (destinations.length !== 0 || tripNavOptions.length !== 0)
+        ) {
+            setCurrentPage(1);
+        }
+        prevSelectedIndexesRef.current = selectedIndexes;
     }, [selectedIndexes, destinations, tripNavOptions]);
 
     const totalPages = Math.ceil(filteredDestinations.length / pageSize);

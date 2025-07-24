@@ -53,6 +53,7 @@
 }
 
 .result-list {
+ 
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
@@ -70,7 +71,7 @@
     justify-content: center;
     align-items: center;
     gap: 14px;
-    margin: 22px 0 0 0;
+    margin: 0 0 0 0;
 
     button {
         background: #fff;
@@ -102,18 +103,21 @@
 @media (max-width: 1023px) {
     .result-list {
         grid-template-columns: repeat(2, 1fr);
+        height: auto;
     }
 }
 
 @media (max-width: 600px) {
     .result-list {
         grid-template-columns: repeat(1, 1fr);
+        height: auto;
     }
 }
 
 @media (max-width: 400px) {
     .result-list {
         grid-template-columns: 1fr;
+        height: auto;
     }
 }
 

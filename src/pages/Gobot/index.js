@@ -292,7 +292,9 @@ function Gobot() {
                                     setActiveChatId(newChat.data._id);
                                     setMessages([
                                         {
-                                            message: 'Hello! Tôi là Gobot, bạn cần hỗ trợ gì?',
+                                            message:
+                                                '👋 Xin chào! Tôi là Gobot – trợ lý du lịch của bạn đây 😎. Bạn muốn khám phá địa điểm nào hôm nay? 😄✨',
+
                                             sender: 'Gobot',
                                         },
                                     ]);

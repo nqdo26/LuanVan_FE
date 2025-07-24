@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Tooltip, Modal, Input, DatePicker, message } from 'antd';
+import { Button, Tooltip, Modal, Input, DatePicker, message, notification } from 'antd';
 import {
     ShareAltOutlined,
     SettingOutlined,
@@ -184,7 +184,10 @@ function TripHeader({ tour, onTourChange, handleShare, handleDownload }) {
             const response = await updateTourApi(tour._id, updateData);
 
             if (response && response.EC === 0) {
-                message.success('Cập nhật thông tin thành công!');
+                notification.success({
+                    message: 'Cập nhật thành công',
+                    description: 'Thông tin chuyến đi đã được cập nhật!',
+                });
                 onTourChange && onTourChange(response.DT);
                 setIsModalOpen(false);
             } else {
