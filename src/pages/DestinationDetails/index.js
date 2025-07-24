@@ -35,11 +35,11 @@ function DestinationDetails() {
 
     useEffect(() => {
         if (destinationData) {
-            document.title = `${destinationData.title} - Du lịch Việt Nam`;
+            document.title = `${destinationData.title} - GoOhNo`;
         }
 
         return () => {
-            document.title = 'Du lịch Việt Nam';
+            document.title = 'GoOhNo';
         };
     }, [destinationData]);
 

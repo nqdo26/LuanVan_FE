@@ -29,7 +29,7 @@ const privateRoutes = [
     { path: '/addtrip', component: AddTrip },
     { path: '/add-trip', component: AddTrip },
     { path: '/my-trip', component: MyTrip },
-    { path: '/gobot-assistant', component: Gobot },
+    { path: '/gobot-assistant/:chat_id?', component: Gobot },
     { path: '/admin', component: Admin, layout: AdminLayout },
     { path: '/admin/users-management', component: AdminUserManage, layout: AdminLayout },
     { path: '/admin/destinations-management', component: AdminDestinationManage, layout: AdminLayout },

@@ -59,7 +59,12 @@ function Categories() {
     };
 
     return (
-        <div className={cx('wrapper')}>
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className={cx('wrapper')}
+        >
             <div className={cx('header')} style={{ backgroundImage: `url(${backgroundImageUrl})` }}>
                 <div className={cx('overlay')}>
                     <div className={cx('text-content')}>
@@ -109,7 +114,7 @@ function Categories() {
                     </AnimatePresence>
                 </Spin>
             </div>
-        </div>
+        </motion.div>
     );
 }
 

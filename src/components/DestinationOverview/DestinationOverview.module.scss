@@ -58,6 +58,20 @@
         color: #000000;
     }
 }
+
+.contact {
+    font-size: 15px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.contact-item {
+    cursor: pointer;
+    &:hover {
+        text-decoration: underline;
+    }
+}
 // Bảng giờ mở cửa đẹp, thẳng hàng
 .list-time-open {
     display: table;
@@ -80,7 +94,7 @@
 .day-bold {
     display: table-cell;
     font-weight: 500;
-    width: 85px;
+    width: 100px;
 
     text-align: left;
     vertical-align: top;
@@ -178,26 +192,6 @@
         background-color: #000000 !important;
         color: #ffffff !important;
     }
-}
-
-.list-time-open-item {
-    font-size: 16px;
-    margin-bottom: 4px;
-    list-style-type: none;
-}
-
-.day-bold {
-    font-weight: 500;
-    margin-right: 4px;
-}
-
-.opening-status {
-    font-weight: 500;
-    margin-bottom: 10px;
-}
-
-.bold {
-    font-weight: 500;
 }
 
 /* Responsive */

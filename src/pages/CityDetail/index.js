@@ -11,7 +11,6 @@ import CitySideBar from '~/components/CitySideBar';
 import ResultSorter from '~/components/ResultSorter';
 import DestinationCard from '~/components/DestinationCard';
 import { getCityBySlugApi, getDestinationsByCityApi } from '~/utils/api';
-import { duration } from 'moment';
 
 const cx = classNames.bind(styles);
 
@@ -43,11 +42,11 @@ function CityDetail() {
 
     useEffect(() => {
         if (cityData) {
-            document.title = `${cityData.name} - Du lịch Việt Nam`;
+            document.title = `${cityData.name} - GoOhNo`;
         }
 
         return () => {
-            document.title = 'Du lịch Việt Nam';
+            document.title = 'GoOhNo';
         };
     }, [cityData]);
 

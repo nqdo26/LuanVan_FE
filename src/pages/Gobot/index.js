@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
@@ -16,9 +17,9 @@ import { AuthContext } from '~/components/Context/auth.context';
 
 const cx = classNames.bind(styles);
 
-// Không dùng fakeChatHistory nữa
-
 function Gobot() {
+    const navigate = useNavigate();
+    const { chat_id } = useParams();
     const { auth } = useContext(AuthContext);
     const [isTyping, setIsTyping] = useState(false);
     const [showChat, setShowChat] = useState(false);
@@ -35,30 +36,41 @@ function Gobot() {
             setShowChat(false);
             if (!auth || !auth.user || !(auth.user._id || auth.user.id)) return;
             const userId = auth.user._id || auth.user.id;
-            // Luôn tạo mới 1 chat khi vào trang
-            const newChat = await createNewChat({ userId });
-            let chatObj = newChat?.data;
-            // Sau khi tạo mới, lấy lại toàn bộ lịch sử chat
+
             const res = await getChatHistoryApi(userId);
             let chats = res?.data || [];
-            // Đảm bảo chat mới luôn ở đầu danh sách
-            if (chatObj) {
-                chats = [chatObj, ...chats.filter((c) => c._id !== chatObj._id)];
-            }
             setChatHistory(chats);
-            if (chatObj) {
-                const helloMsg = { message: 'Hello! Tôi là Gobot, bạn cần hỗ trợ gì?', sender: 'Gobot' };
-                setActiveChatId(chatObj._id);
-                setMessages([helloMsg]);
+
+            if (chat_id && chats.some((c) => c._id === chat_id)) {
+                setActiveChatId(chat_id);
+                const chat = chats.find((c) => c._id === chat_id);
+                setMessages(
+                    chat?.messages?.map((m) => ({
+                        message: m.content,
+                        sender: m.role === 'user' ? 'user' : 'Gobot',
+                    })) || [],
+                );
             } else {
-                setActiveChatId(null);
-                setMessages([]);
+                // Nếu không có chat_id hoặc không tìm thấy, tạo mới chat
+                const newChat = await createNewChat({ userId });
+                let chatObj = newChat?.data;
+                if (chatObj) {
+                    chats = [chatObj, ...chats.filter((c) => c._id !== chatObj._id)];
+                    setChatHistory(chats);
+                    setActiveChatId(chatObj._id);
+                    setMessages([{ message: 'Hello! Tôi là Gobot, bạn cần hỗ trợ gì?', sender: 'Gobot' }]);
+                    // Đẩy chat_id mới lên URL
+                    navigate(`/gobot-assistant/${chatObj._id}`, { replace: true });
+                } else {
+                    setActiveChatId(null);
+                    setMessages([]);
+                }
             }
             setShowChat(true);
         };
         initChat();
         // eslint-disable-next-line
-    }, [auth]);
+    }, [auth, chat_id]);
 
     useEffect(() => {
         const fetchCities = async () => {
@@ -86,7 +98,14 @@ function Gobot() {
 
     const handleSend = async (text) => {
         if (!activeChatId) return;
-        const newMsgs = [...messages, { message: text, sender: 'user' }];
+        // Đảm bảo URL luôn có chat_id hiện tại
+        if (activeChatId && chat_id !== activeChatId) {
+            navigate(`/gobot-assistant/${activeChatId}`, { replace: true });
+        }
+        // Viết hoa chữ cái đầu tiên
+        const capitalizeFirst = (str) => (str && str.length > 0 ? str.charAt(0).toUpperCase() + str.slice(1) : str);
+        const userMsg = capitalizeFirst(text);
+        const newMsgs = [...messages, { message: userMsg, sender: 'user' }];
         setMessages(newMsgs);
         setIsTyping(true);
         try {
@@ -113,7 +132,7 @@ function Gobot() {
                               ...c,
                               messages: [
                                   ...(c.messages || []),
-                                  { role: 'user', content: text },
+                                  { role: 'user', content: userMsg },
                                   { role: 'assistant', content: botMsg },
                               ],
                           }
@@ -130,6 +149,8 @@ function Gobot() {
 
     const handleSelectChat = async (id) => {
         setActiveChatId(id);
+        // Đẩy chat_id lên URL
+        navigate(`/gobot-assistant/${id}`);
         try {
             const res = await getChatByIdApi(id);
             const chat = res?.data;
@@ -269,11 +290,14 @@ function Gobot() {
                                 if (newChat?.data) {
                                     setChatHistory((prev) => [newChat.data, ...prev]);
                                     setActiveChatId(newChat.data._id);
-                                    const helloMsg = {
-                                        message: 'Hello! Tôi là Gobot, bạn cần hỗ trợ gì?',
-                                        sender: 'Gobot',
-                                    };
-                                    setMessages([helloMsg]);
+                                    setMessages([
+                                        {
+                                            message: 'Hello! Tôi là Gobot, bạn cần hỗ trợ gì?',
+                                            sender: 'Gobot',
+                                        },
+                                    ]);
+                                    // Đẩy chat_id mới lên URL
+                                    navigate(`/gobot-assistant/${newChat.data._id}`);
                                 }
                                 setIsDrawerVisible(false);
                             }}
