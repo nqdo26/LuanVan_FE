@@ -115,6 +115,16 @@ function Header() {
             message.warning('Hãy nhập đầy đủ thông tin!');
             return;
         }
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(registerEmail)) {
+            message.error('Email không đúng định dạng!');
+            return;
+        }
+        if (registerPassword.length < 8) {
+            message.error('Mật khẩu phải có ít nhất 8 ký tự!');
+            return;
+        }
         if (registerPassword !== registerConfirmPassword) {
             message.error('Nhập lại mật khẩu không khớp!');
             return;
