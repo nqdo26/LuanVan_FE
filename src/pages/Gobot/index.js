@@ -44,12 +44,23 @@ function Gobot() {
             if (chat_id && chats.some((c) => c._id === chat_id)) {
                 setActiveChatId(chat_id);
                 const chat = chats.find((c) => c._id === chat_id);
-                setMessages(
+                const chatMsgs =
                     chat?.messages?.map((m) => ({
                         message: m.content,
                         sender: m.role === 'user' ? 'user' : 'Gobot',
-                    })) || [],
-                );
+                    })) || [];
+                // Nếu chưa có tin nhắn nào thì hiển thị lời chào
+                if (chatMsgs.length === 0) {
+                    setMessages([
+                        {
+                            message:
+                                '👋 Xin chào! Tôi là Gobot – trợ lý du lịch của bạn đây 😎. Bạn muốn khám phá địa điểm nào hôm nay? 😄✨',
+                            sender: 'Gobot',
+                        },
+                    ]);
+                } else {
+                    setMessages(chatMsgs);
+                }
             } else {
                 // Nếu không có chat_id hoặc không tìm thấy, tạo mới chat
                 const newChat = await createNewChat({ userId });
@@ -58,12 +69,24 @@ function Gobot() {
                     chats = [chatObj, ...chats.filter((c) => c._id !== chatObj._id)];
                     setChatHistory(chats);
                     setActiveChatId(chatObj._id);
-                    setMessages([{ message: 'Hello! Tôi là Gobot, bạn cần hỗ trợ gì?', sender: 'Gobot' }]);
+                    setMessages([
+                        {
+                            message:
+                                '👋 Xin chào! Tôi là Gobot – trợ lý du lịch của bạn đây 😎. Bạn muốn khám phá địa điểm nào hôm nay? 😄✨',
+                            sender: 'Gobot',
+                        },
+                    ]);
                     // Đẩy chat_id mới lên URL
                     navigate(`/gobot-assistant/${chatObj._id}`, { replace: true });
                 } else {
                     setActiveChatId(null);
-                    setMessages([]);
+                    setMessages([
+                        {
+                            message:
+                                '👋 Xin chào! Tôi là Gobot – trợ lý du lịch của bạn đây 😎. Bạn muốn khám phá địa điểm nào hôm nay? 😄✨',
+                            sender: 'Gobot',
+                        },
+                    ]);
                 }
             }
             setShowChat(true);

@@ -9,6 +9,15 @@ import { searchDestinationsApi, getDestinationsApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
 
+// Hàm loại bỏ dấu tiếng Việt
+function removeVietnameseTones(str) {
+    return str
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D');
+}
+
 function SearchBar() {
     const navigate = useNavigate();
     const [query, setQuery] = useState('');
@@ -21,9 +30,9 @@ function SearchBar() {
     useEffect(() => {
         const loadPopularDestinations = async () => {
             try {
-                const response = await getDestinationsApi({ limit: 2 });
+                const response = await getDestinationsApi({ limit: 3 });
                 if (response && response.data) {
-                    setPopularDestinations(response.data.slice(0, 2));
+                    setPopularDestinations(response.data.slice(0, 3));
                 }
             } catch (error) {
                 console.error('Error loading popular destinations:', error);
@@ -42,9 +51,14 @@ function SearchBar() {
         setIsLoading(true);
         const timeout = setTimeout(async () => {
             try {
-                const response = await searchDestinationsApi(query.trim(), { limit: 8 });
+                const searchQ = removeVietnameseTones(query.trim().toLowerCase());
+                const response = await searchDestinationsApi(searchQ, { limit: 8 });
+
                 if (response && response.data) {
-                    setResults(response.data);
+                    // Đảm bảo luôn là mảng
+                    const data = Array.isArray(response.data) ? response.data : [response.data];
+
+                    setResults(data);
                 } else {
                     setResults([]);
                 }
@@ -75,6 +89,7 @@ function SearchBar() {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!query.trim()) return;
+        // Truyền nguyên query gốc (có dấu) sang trang search
         navigate(`/search?q=${encodeURIComponent(query.trim())}`);
         setShowResults(false);
         window.scrollTo(0, 0);
@@ -138,6 +153,7 @@ function SearchBar() {
                                 <div
                                     className={cx('show-all-results')}
                                     onClick={() => {
+                                        // Truyền nguyên query gốc (có dấu) sang trang search
                                         navigate(`/search?q=${encodeURIComponent(query.trim())}`);
                                         setShowResults(false);
                                         window.scrollTo(0, 0);

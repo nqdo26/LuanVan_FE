@@ -10,7 +10,7 @@ import SearchFilterTabs from '~/components/SearchFilterTabs';
 import SearchSidebar from '~/components/SearchSidebar';
 import ResultSorter from '~/components/ResultSorter';
 import DestinationCard from '~/components/DestinationCard';
-import { getDestinationsApi, searchDestinationsApi, getDestinationsByCityApi } from '~/utils/api';
+import { getDestinationsApi, getDestinationsByCityApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
 
@@ -18,8 +18,7 @@ export default function Search() {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
     const [currentPage, setCurrentPage] = useState(1);
-    const [searchResults, setSearchResults] = useState([]);
-    const [popularDestinations, setPopularDestinations] = useState([]);
+    const [allDestinations, setAllDestinations] = useState([]);
     const [loading, setLoading] = useState(false);
     const [sortOption, setSortOption] = useState('Recommended');
     const pageSize = 9;
@@ -53,7 +52,6 @@ export default function Search() {
     }, []);
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [selectedOptions, setSelectedOptions] = useState([]);
-    const totalPages = Math.ceil((cityDestinations ? cityDestinations.length : searchResults.length) / pageSize);
 
     useEffect(() => {
         const handleResize = () => {
@@ -68,27 +66,23 @@ export default function Search() {
     }, [drawerOpen, query, selectedLocation, sortOption]);
 
     useEffect(() => {
-        const fetchSearchResults = async () => {
-            if (!query.trim()) {
-                setSearchResults([]);
-                return;
-            }
+        const fetchAllDestinations = async () => {
             setLoading(true);
             try {
-                const response = await searchDestinationsApi(query.trim(), { limit: 100 });
+                const response = await getDestinationsApi({ limit: 1000 });
                 if (response && response.data) {
-                    setSearchResults(response.data);
+                    setAllDestinations(response.data);
                 } else {
-                    setSearchResults([]);
+                    setAllDestinations([]);
                 }
             } catch (error) {
-                setSearchResults([]);
+                setAllDestinations([]);
             } finally {
                 setLoading(false);
             }
         };
-        fetchSearchResults();
-    }, [query]);
+        fetchAllDestinations();
+    }, []);
 
     useEffect(() => {
         const fetchCityDestinations = async () => {
@@ -113,20 +107,6 @@ export default function Search() {
         fetchCityDestinations();
     }, [selectedLocation]);
 
-    useEffect(() => {
-        const loadPopularDestinations = async () => {
-            try {
-                const response = await getDestinationsApi({ limit: 9 });
-                if (response && response.data) {
-                    setPopularDestinations(response.data.slice(0, 9));
-                }
-            } catch (error) {
-                console.error('Error loading popular destinations:', error);
-            }
-        };
-
-        loadPopularDestinations();
-    }, []);
     const getSortedResults = (data) => {
         let sorted = [...data];
         if (sortOption === 'Rate: Low to High') {
@@ -167,12 +147,30 @@ export default function Search() {
         return false;
     }
 
+    // Hàm loại bỏ dấu tiếng Việt
+    function removeVietnameseTones(str) {
+        return str
+            .normalize('NFD')
+            .replace(/\p{Diacritic}/gu, '')
+            .replace(/đ/g, 'd')
+            .replace(/Đ/g, 'D');
+    }
+
     const getFilteredResults = () => {
-        let base = searchResults;
-        if (query.trim() && selectedLocation && selectedLocation.slug) {
+        let base = allDestinations;
+        // Nếu có query tìm kiếm, lọc theo title địa điểm hoặc tag, không phân biệt hoa thường và dấu
+        if (query && query.trim()) {
+            const q = removeVietnameseTones(query.trim().toLowerCase());
+            base = base.filter((item) => {
+                const titleMatch = item.title && removeVietnameseTones(item.title.toLowerCase()).includes(q);
+                const tagMatch =
+                    Array.isArray(item.tags) &&
+                    item.tags.some((tag) => tag.title && removeVietnameseTones(tag.title.toLowerCase()).includes(q));
+                return titleMatch || tagMatch;
+            });
+        }
+        if (selectedLocation && selectedLocation.slug) {
             base = base.filter((item) => item.location?.city?.slug === selectedLocation.slug);
-        } else if (!query.trim() && cityDestinations !== null) {
-            base = cityDestinations;
         }
         let filtered = getSortedResults(base);
         if (selectedOptions.length > 0) {
@@ -195,39 +193,12 @@ export default function Search() {
         return filtered;
     };
 
-    const showPopular = !query.trim();
-    const getFilteredPopular = () => {
-        let filtered = [...popularDestinations];
-        if (selectedLocation && selectedLocation.slug) {
-            filtered = filtered.filter((item) => item.location?.city?.slug === selectedLocation.slug);
-        }
-        if (selectedOptions.length > 0) {
-            filtered = filtered.filter((item) => {
-                return selectedOptions.some((option) => {
-                    if (Array.isArray(item.tags) && item.tags.some((tag) => tag.title === option)) return true;
+    // ...existing code...
 
-                    if (option.match(/sao$/)) {
-                        const sao = parseInt(option);
-                        if (Math.round(item.statistics?.averageRating || 0) === sao) return true;
-                    }
-
-                    if (['Cả ngày', 'Chỉ mở ban ngày', 'Chỉ mở ban đêm'].includes(option)) {
-                        if (matchOpenHour(item, option)) return true;
-                    }
-                    return false;
-                });
-            });
-        }
-        return filtered;
-    };
-    const pagedPopular = getSortedResults(getFilteredPopular()).slice(
-        (currentPage - 1) * pageSize,
-        currentPage * pageSize,
-    );
-    const pagedDestinations = getSortedResults(getFilteredResults()).slice(
-        (currentPage - 1) * pageSize,
-        currentPage * pageSize,
-    );
+    // Đặt sau khi đã khai báo getFilteredResults
+    const filteredResults = getFilteredResults();
+    const totalPages = Math.max(1, Math.ceil(filteredResults.length / pageSize));
+    const pagedDestinations = filteredResults.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     const contentVariants = {
         hidden: { opacity: 0, x: -20 },
@@ -260,6 +231,7 @@ export default function Search() {
                             setSelectedLocation={setSelectedLocation}
                             selectedOptions={selectedOptions}
                             setSelectedOptions={setSelectedOptions}
+                            allDestinations={allDestinations}
                         />
                     </div>
 
@@ -278,6 +250,7 @@ export default function Search() {
                             setSelectedLocation={setSelectedLocation}
                             selectedOptions={selectedOptions}
                             setSelectedOptions={setSelectedOptions}
+                            allDestinations={allDestinations}
                         />
                     </Drawer>
 
@@ -309,19 +282,7 @@ export default function Search() {
                                     </div>
 
                                     <div className={cx('result-list')}>
-                                        {showPopular ? (
-                                            pagedPopular.length > 0 ? (
-                                                pagedPopular.map((item) => (
-                                                    <div key={item._id || item.id} className={cx('result-list-item')}>
-                                                        <DestinationCard destination={item} />
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <div style={{ textAlign: 'center', padding: '40px' }}>
-                                                    Không có địa điểm phổ biến
-                                                </div>
-                                            )
-                                        ) : pagedDestinations.length > 0 ? (
+                                        {pagedDestinations.length > 0 ? (
                                             pagedDestinations.map((item) => (
                                                 <div key={item._id || item.id} className={cx('result-list-item')}>
                                                     <DestinationCard destination={item} />

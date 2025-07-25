@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Modal, Input, Tooltip, Upload, message, Spin } from 'antd';
+import { Button, Modal, Input, Tooltip, Upload, message, Spin, notification } from 'antd';
 import { EyeInvisibleOutlined, EyeTwoTone, UploadOutlined } from '@ant-design/icons';
 import classNames from 'classnames/bind';
 import styles from './HeaderProfilePage.module.scss';
@@ -63,17 +63,23 @@ function HeaderProfilePage({ user, favouriteCount = 0, tourCount = 0, onUserUpda
                 avatarRes = await updateUserAvatarApi(avatarFile);
                 if (avatarRes?.EC !== 0) {
                     message.error(avatarRes?.EM || 'Lỗi upload avatar');
-                    if (avatarRes?.file !== undefined) {
-                    }
                     setLoading(false);
                     return;
-                }
-                if (avatarRes?.file !== undefined) {
                 }
                 updated = true;
             }
             if (updated && onUserUpdated) onUserUpdated();
             setIsModalOpen(false);
+            if (name !== user.fullName && avatarFile) {
+                notification.success({
+                    message: 'Thành công',
+                    description: 'Tên và ảnh đại diện đã được cập nhật.',
+                });
+            } else if (name !== user.fullName) {
+                notification.success({ message: 'Thành công', description: 'Tên đã được cập nhật.' });
+            } else if (avatarFile) {
+                notification.success({ message: 'Thành công', description: 'Ảnh đại diện đã được cập nhật.' });
+            }
         } catch (err) {
             const errorMsg = err?.EM || 'Có lỗi xảy ra khi cập nhật thông tin.';
             message.error(errorMsg);
@@ -92,6 +98,10 @@ function HeaderProfilePage({ user, favouriteCount = 0, tourCount = 0, onUserUpda
             setPassOld('');
             setPassNew('');
             setPassNew2('');
+            notification.success({
+                message: 'Đổi mật khẩu thành công',
+                description: 'Mật khẩu của bạn đã được cập nhật.',
+            });
         } catch (err) {
             // handle error
         } finally {
@@ -160,7 +170,9 @@ function HeaderProfilePage({ user, favouriteCount = 0, tourCount = 0, onUserUpda
                             onChange={handleAvatarChange}
                             accept="image/*"
                         >
-                            <Button className={cx('update-avt-btn')} icon={<UploadOutlined />}>Thay đổi ảnh đại diện</Button>
+                            <Button className={cx('update-avt-btn')} icon={<UploadOutlined />}>
+                                Thay đổi ảnh đại diện
+                            </Button>
                         </Upload>
                     </div>
 

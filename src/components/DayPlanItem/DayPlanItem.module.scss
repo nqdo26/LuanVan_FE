@@ -226,8 +226,9 @@
     .menu {
         z-index: 9999;
         position: absolute;
-        top: 32px;
-        right: 0;
+        top: 5px;
+
+        right: 20px;
         background: #fff;
         border: 1px solid #e0e0e0;
         border-radius: 8px;
@@ -236,7 +237,7 @@
         overflow: visible;
 
         .menu-item {
-            z-index: 9999;
+            z-index: 9999 !important;
             display: flex;
             align-items: center;
             padding: 8px 14px;

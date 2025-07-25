@@ -9,7 +9,8 @@ const CustomFooter = () => {
     const cx = classNames.bind(styles);
     return (
         <Footer className={cx('wrapper')}>
-            <p>Đây là footer</p>
+            <p>© 2025 GoOhNo – Đồ án tốt nghiệp Đại học Cần Thơ</p>
+            <p>Nguyễn Quang Độ – B2103496</p>
         </Footer>
     );
 };

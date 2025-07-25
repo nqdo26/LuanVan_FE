@@ -7,35 +7,47 @@ import { getCitiesApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
 
-const categories = [
-    {
-        key: 'type',
-        title: 'Loại hình địa điểm',
-        options: [
-            'Danh lam thắng cảnh',
-            'Quán cà phê',
-            'Nhà hàng/quán ăn',
-            'Khu vui chơi, giải trí',
-            'Di tích lịch sử',
-            'Bảo tàng, triển lãm',
-            'Công viên',
-        ],
-    },
-    {
-        key: 'location',
-        title: 'Khu vực/Vị trí',
-        options: ['Trung tâm', 'Ngoại ô'],
-    },
-    { key: 'time', title: 'Thời gian hoạt động', options: ['Cả ngày', 'Chỉ mở ban ngày', 'Chỉ mở ban đêm'] },
+// categories sẽ được tạo động cho loại hình địa điểm (tag)
 
-    { key: 'rating', title: 'Đánh giá', options: ['5 sao', '4 sao', '3 sao', '2 sao', '1 sao'] },
-];
-
-export default function SearchSidebar({ selectedLocation, setSelectedLocation, selectedOptions, setSelectedOptions }) {
+export default function SearchSidebar({
+    selectedLocation,
+    setSelectedLocation,
+    selectedOptions,
+    setSelectedOptions,
+    allDestinations = [],
+}) {
     const [cities, setCities] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [showAll, setShowAll] = useState(false);
+
+    // Danh sách loại hình địa điểm cố định
+    const fixedTagOptions = [
+        'Nổi bật',
+        'Đặc trưng',
+        'Quán cà phê',
+        'Quán ăn',
+        'Nhà hàng',
+        'Công viên',
+        'Bảo tàng',
+        'Quán lề đường',
+        'Chợ',
+    ];
+
+    const categories = [
+        {
+            key: 'type',
+            title: 'Loại hình địa điểm',
+            options: fixedTagOptions,
+        },
+        {
+            key: 'location',
+            title: 'Khu vực/Vị trí',
+            options: ['Trung tâm', 'Ngoại ô'],
+        },
+        { key: 'time', title: 'Thời gian hoạt động', options: ['Cả ngày', 'Chỉ mở ban ngày', 'Chỉ mở ban đêm'] },
+        { key: 'rating', title: 'Đánh giá', options: ['5 sao', '4 sao', '3 sao', '2 sao', '1 sao'] },
+    ];
 
     useEffect(() => {
         const fetchCities = async () => {

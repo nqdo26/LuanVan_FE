@@ -14,6 +14,7 @@ import { getCityBySlugApi, getDestinationsByCityApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
 
+
 function CityDetail() {
     const { id: slug } = useParams();
     const [cityData, setCityData] = useState(null);
@@ -24,6 +25,10 @@ function CityDetail() {
     const pageSize = 6;
     const [currentPage, setCurrentPage] = useState(1);
     const [totalDestinations, setTotalDestinations] = useState(0);
+
+    // Thêm state cho sort và filter
+    const [sortOption, setSortOption] = useState('Recommended');
+    const [categoryFilters, setCategoryFilters] = useState([]);
 
     const totalPages = Math.ceil(totalDestinations / pageSize);
     const pagedDestinations = destinations;
@@ -38,7 +43,7 @@ function CityDetail() {
         if (slug) {
             fetchDestinations();
         }
-    }, [slug, currentPage]);
+    }, [slug, currentPage, sortOption, categoryFilters]);
 
     useEffect(() => {
         if (cityData) {
@@ -55,11 +60,26 @@ function CityDetail() {
 
         try {
             setDestinationsLoading(true);
+            // Xác định sort/order từ sortOption
+            let sort = 'createdAt';
+            let order = -1;
+            if (sortOption === 'Rate: Low to High') {
+                sort = 'statistics.averageRating';
+                order = 1;
+            } else if (sortOption === 'Rate: High to Low') {
+                sort = 'statistics.averageRating';
+                order = -1;
+            }
+
+            // Chuyển categoryFilters thành mảng tag/category
+            const filters = categoryFilters.length > 0 ? { categories: categoryFilters } : {};
+
             const response = await getDestinationsByCityApi(slug, {
                 limit: pageSize,
                 skip: (currentPage - 1) * pageSize,
-                sort: 'createdAt',
-                order: -1,
+                sort,
+                order,
+                ...filters,
             });
 
             if (response && response.EC === 0) {
@@ -173,11 +193,14 @@ function CityDetail() {
                     <h1 className={cx('title')}>Các địa điểm và tour du lịch ở {cityData.name}</h1>
                     <div className={cx('destination')}>
                         <div className={'sidebar'}>
-                            <CitySideBar />
+                            <CitySideBar
+                                categoryFilters={categoryFilters}
+                                setCategoryFilters={setCategoryFilters}
+                            />
                         </div>
                         <div className={cx('list')}>
-                            <div className={cx('nav')}>
-                                <ResultSorter />
+                            <div className={cx('nav-sorter')}>
+                                <ResultSorter sortOption={sortOption} setSortOption={setSortOption} />
                             </div>
                             <div className={cx('items')}>
                                 {destinationsLoading ? (

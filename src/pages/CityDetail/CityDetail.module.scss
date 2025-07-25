@@ -31,6 +31,9 @@
 
 .nav {
     width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .title {
@@ -48,6 +51,13 @@
     flex-direction: row;
     gap: 20px;
     width: 100%;
+}
+
+.nav-sorter {
+    display: flex;
+
+    width: 100%;
+    margin-bottom: 20px;
 }
 
 .sidebar {
@@ -200,11 +210,99 @@
         grid-template-columns: repeat(3, 1fr);
         height: auto;
     }
+
+    .body {
+        width: 90%;
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .title {
+        font-size: 20px;
+        font-weight: 500;
+    }
+
+    .description {
+        font-size: 13px;
+        color: #000000;
+    }
 }
 
 @media (max-width: 400px) {
     .result-list {
         grid-template-columns: 1fr;
         height: auto;
+    }
+}
+
+/* =================== RESPONSIVE =================== */
+
+/* Tablet: từ 1023px trở xuống */
+@media (max-width: 1023px) {
+    .destination {
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .sidebar {
+        display: none; // Ẩn sidebar ở tablet trở xuống
+    }
+
+    .list {
+        width: 100%;
+    }
+
+    .result-list {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+}
+
+/* Mobile: từ 768px trở xuống */
+@media (max-width: 768px) {
+    .body {
+        width: 92%;
+        gap: 20px;
+    }
+
+    .result-list {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .title {
+        font-size: 18px;
+    }
+
+    .description {
+        font-size: 13px;
+    }
+
+    .pagination button {
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+    }
+
+    .pagination span {
+        font-size: 14px;
+    }
+}
+
+/* Small Mobile: dưới 480px */
+@media (max-width: 480px) {
+    .pagination {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .icon {
+        font-size: 18px;
+    }
+
+    .label {
+        font-size: 12px;
     }
 }

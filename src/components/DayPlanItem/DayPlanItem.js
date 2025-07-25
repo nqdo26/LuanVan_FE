@@ -104,6 +104,10 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                                     const iconType = 'place';
                                     const descriptionIndex = -1;
 
+                                    const address =
+                                        destinationInfo?.location?.address || destinationInfo?.address || '';
+                                    const city = destinationInfo?.location?.city?.name || '';
+
                                     items.push({
                                         id: `dest-new-${index}`,
                                         type: iconType,
@@ -111,9 +115,6 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                                         content: item.content || '',
                                         time: item.time || '',
                                         address: (() => {
-                                            const address =
-                                                destinationInfo?.location?.address || destinationInfo?.address || '';
-                                            const city = destinationInfo?.location?.city?.name || '';
                                             if (address && city) {
                                                 return `${address}, ${city}`;
                                             } else if (address) {
@@ -191,6 +192,7 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                                     const address =
                                         destinationInfo?.location?.address || destinationInfo?.address || '';
                                     const city = destinationInfo?.location?.city?.name || '';
+
                                     if (address && city) {
                                         return `${address}, ${city}`;
                                     } else if (address) {
@@ -325,7 +327,6 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
     };
 
     const handleSaveNoteEdit = (_unusedTime, note, _noteTitle) => {
-        console.log('handleSaveNoteEdit called', { tour, note, _noteTitle });
         if (editingNoteIndex === null || !tour?._id) {
             message.error('Không tìm thấy thông tin ghi chú');
             return;
@@ -352,7 +353,7 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                         const slug = tour.slug;
                         if (slug && getTourBySlugApi) {
                             const detailRes = await getTourBySlugApi(slug);
-                            console.log('Tour detail after update:', detailRes?.data?.DT);
+
                             if (detailRes && detailRes.data && detailRes.data.EC === 0) {
                                 onTourUpdate?.(detailRes.data.DT);
                             } else {
@@ -392,7 +393,7 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                             onTourUpdate?.(tour);
                         }
                     }
-                    console.log('handleSaveNoteEdit finished');
+
                     setDrawerOpen(false);
                     setEditingNoteIndex(null);
                     setEditingNote(null);
@@ -507,7 +508,6 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
 
     const handleDeleteNote = async (itemIndex) => {
         const item = timelineItems[itemIndex];
-        console.log('Deleting note:', { itemIndex, item, noteIndex: item?.noteIndex });
 
         if (!item || item.type !== 'note') {
             message.error('Không thể xóa item này');
@@ -525,7 +525,6 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                 dayId,
                 noteIndex: item.noteIndex,
             };
-            console.log('Sending remove data:', removeData);
 
             const response = await removeNoteFromTourApi(tour._id, removeData);
 
@@ -713,7 +712,7 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                                                     <CardTrip
                                                         maxTags={5}
                                                         title={item.title}
-                                                        location={item.address || 'Chưa có địa chỉ'}
+                                                        location={item.address}
                                                         image={item.image || '/wimi2-img.png'}
                                                         showMenu={deletingItemIndex !== index}
                                                         time={item.time}
