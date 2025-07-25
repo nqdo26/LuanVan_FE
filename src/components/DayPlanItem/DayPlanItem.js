@@ -16,6 +16,7 @@ import {
     removeNoteFromTourApi,
     getDestinationByIdApi,
     updateNoteInTourApi,
+    getTourBySlugApi,
 } from '~/utils/api';
 import { useNavigate } from 'react-router-dom';
 
@@ -79,7 +80,7 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                                     if (destinationInfo && typeof destinationInfo === 'string') {
                                         try {
                                             const response = await getDestinationByIdApi(destinationInfo);
-                                    
+
                                             let fetchedData = null;
                                             if (response.EC === 0 && response.data) {
                                                 fetchedData = response.data;
@@ -324,6 +325,7 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
     };
 
     const handleSaveNoteEdit = (_unusedTime, note, _noteTitle) => {
+        console.log('handleSaveNoteEdit called', { tour, note, _noteTitle });
         if (editingNoteIndex === null || !tour?._id) {
             message.error('Không tìm thấy thông tin ghi chú');
             return;
@@ -341,11 +343,56 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
             title: _noteTitle, // Include the title in the request data
         };
         updateNoteInTourApi(tour._id, requestData)
-            .then((response) => {
+            .then(async (response) => {
                 if (response && response.EC === 0) {
                     message.success('Cập nhật ghi chú thành công');
                     setTripNote(note);
-                    onTourUpdate?.(response.DT);
+                    // Sau khi cập nhật, fetch lại tour chi tiết để đảm bảo dữ liệu đầy đủ
+                    try {
+                        const slug = tour.slug;
+                        if (slug && getTourBySlugApi) {
+                            const detailRes = await getTourBySlugApi(slug);
+                            console.log('Tour detail after update:', detailRes?.data?.DT);
+                            if (detailRes && detailRes.data && detailRes.data.EC === 0) {
+                                onTourUpdate?.(detailRes.data.DT);
+                            } else {
+                                // fallback: merge như cũ nếu fetch thất bại
+                                if (Array.isArray(response.DT)) {
+                                    const newTour = { ...tour, itinerary: response.DT };
+                                    onTourUpdate?.(newTour);
+                                } else if (response.DT && typeof response.DT === 'object') {
+                                    const mergedTour = { ...tour };
+                                    Object.keys(response.DT).forEach((key) => {
+                                        if (response.DT[key] !== undefined && response.DT[key] !== null) {
+                                            mergedTour[key] = response.DT[key];
+                                        }
+                                    });
+                                    onTourUpdate?.(mergedTour);
+                                } else {
+                                    onTourUpdate?.(tour);
+                                }
+                            }
+                        } else {
+                            onTourUpdate?.(tour);
+                        }
+                    } catch (err) {
+                        // fallback nếu lỗi
+                        if (Array.isArray(response.DT)) {
+                            const newTour = { ...tour, itinerary: response.DT };
+                            onTourUpdate?.(newTour);
+                        } else if (response.DT && typeof response.DT === 'object') {
+                            const mergedTour = { ...tour };
+                            Object.keys(response.DT).forEach((key) => {
+                                if (response.DT[key] !== undefined && response.DT[key] !== null) {
+                                    mergedTour[key] = response.DT[key];
+                                }
+                            });
+                            onTourUpdate?.(mergedTour);
+                        } else {
+                            onTourUpdate?.(tour);
+                        }
+                    }
+                    console.log('handleSaveNoteEdit finished');
                     setDrawerOpen(false);
                     setEditingNoteIndex(null);
                     setEditingNote(null);
@@ -663,9 +710,8 @@ function DayPlanItem({ day, date, tour, onTourUpdate }) {
                                                 </div>
                                             ) : (
                                                 <>
-                                                    {console.log('Rendering CardTrip for item:', item)}
                                                     <CardTrip
-                                                        maxTags={6}
+                                                        maxTags={5}
                                                         title={item.title}
                                                         location={item.address || 'Chưa có địa chỉ'}
                                                         image={item.image || '/wimi2-img.png'}

@@ -62,7 +62,7 @@ function CustomDrawer({ open, onClose, onSave, initialTime = '', initialNote = '
                 <h1 className={cx('drawer-title')}>{isNoteEdit ? 'Chỉnh sửa ghi chú' : 'Thêm ghi chú cho địa điểm'}</h1>
                 {isNoteEdit && (
                     <div className={cx('drawer-item')}>
-                        <label className={cx('drawer-label')}>Tiêu đề ghi chú</label>
+                        <label className={cx('drawer-label')}>Tiêu đề</label>
                         <Input
                             value={noteTitleInput}
                             maxLength={40}
