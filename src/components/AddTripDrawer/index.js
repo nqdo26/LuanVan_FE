@@ -53,12 +53,18 @@ function AddTripDrawer({ open, onClose, onAdd }) {
 
     const handleAddClick = async () => {
         if (!tripName || !tripName.trim()) {
-            message.error('Vui lòng nhập tên hành trình');
+            notification.info({
+                message: 'Thiếu thông tin',
+                description: 'Vui lòng nhập tên hành trình',
+            });
             return;
         }
 
         if (!selectedCity) {
-            message.error('Vui lòng chọn địa điểm');
+            notification.info({
+                message: 'Thiếu thông tin',
+                description: 'Vui lòng chọn điểm đến',
+            });
             return;
         }
 
