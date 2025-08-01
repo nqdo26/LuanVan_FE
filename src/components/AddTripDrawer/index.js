@@ -99,7 +99,10 @@ function AddTripDrawer({ open, onClose, onAdd }) {
                 navigate(`/trip-detail/${tour.slug}`);
                 onClose();
             } else {
-                message.error(response.EM || 'Có lỗi xảy ra khi tạo hành trình');
+                notification.warning({
+                    message: 'Thất bại',
+                    description: response.EM || 'Không thể tạo hành trình',
+                });
             }
         } catch (error) {
             console.error('Error creating tour:', error);
