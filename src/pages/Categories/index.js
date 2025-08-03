@@ -4,8 +4,6 @@ import classNames from 'classnames/bind';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Spin } from 'antd';
 import styles from './Categories.module.scss';
-import ResultSorter from '~/components/ResultSorter';
-import DestinationCard from '~/components/DestinationCard';
 import CityCard from '~/components/CityCard';
 import { getCitiesByTypeApi } from '~/utils/api';
 

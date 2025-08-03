@@ -187,18 +187,6 @@ function AdminCategoriesManage() {
         }
     };
 
-    const handleAddDestinationType = () => {
-        setEditingDestinationType(null);
-        destinationTypeForm.resetFields();
-        setIsDestinationTypeModalOpen(true);
-    };
-
-    const handleEditDestinationType = (record) => {
-        setEditingDestinationType(record);
-        destinationTypeForm.setFieldsValue(record);
-        setIsDestinationTypeModalOpen(true);
-    };
-
     const handleDestinationTypeModalOk = async () => {
         try {
             const values = await destinationTypeForm.validateFields();

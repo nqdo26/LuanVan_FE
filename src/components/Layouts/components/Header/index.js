@@ -38,6 +38,10 @@ function Header() {
     const handleMenuClick = ({ key }) => {
         if (key === 'logout') {
             localStorage.clear('access_token');
+            notification.success({
+                message: 'Đăng xuất thành công',
+                description: 'Bạn đã đăng xuất khỏi tài khoản.',
+            });
             setAuth({
                 isAuthenticated: false,
                 user: {
@@ -285,6 +289,7 @@ function Header() {
                             placeholder="Email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            onPressEnter={handleLoginSubmit}
                             className={cx('login-input')}
                             style={{ marginBottom: 20 }}
                         />
@@ -292,6 +297,7 @@ function Header() {
                             placeholder="Mật khẩu"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            onPressEnter={handleLoginSubmit}
                             className={cx('login-input')}
                             style={{ marginBottom: 20 }}
                         />
@@ -346,6 +352,7 @@ function Header() {
                             style={{ marginBottom: 20 }}
                             value={registerName}
                             onChange={(e) => setRegisterName(e.target.value)}
+                            onPressEnter={handleRegisterSubmit}
                         />
                         <Input
                             placeholder="Email"
@@ -353,6 +360,7 @@ function Header() {
                             style={{ marginBottom: 20 }}
                             value={registerEmail}
                             onChange={(e) => setRegisterEmail(e.target.value)}
+                            onPressEnter={handleRegisterSubmit}
                         />
                         <Input.Password
                             placeholder="Mật khẩu"
@@ -360,6 +368,7 @@ function Header() {
                             style={{ marginBottom: 20 }}
                             value={registerPassword}
                             onChange={(e) => setRegisterPassword(e.target.value)}
+                            onPressEnter={handleRegisterSubmit}
                         />
                         <Input.Password
                             placeholder="Xác nhận mật khẩu"
@@ -367,6 +376,7 @@ function Header() {
                             style={{ marginBottom: 30 }}
                             value={registerConfirmPassword}
                             onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+                            onPressEnter={handleRegisterSubmit}
                         />
                         <div style={{ display: 'flex', gap: '10px' }}>
                             <Button

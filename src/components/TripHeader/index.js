@@ -12,7 +12,7 @@ import classNames from 'classnames/bind';
 import styles from './TripHeader.module.scss';
 import CardSearchDrawer from '../CardSearchDrawer';
 import { updateTourApi, getCitiesApi, getTagsApi, deleteTourApi } from '~/utils/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
@@ -23,6 +23,7 @@ const cx = classNames.bind(styles);
 
 function TripHeader({ tour, onTourChange, handleShare, handleDownload }) {
     const navigate = useNavigate();
+    const { slug } = useParams();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -190,6 +191,17 @@ function TripHeader({ tour, onTourChange, handleShare, handleDownload }) {
                 });
                 onTourChange && onTourChange(response.DT);
                 setIsModalOpen(false);
+
+                if (response.DT?.slug && response.DT.slug !== slug) {
+                    navigate(`/trip-detail/${response.DT.slug}`, { replace: true });
+                } else if (editedTour.name.trim() !== tour.name) {
+                    Modal.info({
+                        title: 'Cập nhật thành công',
+                        content: 'Vui lòng tải lại trang để đồng bộ đường dẫn mới.',
+                        onOk: () => window.location.reload(),
+                        okText: 'Tải lại trang',
+                    });
+                }
             } else {
                 message.error(response?.EM || 'Có lỗi xảy ra khi cập nhật');
             }
