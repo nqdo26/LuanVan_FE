@@ -83,6 +83,7 @@ function CustomDrawer({ open, onClose, onSave, initialTime = '', initialNote = '
                             clickEffect={false}
                             tags={editingItem?.tags || []}
                             type={editingItem?.destinationType || editingItem?.type || 'tourist'}
+                            rating={editingItem?.rating || 0}
                         />
                     )}
                     {!isNoteEdit && (

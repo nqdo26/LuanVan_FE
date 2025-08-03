@@ -14,7 +14,6 @@ import { getCityBySlugApi, getDestinationsByCityApi } from '~/utils/api';
 
 const cx = classNames.bind(styles);
 
-
 function CityDetail() {
     const { id: slug } = useParams();
     const [cityData, setCityData] = useState(null);
@@ -60,7 +59,12 @@ function CityDetail() {
 
         try {
             setDestinationsLoading(true);
-            // Xác định sort/order từ sortOption
+
+            console.log('=== FETCHING DESTINATIONS ===');
+            console.log('Current page:', currentPage);
+            console.log('Page size:', pageSize);
+            console.log('Skip:', (currentPage - 1) * pageSize);
+
             let sort = 'createdAt';
             let order = -1;
             if (sortOption === 'Rate: Low to High') {
@@ -71,7 +75,6 @@ function CityDetail() {
                 order = -1;
             }
 
-            // Chuyển categoryFilters thành mảng tag/category
             const filters = categoryFilters.length > 0 ? { categories: categoryFilters } : {};
 
             const response = await getDestinationsByCityApi(slug, {
@@ -83,16 +86,29 @@ function CityDetail() {
             });
 
             if (response && response.EC === 0) {
+                console.log('✅ Fetch successful!');
+                console.log('Destinations received:', response.data.destinations.length);
+                console.log('Total destinations in city:', response.data.total);
+                console.log('Destinations data:', response.data.destinations);
+                console.log('==============================');
+
                 setDestinations(response.data.destinations);
                 setTotalDestinations(response.data.total);
             } else {
+                console.log('❌ Fetch failed!');
+                console.log('Response:', response);
+                console.log('==============================');
+
                 notification.error({
                     message: 'Lỗi',
                     description: response?.data?.EM || 'Không thể tải danh sách địa điểm',
                 });
             }
         } catch (error) {
+            console.log('💥 Fetch error!');
             console.error('Error fetching destinations:', error);
+            console.log('==============================');
+
             notification.error({
                 message: 'Lỗi',
                 description: 'Có lỗi xảy ra khi tải danh sách địa điểm',
@@ -193,10 +209,7 @@ function CityDetail() {
                     <h1 className={cx('title')}>Các địa điểm và tour du lịch ở {cityData.name}</h1>
                     <div className={cx('destination')}>
                         <div className={'sidebar'}>
-                            <CitySideBar
-                                categoryFilters={categoryFilters}
-                                setCategoryFilters={setCategoryFilters}
-                            />
+                            <CitySideBar categoryFilters={categoryFilters} setCategoryFilters={setCategoryFilters} />
                         </div>
                         <div className={cx('list')}>
                             <div className={cx('nav-sorter')}>
@@ -220,7 +233,16 @@ function CityDetail() {
                                             <div className={cx('pagination')}>
                                                 <button
                                                     disabled={currentPage === 1}
-                                                    onClick={() => setCurrentPage(currentPage - 1)}
+                                                    onClick={() => {
+                                                        console.log('🔄 PAGINATION: Going to previous page');
+                                                        console.log(
+                                                            'From page:',
+                                                            currentPage,
+                                                            'to page:',
+                                                            currentPage - 1,
+                                                        );
+                                                        setCurrentPage(currentPage - 1);
+                                                    }}
                                                 >
                                                     {'<'}
                                                 </button>
@@ -229,7 +251,16 @@ function CityDetail() {
                                                 </span>
                                                 <button
                                                     disabled={currentPage === totalPages}
-                                                    onClick={() => setCurrentPage(currentPage + 1)}
+                                                    onClick={() => {
+                                                        console.log('🔄 PAGINATION: Going to next page');
+                                                        console.log(
+                                                            'From page:',
+                                                            currentPage,
+                                                            'to page:',
+                                                            currentPage + 1,
+                                                        );
+                                                        setCurrentPage(currentPage + 1);
+                                                    }}
                                                 >
                                                     {'>'}
                                                 </button>
