@@ -410,7 +410,7 @@ function DestinationEditForm({ initialData, onSave, loading }) {
                 </>
             )}
 
-            {form.type !== 'tourist' && renderOpenHourField()}
+            {renderOpenHourField()}
 
             <div className={cx('section-label')}>Album ảnh</div>
             <div className={cx('form-row')}>
