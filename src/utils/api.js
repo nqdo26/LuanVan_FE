@@ -673,6 +673,11 @@ const getChatByIdApi = (id) => {
     return axios.get(URL_API);
 };
 
+const getChatCompletionApi = (id) => {
+    const URL_API = `/v1/api/chat/completion/${id}`;
+    return axios.get(URL_API);
+};
+
 export {
     createUserApi,
     getAccountApi,
@@ -767,4 +772,5 @@ export {
     deleteChat,
     getChatHistoryApi,
     getChatByIdApi,
+    getChatCompletionApi,
 };

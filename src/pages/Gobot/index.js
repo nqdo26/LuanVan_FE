@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 
 import { ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
@@ -11,7 +11,14 @@ import classNames from 'classnames/bind';
 import styles from './Gobot.module.scss';
 import AIChatPageIntro from '~/components/AIChatPageIntro';
 import ChatHistorySidebar from '~/components/ChatHistorySidebar';
-import { getCitiesApi, chatWithRAGApi, createNewChat, getChatHistoryApi, getChatByIdApi } from '~/utils/api';
+import {
+    getCitiesApi,
+    chatWithRAGApi,
+    createNewChat,
+    getChatHistoryApi,
+    getChatByIdApi,
+    getChatCompletionApi,
+} from '~/utils/api';
 import { useContext } from 'react';
 import { AuthContext } from '~/components/Context/auth.context';
 
@@ -43,23 +50,57 @@ function Gobot() {
 
             if (chat_id && chats.some((c) => c._id === chat_id)) {
                 setActiveChatId(chat_id);
-                const chat = chats.find((c) => c._id === chat_id);
-                const chatMsgs =
-                    chat?.messages?.map((m) => ({
-                        message: m.content,
-                        sender: m.role === 'user' ? 'user' : 'Gobot',
-                    })) || [];
-                // Nếu chưa có tin nhắn nào thì hiển thị lời chào
-                if (chatMsgs.length === 0) {
-                    setMessages([
-                        {
-                            message:
-                                '👋 Xin chào! Tôi là Gobot – trợ lý du lịch của bạn đây 😎. Bạn muốn khám phá địa điểm nào hôm nay? 😄✨',
-                            sender: 'Gobot',
-                        },
-                    ]);
-                } else {
-                    setMessages(chatMsgs);
+
+                let messagesLoaded = false;
+
+                // Thử load với destinations trước
+                try {
+                    const completionRes = await getChatCompletionApi(chat_id);
+                    const chatWithDestinations = completionRes?.data?.data;
+
+                    if (chatWithDestinations?.messages && chatWithDestinations.messages.length > 0) {
+                        const messagesWithDestinations = chatWithDestinations.messages.map((m) => ({
+                            message: m.content,
+                            sender: m.role === 'user' ? 'user' : 'Gobot',
+                            destinations: m.destinations || [],
+                        }));
+                        setMessages(messagesWithDestinations);
+
+                        const destinationCount = messagesWithDestinations.filter(
+                            (msg) => msg.destinations && msg.destinations.length > 0,
+                        ).length;
+                        console.log(
+                            `📍 Initial load with destinations: ${destinationCount} messages have destinations`,
+                        );
+                        messagesLoaded = true;
+                    }
+                } catch (completionError) {
+                    console.log('⚠️ getChatCompletionApi failed during init, falling back to basic loading');
+                }
+
+                // Fallback: load basic chat nếu completion API fail hoặc không có messages
+                if (!messagesLoaded) {
+                    const chat = chats.find((c) => c._id === chat_id);
+                    const chatMsgs =
+                        chat?.messages?.map((m) => ({
+                            message: m.content,
+                            sender: m.role === 'user' ? 'user' : 'Gobot',
+                            destinations: [],
+                        })) || [];
+
+                    if (chatMsgs.length === 0) {
+                        setMessages([
+                            {
+                                message:
+                                    '👋 Xin chào! Tôi là Gobot – trợ lý du lịch của bạn đây 😎. Bạn muốn khám phá địa điểm nào hôm nay? 😄✨',
+                                sender: 'Gobot',
+                                destinations: [],
+                            },
+                        ]);
+                    } else {
+                        setMessages(chatMsgs);
+                        console.log(`📄 Initial load with basic chat: ${chatMsgs.length} messages`);
+                    }
                 }
             } else {
                 // Nếu không có chat_id hoặc không tìm thấy, tạo mới chat
@@ -74,6 +115,7 @@ function Gobot() {
                             message:
                                 '👋 Xin chào! Tôi là Gobot – trợ lý du lịch của bạn đây 😎. Bạn muốn khám phá địa điểm nào hôm nay? 😄✨',
                             sender: 'Gobot',
+                            destinations: [],
                         },
                     ]);
                     // Đẩy chat_id mới lên URL
@@ -85,6 +127,7 @@ function Gobot() {
                             message:
                                 '👋 Xin chào! Tôi là Gobot – trợ lý du lịch của bạn đây 😎. Bạn muốn khám phá địa điểm nào hôm nay? 😄✨',
                             sender: 'Gobot',
+                            destinations: [],
                         },
                     ]);
                 }
@@ -120,7 +163,12 @@ function Gobot() {
     const [selectedCityId, setSelectedCityId] = useState(null);
 
     const handleSend = async (text) => {
-        if (!activeChatId) return;
+        console.log('🚀 handleSend called with:', text);
+        if (!activeChatId) {
+            console.error('❌ No active chat ID');
+            return;
+        }
+
         // Đảm bảo URL luôn có chat_id hiện tại
         if (activeChatId && chat_id !== activeChatId) {
             navigate(`/gobot-assistant/${activeChatId}`, { replace: true });
@@ -128,10 +176,11 @@ function Gobot() {
         // Viết hoa chữ cái đầu tiên
         const capitalizeFirst = (str) => (str && str.length > 0 ? str.charAt(0).toUpperCase() + str.slice(1) : str);
         const userMsg = capitalizeFirst(text);
-        const newMsgs = [...messages, { message: userMsg, sender: 'user' }];
+        const newMsgs = [...messages, { message: userMsg, sender: 'user', destinations: [] }];
         setMessages(newMsgs);
         setIsTyping(true);
         try {
+            console.log('📤 Sending request to RAG server...');
             const payload = {
                 messages: newMsgs.map((m) => ({
                     role: m.sender === 'user' ? 'user' : 'assistant',
@@ -142,11 +191,50 @@ function Gobot() {
             };
             if (selectedCityId) payload.cityId = selectedCityId;
             if (auth && auth.user && (auth.user._id || auth.user.id)) payload.userId = auth.user._id || auth.user.id;
+
+            console.log('📤 Payload:', payload);
+
             const res = await chatWithRAGApi(payload);
+
+            console.log('📨 RAG response received:', res);
+
+            // Debug full response
+            console.log('🔍 Full RAG Server Response:', JSON.stringify(res, null, 2));
+
             const botMsg = res?.choices?.[0]?.message?.content || 'Xin lỗi, Gobot không trả lời được.';
-            const botReply = { message: botMsg, sender: 'Gobot' };
+            const destinations = res?.choices?.[0]?.message?.destinations || [];
+
+            console.log('📍 RAG Server Response destinations:', destinations);
+
+            // Chuyển đổi destinations từ RAG server format thành frontend format
+            const formattedDestinations = destinations.map((dest) => ({
+                _id: dest.destinationId,
+                name: dest.name || `Địa điểm ${dest.destinationId}`,
+                slug: dest.slug || dest.destinationId,
+                location: { address: dest.text || '' },
+            }));
+
+            const botReply = {
+                message: botMsg,
+                sender: 'Gobot',
+                destinations: formattedDestinations, // Lưu destinations đã format
+            };
+
             const updatedMsgs = [...newMsgs, botReply];
             setMessages(updatedMsgs);
+
+            // Log destinations để debug
+            if (formattedDestinations.length > 0) {
+                console.log(
+                    `📍 New message has ${formattedDestinations.length} destinations:`,
+                    formattedDestinations.map((dest) => ({
+                        id: dest._id,
+                        name: dest.name,
+                        slug: dest.slug,
+                    })),
+                );
+            }
+
             // Cập nhật lại chatHistory
             setChatHistory((prev) =>
                 prev.map((c) =>
@@ -156,14 +244,23 @@ function Gobot() {
                               messages: [
                                   ...(c.messages || []),
                                   { role: 'user', content: userMsg },
-                                  { role: 'assistant', content: botMsg },
+                                  { role: 'assistant', content: botMsg, destinations: formattedDestinations },
                               ],
                           }
                         : c,
                 ),
             );
+
+            // Tạm thời tắt auto-reload để tránh xung đột
+            // Sẽ chỉ dựa vào destinations từ response hiện tại
+            console.log('✅ Message sent successfully with destinations');
         } catch (e) {
-            const botReply = { message: 'Có lỗi xảy ra khi kết nối Gobot.', sender: 'Gobot' };
+            console.error('Error in chat completion:', e);
+            const botReply = {
+                message: 'Có lỗi xảy ra khi kết nối Gobot.',
+                sender: 'Gobot',
+                destinations: [], // Không có destinations khi lỗi
+            };
             setMessages((prev) => [...prev, botReply]);
         } finally {
             setIsTyping(false);
@@ -174,15 +271,50 @@ function Gobot() {
         setActiveChatId(id);
         // Đẩy chat_id lên URL
         navigate(`/gobot-assistant/${id}`);
+
+        let messagesLoaded = false;
+
+        // Thử load với destinations trước
         try {
-            const res = await getChatByIdApi(id);
-            const chat = res?.data;
-            setMessages(
-                chat?.messages?.map((m) => ({ message: m.content, sender: m.role === 'user' ? 'user' : 'Gobot' })) ||
-                    [],
-            );
-        } catch (e) {
-            setMessages([]);
+            const completionRes = await getChatCompletionApi(id);
+            const chatWithDestinations = completionRes?.data?.data;
+
+            if (chatWithDestinations?.messages) {
+                const messagesWithDestinations = chatWithDestinations.messages.map((m) => ({
+                    message: m.content,
+                    sender: m.role === 'user' ? 'user' : 'Gobot',
+                    destinations: m.destinations || [],
+                }));
+                setMessages(messagesWithDestinations);
+
+                const destinationCount = messagesWithDestinations.filter(
+                    (msg) => msg.destinations && msg.destinations.length > 0,
+                ).length;
+                console.log(`📍 Loaded chat with destinations: ${destinationCount} messages have destinations`);
+                messagesLoaded = true;
+            }
+        } catch (completionError) {
+            console.log('⚠️ getChatCompletionApi failed, falling back to basic chat loading');
+        }
+
+        // Fallback: load basic chat nếu completion API fail hoặc không có messages
+        if (!messagesLoaded) {
+            try {
+                const res = await getChatByIdApi(id);
+                const chat = res?.data;
+                const basicMessages =
+                    chat?.messages?.map((m) => ({
+                        message: m.content,
+                        sender: m.role === 'user' ? 'user' : 'Gobot',
+                        destinations: [], // Không có destinations trong fallback
+                    })) || [];
+
+                setMessages(basicMessages);
+                console.log(`📄 Loaded basic chat: ${basicMessages.length} messages`);
+            } catch (e) {
+                console.error('Both APIs failed:', e);
+                setMessages([]);
+            }
         }
     };
 
@@ -268,16 +400,49 @@ function Gobot() {
                                         {msg.sender === 'Gobot' && (
                                             <img src="/ai-img.png" alt="Gobot" className={cx('avatar')} />
                                         )}
-                                        <Message
-                                            className={cx(msg.sender === 'user' ? 'user-message' : 'ai-message')}
-                                            model={{
-                                                message: msg.message,
-                                                sentTime: 'just now',
-                                                sender: msg.sender,
-                                                direction: msg.sender === 'user' ? 'outgoing' : 'incoming',
-                                                position: 'single',
-                                            }}
-                                        />
+                                        <div className={cx('message-content')}>
+                                            <Message
+                                                className={cx(msg.sender === 'user' ? 'user-message' : 'ai-message')}
+                                                model={{
+                                                    message: msg.message,
+                                                    sentTime: 'just now',
+                                                    sender: msg.sender,
+                                                    direction: msg.sender === 'user' ? 'outgoing' : 'incoming',
+                                                    position: 'single',
+                                                }}
+                                            />
+
+                                            {/* Hiển thị destinations nếu là message từ Gobot và có destinations */}
+                                            {msg.sender === 'Gobot' &&
+                                                msg.destinations &&
+                                                msg.destinations.length > 0 && (
+                                                    <div className={cx('destinations-wrapper')}>
+                                                        <div className={cx('destinations-title')}>
+                                                            📍 Địa điểm liên quan:
+                                                        </div>
+                                                        <div className={cx('destinations-list')}>
+                                                            {msg.destinations.slice(0, 5).map((dest, index) => (
+                                                                <Link
+                                                                    key={dest._id || index}
+                                                                    to={`/destination/${dest.slug}`}
+                                                                    className={cx('destination-item')}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                >
+                                                                    <span className={cx('destination-name')}>
+                                                                        {dest.name || `Địa điểm ${index + 1}`}
+                                                                    </span>
+                                                                    {dest.location?.address && (
+                                                                        <span className={cx('destination-address')}>
+                                                                            {dest.location.address}
+                                                                        </span>
+                                                                    )}
+                                                                </Link>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                        </div>
                                     </div>
                                 ))}
                             </MessageList>
@@ -317,8 +482,8 @@ function Gobot() {
                                         {
                                             message:
                                                 '👋 Xin chào! Tôi là Gobot – trợ lý du lịch của bạn đây 😎. Bạn muốn khám phá địa điểm nào hôm nay? 😄✨',
-
                                             sender: 'Gobot',
+                                            destinations: [],
                                         },
                                     ]);
                                     // Đẩy chat_id mới lên URL
