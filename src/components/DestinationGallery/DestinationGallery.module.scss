@@ -1,6 +1,21 @@
 .gallery-container {
     display: flex;
     gap: 0px;
+
+    :global {
+        ant-card-body {
+            padding: 0 !important;
+            border-radius: 0 !important;
+        }
+
+        .ant-image {
+            display: block !important;
+        }
+
+        .ant-image-img {
+            border-radius: unset !important;
+        }
+    }
 }
 
 .main-image-container {
@@ -9,13 +24,12 @@
 }
 
 .main-image-card {
-    position: relative;
     display: flex;
-    justify-content: center;
     align-items: center;
+    position: relative;
     height: 100%;
     overflow: hidden;
-    border-radius: 13px 0 0 13px;
+    border-radius: 13px 0px 0px 13px !important;
     background-color: #f0f0f0;
 }
 
@@ -58,9 +72,6 @@
 }
 
 .category-card {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     flex: 1;
     position: relative;
     overflow: hidden;
@@ -119,6 +130,4 @@
         flex: 1;
         height: auto;
     }
-
-
 }

@@ -40,6 +40,7 @@ const privateRoutes = [
     { path: '/admin/city/edit/:id', component: EditCity },
     { path: '/admin/destination/edit/:id', component: EditDestination },
     { path: '/write-review/:slug', component: WriteReview },
+    { path: '/trip-detail/:slug', component: TripDetail },
 ];
 
 // Các route công khai
@@ -48,7 +49,6 @@ const publicRoutes = [
     { path: 'search', component: Search },
     { path: '/destination/:slug', component: DestinationDetails },
     { path: 'city/:id', component: CityDetail },
-    { path: '/trip-detail/:slug', component: TripDetail },
     { path: '/categories/:type', component: Categories },
 ];
 
