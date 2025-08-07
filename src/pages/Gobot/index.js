@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
-import { Drawer, Button, Select } from 'antd';
+import { Drawer, Button, Select, Spin } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import classNames from 'classnames/bind';
 import ReactMarkdown from 'react-markdown';
