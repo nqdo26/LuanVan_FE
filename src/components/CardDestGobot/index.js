@@ -125,19 +125,10 @@ function CardDestGobot({
                         )}
                     </div>
 
-                    <div className={cx('badge-container')}>
-                        {visibleTags.map((tag, index) => (
-                            <span key={index} className={cx('badge', getBadgeClass())}>
-                                {tag}
-                            </span>
-                        ))}
-                        {hasMore && <span className={cx('more')}>...</span>}
-                    </div>
-
                     {location && (
                         <div className={cx('location')}>
                             <MapPin size={15} />
-                            {location}
+                            <span>{location}</span>
                         </div>
                     )}
                 </div>

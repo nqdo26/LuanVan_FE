@@ -42,8 +42,8 @@
 }
 
 .image {
-    width: 120px;
-    height: 120px;
+    width: 80px;
+    height: 80px;
     border-radius: 6px;
     object-fit: cover;
 
@@ -68,7 +68,7 @@
 
 .title {
     font-weight: 600;
-    font-size: 18px;
+    font-size: 14px;
     color: #111;
 }
 
@@ -81,53 +81,40 @@
 .rating-text {
     display: flex;
     align-items: center;
-    font-size: 14px;
+    font-size: 8px;
     color: #555;
 }
 
 .starts {
-    font-size: 20px;
-}
-
-.badge-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin: 5px 0px 5px 0px;
-    max-height: 54px;
-    overflow: hidden;
-}
-
-.badge {
-    background-color: #e8f5e9;
-    color: #2e7d32;
-    padding: 5px 12px;
-    border-radius: 12px;
     font-size: 12px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 24px;
-    white-space: nowrap;
 }
 
-.badge-restaurant {
-    background-color: #e6f4ea !important;
-    color: #2e7d32 !important;
-}
-
-.badge-tourist {
-    background-color: #e3f8ff !important;
-    color: #0284c7 !important;
+.rating {
+    :global {
+        .ant-rate {
+            font-size: 15px !important;
+        }
+    }
 }
 
 .location {
     display: flex;
     align-items: center;
     gap: 4px;
-    font-size: 14px;
+    font-size: 13px;
     color: #555;
+    max-width: 90%;
+
+    svg {
+        flex-shrink: 0;
+    }
+
+    span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+    }
 }
 
 .action {
