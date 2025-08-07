@@ -97,10 +97,12 @@ function AdminDestinationManage() {
         {
             title: 'Tên địa điểm',
             dataIndex: 'title',
+            width: 200,
         },
         {
             title: 'Thành phố',
             dataIndex: ['location', 'city'],
+            width: 150,
             render: (city, record) => {
                 if (typeof city === 'object' && city !== null) {
                     return city.name || city.title || city._id || '';

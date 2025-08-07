@@ -139,9 +139,15 @@ function StepDetailCity({ defaultData, onPrev, onSubmit, loading }) {
                         </div>
                         <textarea
                             className={cx('textarea')}
-                            placeholder="Ghi chú"
+                            placeholder="Ghi chú (tối đa 400 ký tự)"
                             value={item.note || ''}
-                            onChange={(e) => handleWeatherChange(index, 'note', e.target.value)}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                if (value.length <= 400) {
+                                    handleWeatherChange(index, 'note', value);
+                                }
+                            }}
+                            maxLength={400}
                         />
                     </div>
                 ))}

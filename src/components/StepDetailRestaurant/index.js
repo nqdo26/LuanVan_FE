@@ -146,12 +146,18 @@ function StepDetailRestaurant({ defaultData, onPrev, onSubmit, loading }) {
             <form className={cx('form')} onSubmit={handleSubmit}>
                 {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
                 <div className={cx('form-group')}>
-                    <label>Giới thiệu</label>
+                    <label>Giới thiệu ({data.description.length}/400 ký tự)</label>
                     <textarea
                         rows={3}
                         value={data.description}
-                        onChange={(e) => handleInput('description', e.target.value)}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            if (value.length <= 400) {
+                                handleInput('description', value);
+                            }
+                        }}
                         placeholder="Giới thiệu về nhà hàng..."
+                        maxLength={400}
                     />
                 </div>
                 <FieldList

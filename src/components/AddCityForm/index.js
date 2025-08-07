@@ -79,14 +79,20 @@ function AddCityForm({ defaultData, onNext }) {
                     />
                 </div>
                 <div className={cx('form-group')}>
-                    <label htmlFor="description">Mô tả</label>
+                    <label htmlFor="description">Mô tả ({form.description.length}/400 ký tự)</label>
                     <textarea
                         id="description"
                         name="description"
                         rows={3}
                         value={form.description}
-                        onChange={handleChange}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            if (value.length <= 400) {
+                                handleChange(e);
+                            }
+                        }}
                         placeholder="Nhập mô tả về thành phố"
+                        maxLength={400}
                     />
                 </div>
             </div>

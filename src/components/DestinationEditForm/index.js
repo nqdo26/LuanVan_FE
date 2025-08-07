@@ -393,8 +393,19 @@ function DestinationEditForm({ initialData, onSave, loading }) {
             </div>
 
             <div className={cx('form-group')}>
-                <label>Giới thiệu</label>
-                <textarea name="description" value={form.description || ''} onChange={handleChange} rows={3} />
+                <label>Giới thiệu ({form.description?.length || 0}/400 ký tự)</label>
+                <textarea
+                    name="description"
+                    value={form.description || ''}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        if (value.length <= 400) {
+                            handleChange(e);
+                        }
+                    }}
+                    rows={3}
+                    maxLength={400}
+                />
             </div>
 
             {renderListField('Nổi bật', 'highlight')}

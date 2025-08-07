@@ -154,12 +154,18 @@ function StepDetailTourist({ defaultData, onPrev, onSubmit, loading }) {
             <form className={cx('form')} onSubmit={handleSubmit}>
                 {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
                 <div className={cx('form-group')}>
-                    <label className={cx('title')}>Giới thiệu</label>
+                    <label className={cx('title')}>Giới thiệu ({data.description.length}/400 ký tự)</label>
                     <textarea
                         rows={3}
                         value={data.description}
-                        onChange={(e) => handleInput('description', e.target.value)}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            if (value.length <= 400) {
+                                handleInput('description', value);
+                            }
+                        }}
                         placeholder="Giới thiệu về địa điểm..."
+                        maxLength={400}
                     />
                 </div>
                 <FieldList

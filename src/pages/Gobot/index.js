@@ -1,16 +1,19 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { Drawer, Button, Select } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import classNames from 'classnames/bind';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 import styles from './Gobot.module.scss';
 import AIChatPageIntro from '~/components/AIChatPageIntro';
 import ChatHistorySidebar from '~/components/ChatHistorySidebar';
+import CardDestGobot from '~/components/CardDestGobot';
 import {
     getCitiesApi,
     chatWithRAGApi,
@@ -18,11 +21,96 @@ import {
     getChatHistoryApi,
     getChatByIdApi,
     getChatCompletionApi,
+    getDestinationByIdApi,
 } from '~/utils/api';
 import { useContext } from 'react';
 import { AuthContext } from '~/components/Context/auth.context';
 
 const cx = classNames.bind(styles);
+
+// Component để render markdown message
+const MarkdownMessage = ({ content }) => {
+    return <ReactMarkdown remarkPlugins={[remarkGfm]} children={content} />;
+};
+
+// Component để hiển thị destinations dưới dạng cards
+const DestinationsCards = ({ destinations, onDestinationClick }) => {
+    const [destinationDetails, setDestinationDetails] = useState({});
+    const [loadingDetails, setLoadingDetails] = useState({});
+
+    useEffect(() => {
+        const fetchDestinationDetails = async () => {
+            for (const dest of destinations) {
+                if (dest._id && !destinationDetails[dest._id] && !loadingDetails[dest._id]) {
+                    setLoadingDetails((prev) => ({ ...prev, [dest._id]: true }));
+
+                    try {
+                        const response = await getDestinationByIdApi(dest._id);
+                        if (response && response.EC === 0) {
+                            setDestinationDetails((prev) => ({
+                                ...prev,
+                                [dest._id]: response.data,
+                            }));
+                        }
+                    } catch (error) {
+                        console.error(`❌ Error fetching destination details for ID ${dest._id}:`, error);
+                    } finally {
+                        setLoadingDetails((prev) => ({ ...prev, [dest._id]: false }));
+                    }
+                } else if (!dest._id) {
+                    console.warn('⚠️ Destination missing _id:', dest);
+                }
+            }
+        };
+
+        fetchDestinationDetails();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [destinations]);
+
+    return (
+        <div className={cx('destinations-cards')}>
+            {destinations
+                .filter((dest) => dest._id) // Chỉ hiển thị destinations có _id
+                .slice(0, 3)
+                .map((dest, index) => {
+                    const details = destinationDetails[dest._id];
+                    const isLoading = loadingDetails[dest._id];
+
+                    if (isLoading) {
+                        return (
+                            <div key={dest._id || index} className={cx('card-loading')}>
+                                <div className={cx('loading-text')}>Đang tải...</div>
+                            </div>
+                        );
+                    }
+
+                    return (
+                        <CardDestGobot
+                            key={dest._id || index}
+                            title={dest.name || details?.title || `Địa điểm ${index + 1}`}
+                            location={dest.location?.address || details?.location?.address || ''}
+                            image={details?.images?.[0] || '/default-destination.jpg'}
+                            tags={details?.tags?.map((tag) => tag.title) || ['Văn hóa', 'Du lịch']}
+                            rating={details?.statistics?.avgRating || 0}
+                            type={details?.type || 'tourist'}
+                            showMenu={false}
+                            hoverEffect={true}
+                            clickEffect={true}
+                            onClick={() => onDestinationClick && onDestinationClick(details?.slug || dest._id)}
+                            maxTags={2}
+                        />
+                    );
+                })}
+
+            {/* Hiển thị thông báo nếu không có destinations hợp lệ */}
+            {destinations.filter((dest) => dest._id).length === 0 && destinations.length > 0 && (
+                <div className={cx('no-valid-destinations')}>
+                    <div className={cx('warning-text')}>Không thể tải thông tin địa điểm</div>
+                </div>
+            )}
+        </div>
+    );
+};
 
 function Gobot() {
     const navigate = useNavigate();
@@ -56,26 +144,28 @@ function Gobot() {
                 // Thử load với destinations trước
                 try {
                     const completionRes = await getChatCompletionApi(chat_id);
+
                     const chatWithDestinations = completionRes?.data?.data;
 
                     if (chatWithDestinations?.messages && chatWithDestinations.messages.length > 0) {
-                        const messagesWithDestinations = chatWithDestinations.messages.map((m) => ({
-                            message: m.content,
-                            sender: m.role === 'user' ? 'user' : 'Gobot',
-                            destinations: m.destinations || [],
-                        }));
+                        const messagesWithDestinations = chatWithDestinations.messages.map((m) => {
+                            return {
+                                message: m.content,
+                                sender: m.role === 'user' ? 'user' : 'Gobot',
+                                destinations: m.destinations || [],
+                            };
+                        });
                         setMessages(messagesWithDestinations);
 
                         const destinationCount = messagesWithDestinations.filter(
                             (msg) => msg.destinations && msg.destinations.length > 0,
                         ).length;
-                        console.log(
-                            `📍 Initial load with destinations: ${destinationCount} messages have destinations`,
-                        );
+
                         messagesLoaded = true;
                     }
                 } catch (completionError) {
-                    console.log('⚠️ getChatCompletionApi failed during init, falling back to basic loading');
+                    console.error('⚠️ getChatCompletionApi failed during init:', completionError);
+                    console.log('🔄 Falling back to basic loading...');
                 }
 
                 // Fallback: load basic chat nếu completion API fail hoặc không có messages
@@ -85,7 +175,8 @@ function Gobot() {
                         chat?.messages?.map((m) => ({
                             message: m.content,
                             sender: m.role === 'user' ? 'user' : 'Gobot',
-                            destinations: [],
+                            // Giữ destinations nếu có trong basic chat data
+                            destinations: m.destinations || [],
                         })) || [];
 
                     if (chatMsgs.length === 0) {
@@ -99,7 +190,6 @@ function Gobot() {
                         ]);
                     } else {
                         setMessages(chatMsgs);
-                        console.log(`📄 Initial load with basic chat: ${chatMsgs.length} messages`);
                     }
                 }
             } else {
@@ -162,8 +252,16 @@ function Gobot() {
 
     const [selectedCityId, setSelectedCityId] = useState(null);
 
+    // Handle click vào destination card
+    const handleDestinationClick = (slugOrId) => {
+        // Mở destination page trong tab mới
+        // Nếu có slug thì dùng slug, nếu không thì dùng ID
+        if (slugOrId) {
+            window.open(`/destination/${slugOrId}`, '_blank');
+        }
+    };
+
     const handleSend = async (text) => {
-        console.log('🚀 handleSend called with:', text);
         if (!activeChatId) {
             console.error('❌ No active chat ID');
             return;
@@ -180,7 +278,6 @@ function Gobot() {
         setMessages(newMsgs);
         setIsTyping(true);
         try {
-            console.log('📤 Sending request to RAG server...');
             const payload = {
                 messages: newMsgs.map((m) => ({
                     role: m.sender === 'user' ? 'user' : 'assistant',
@@ -192,27 +289,21 @@ function Gobot() {
             if (selectedCityId) payload.cityId = selectedCityId;
             if (auth && auth.user && (auth.user._id || auth.user.id)) payload.userId = auth.user._id || auth.user.id;
 
-            console.log('📤 Payload:', payload);
-
             const res = await chatWithRAGApi(payload);
 
-            console.log('📨 RAG response received:', res);
-
             // Debug full response
-            console.log('🔍 Full RAG Server Response:', JSON.stringify(res, null, 2));
 
             const botMsg = res?.choices?.[0]?.message?.content || 'Xin lỗi, Gobot không trả lời được.';
             const destinations = res?.choices?.[0]?.message?.destinations || [];
 
-            console.log('📍 RAG Server Response destinations:', destinations);
-
             // Chuyển đổi destinations từ RAG server format thành frontend format
-            const formattedDestinations = destinations.map((dest) => ({
-                _id: dest.destinationId,
-                name: dest.name || `Địa điểm ${dest.destinationId}`,
-                slug: dest.slug || dest.destinationId,
-                location: { address: dest.text || '' },
-            }));
+            const formattedDestinations = destinations.map((dest) => {
+                return {
+                    _id: dest.destinationId,
+                    name: dest.name || `Địa điểm ${dest.destinationId}`,
+                    location: { address: dest.text || '' },
+                };
+            });
 
             const botReply = {
                 message: botMsg,
@@ -222,18 +313,6 @@ function Gobot() {
 
             const updatedMsgs = [...newMsgs, botReply];
             setMessages(updatedMsgs);
-
-            // Log destinations để debug
-            if (formattedDestinations.length > 0) {
-                console.log(
-                    `📍 New message has ${formattedDestinations.length} destinations:`,
-                    formattedDestinations.map((dest) => ({
-                        id: dest._id,
-                        name: dest.name,
-                        slug: dest.slug,
-                    })),
-                );
-            }
 
             // Cập nhật lại chatHistory
             setChatHistory((prev) =>
@@ -250,12 +329,7 @@ function Gobot() {
                         : c,
                 ),
             );
-
-            // Tạm thời tắt auto-reload để tránh xung đột
-            // Sẽ chỉ dựa vào destinations từ response hiện tại
-            console.log('✅ Message sent successfully with destinations');
         } catch (e) {
-            console.error('Error in chat completion:', e);
             const botReply = {
                 message: 'Có lỗi xảy ra khi kết nối Gobot.',
                 sender: 'Gobot',
@@ -290,7 +364,7 @@ function Gobot() {
                 const destinationCount = messagesWithDestinations.filter(
                     (msg) => msg.destinations && msg.destinations.length > 0,
                 ).length;
-                console.log(`📍 Loaded chat with destinations: ${destinationCount} messages have destinations`);
+
                 messagesLoaded = true;
             }
         } catch (completionError) {
@@ -306,11 +380,11 @@ function Gobot() {
                     chat?.messages?.map((m) => ({
                         message: m.content,
                         sender: m.role === 'user' ? 'user' : 'Gobot',
-                        destinations: [], // Không có destinations trong fallback
+                        // Giữ destinations nếu có trong basic chat data
+                        destinations: m.destinations || [],
                     })) || [];
 
                 setMessages(basicMessages);
-                console.log(`📄 Loaded basic chat: ${basicMessages.length} messages`);
             } catch (e) {
                 console.error('Both APIs failed:', e);
                 setMessages([]);
@@ -401,16 +475,9 @@ function Gobot() {
                                             <img src="/ai-img.png" alt="Gobot" className={cx('avatar')} />
                                         )}
                                         <div className={cx('message-content')}>
-                                            <Message
-                                                className={cx(msg.sender === 'user' ? 'user-message' : 'ai-message')}
-                                                model={{
-                                                    message: msg.message,
-                                                    sentTime: 'just now',
-                                                    sender: msg.sender,
-                                                    direction: msg.sender === 'user' ? 'outgoing' : 'incoming',
-                                                    position: 'single',
-                                                }}
-                                            />
+                                            <div className={cx(msg.sender === 'user' ? 'user-message' : 'ai-message')}>
+                                                <MarkdownMessage content={msg.message} />
+                                            </div>
 
                                             {/* Hiển thị destinations nếu là message từ Gobot và có destinations */}
                                             {msg.sender === 'Gobot' &&
@@ -420,26 +487,10 @@ function Gobot() {
                                                         <div className={cx('destinations-title')}>
                                                             📍 Địa điểm liên quan:
                                                         </div>
-                                                        <div className={cx('destinations-list')}>
-                                                            {msg.destinations.slice(0, 5).map((dest, index) => (
-                                                                <Link
-                                                                    key={dest._id || index}
-                                                                    to={`/destination/${dest.slug}`}
-                                                                    className={cx('destination-item')}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                >
-                                                                    <span className={cx('destination-name')}>
-                                                                        {dest.name || `Địa điểm ${index + 1}`}
-                                                                    </span>
-                                                                    {dest.location?.address && (
-                                                                        <span className={cx('destination-address')}>
-                                                                            {dest.location.address}
-                                                                        </span>
-                                                                    )}
-                                                                </Link>
-                                                            ))}
-                                                        </div>
+                                                        <DestinationsCards
+                                                            destinations={msg.destinations}
+                                                            onDestinationClick={handleDestinationClick}
+                                                        />
                                                     </div>
                                                 )}
                                         </div>
