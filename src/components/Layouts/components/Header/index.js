@@ -182,7 +182,7 @@ function Header() {
     const searchDropdownItems = [
         { key: 'add-trip', label: 'Tạo lịch trình mới' },
         { key: 'my-trip', label: 'Hành trình cá nhân' },
-        { key: 'ai-plan', label: 'Tạo lịch trình với AI' },
+        { key: 'ai-plan', label: 'Tạo lịch trình với Gobot' },
     ];
 
     return (

@@ -89,7 +89,7 @@ function AddTrip() {
                             <img alt="error" src="/addtrip-img2.png" className={cx('option-img')} />
                             <p className={cx('option-title')}>Để AI hỗ trợ bạn</p>
                             <p className={cx('option-description')}>
-                                Để AI giúp bạn lên kế hoạch cho chuyến đi của mình một cách nhanh chóng và dễ dàng.
+                                Để AI giúp bạn lựa chọn các địa điểm cho chuyến đi của mình một cách nhanh chóng và dễ dàng.
                             </p>
                             <Button
                                 onClick={handleCreateTripWithAI}
