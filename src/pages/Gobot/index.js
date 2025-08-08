@@ -239,13 +239,45 @@ function Gobot() {
             const botMsg = res?.choices?.[0]?.message?.content || 'Xin lỗi, Gobot không trả lời được.';
             const destinations = res?.choices?.[0]?.message?.destinations || [];
 
-            const formattedDestinations = destinations.map((dest) => {
+            // Frontend filter: Double-check destinations với AI response
+            const filteredDestinations = destinations.filter((dest) => {
+                const destName = dest.name || '';
+                if (!destName) return false;
+
+                // Normalize tên địa điểm và content để so sánh
+                const normalizedDestName = destName.toLowerCase().trim();
+                const normalizedContent = botMsg.toLowerCase();
+
+                // Strategy 1: Exact name match
+                if (normalizedContent.includes(normalizedDestName)) {
+                    console.log(`🎯 [FE-FILTER] Giữ lại: ${destName} (exact match)`);
+                    return true;
+                }
+
+                // Strategy 2: Partial word match for longer names
+                const destWords = normalizedDestName.split(' ').filter((word) => word.length > 2);
+                if (destWords.length > 1) {
+                    const matchedWords = destWords.filter((word) => normalizedContent.includes(word));
+                    const matchRatio = matchedWords.length / destWords.length;
+                    if (matchRatio >= 0.6) {
+                        console.log(`🎯 [FE-FILTER] Giữ lại: ${destName} (partial match: ${matchRatio})`);
+                        return true;
+                    }
+                }
+
+                console.log(`❌ [FE-FILTER] Loại bỏ: ${destName} (không xuất hiện trong response)`);
+                return false;
+            });
+
+            const formattedDestinations = filteredDestinations.map((dest) => {
                 return {
                     _id: dest.destinationId,
                     name: dest.name || `Địa điểm ${dest.destinationId}`,
                     location: { address: dest.text || '' },
                 };
             });
+
+            console.log(`📊 [FE-FILTER] Filtered: ${formattedDestinations.length}/${destinations.length} destinations`);
 
             const botReply = {
                 message: botMsg,
