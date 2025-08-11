@@ -76,7 +76,10 @@ function Header() {
 
     const handleLoginSubmit = async () => {
         if (!email || !password) {
-            message.warning('Chưa nhập tài khoản hoặc mật khẩu!');
+            notification.warning({
+                message: 'Thiếu thông tin',
+                description: 'Vui lòng nhập đầy đủ thông tin!',
+            });
             return;
         }
         setLoginLoading(true);
@@ -116,21 +119,33 @@ function Header() {
     // ---- Đăng ký tài khoản ----
     const handleRegisterSubmit = async () => {
         if (!registerName || !registerEmail || !registerPassword || !registerConfirmPassword) {
-            message.warning('Hãy nhập đầy đủ thông tin!');
+            notification.warning({
+                message: 'Thiếu thông tin',
+                description: 'Vui lòng nhập đầy đủ thông tin!',
+            });
             return;
         }
         // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(registerEmail)) {
-            message.error('Email không đúng định dạng!');
+            notification.error({
+                message: 'Địa chỉ email không đúng',
+                description: 'Vui lòng nhập địa chỉ email hợp lệ!',
+            });
             return;
         }
         if (registerPassword.length < 8) {
-            message.error('Mật khẩu phải có ít nhất 8 ký tự!');
+            notification.error({
+                message: 'Mật khẩu không hợp lệ',
+                description: 'Mật khẩu phải có ít nhất 8 ký tự!',
+            });
             return;
         }
         if (registerPassword !== registerConfirmPassword) {
-            message.error('Nhập lại mật khẩu không khớp!');
+            notification.error({
+                message: 'Nhập lại mật khẩu không khớp',
+                description: 'Vui lòng kiểm tra lại mật khẩu!',
+            });
             return;
         }
         setRegisterLoading(true);
