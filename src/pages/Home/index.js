@@ -56,7 +56,6 @@ function Home() {
     return (
         <div className={cx('wrapper')}>
             <div className={cx('inner')}>
-                <p className={cx('deployment-notice')}>🚀 Trang web đang trong quá trình hoàn thiện</p>
                 <CustomTitle title={'Where to?'} size={55} />
 
                 <div className={cx('search-bar')}>

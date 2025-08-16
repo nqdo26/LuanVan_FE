@@ -106,7 +106,10 @@ function Header() {
                 setEmail('');
                 setPassword('');
             } else if (res.EC === 1) {
-                message.error('Email hoặc mật khẩu không đúng!');
+                notification.error({
+                    message: 'Đăng nhập thất bại',
+                    description: 'Email hoặc mật khẩu không chính xác!',
+                });
             } else {
                 message.error(res.data.EM || 'Lỗi hệ thống!');
             }
