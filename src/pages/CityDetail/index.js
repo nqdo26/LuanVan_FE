@@ -206,7 +206,7 @@ function CityDetail() {
                             {cityData.description}
                         </p>
                     </div>
-                    <h1 className={cx('title')}>Các địa điểm và tour du lịch ở {cityData.name}</h1>
+                    <h1 className={cx('title')}>Danh sách địa điểm ở {cityData.name}</h1>
                     <div className={cx('destination')}>
                         <div className={'sidebar'}>
                             <CitySideBar categoryFilters={categoryFilters} setCategoryFilters={setCategoryFilters} />
