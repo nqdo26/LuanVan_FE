@@ -64,9 +64,11 @@ function AdminCategoriesManage() {
         setLoadingCityTypes(true);
         try {
             const res = await getCityTypesApi();
+
             let dataArr = [];
             if (Array.isArray(res)) dataArr = res;
             else if (res && Array.isArray(res.data)) dataArr = res.data;
+
             setCityTypes(dataArr);
         } catch {
             setCityTypes([]);
