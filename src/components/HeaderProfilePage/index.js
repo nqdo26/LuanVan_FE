@@ -16,11 +16,23 @@ function HeaderProfilePage({ user, favouriteCount = 0, tourCount = 0, onUserUpda
     const handleOk = () => setIsModalOpen(false);
     const handleCancel = () => setIsModalOpen(false);
 
-    const showChangePasswordModal = () => setIsChangePassModalOpen(true);
+    const showChangePasswordModal = () => {
+        setPasswordLoading(false); // Reset loading state
+        setPassOld(''); // Reset form
+        setPassNew('');
+        setPassNew2('');
+        setIsChangePassModalOpen(true);
+    };
     const handleChangePasswordOk = () => {
         setIsChangePassModalOpen(false);
     };
-    const handleChangePasswordCancel = () => setIsChangePassModalOpen(false);
+    const handleChangePasswordCancel = () => {
+        setPasswordLoading(false); // Reset loading state
+        setPassOld(''); // Reset form
+        setPassNew('');
+        setPassNew2('');
+        setIsChangePassModalOpen(false);
+    };
 
     const [name, setName] = useState(user.fullName);
     const [avatarFile, setAvatarFile] = useState(null);
@@ -28,7 +40,8 @@ function HeaderProfilePage({ user, favouriteCount = 0, tourCount = 0, onUserUpda
     const [passOld, setPassOld] = useState('');
     const [passNew, setPassNew] = useState('');
     const [passNew2, setPassNew2] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false); // Loading cho modal chỉnh sửa thông tin
+    const [passwordLoading, setPasswordLoading] = useState(false); // Loading riêng cho modal đổi mật khẩu
 
     useEffect(() => {
         setName(user.fullName);
@@ -104,7 +117,7 @@ function HeaderProfilePage({ user, favouriteCount = 0, tourCount = 0, onUserUpda
             return;
         }
 
-        setLoading(true);
+        setPasswordLoading(true);
         try {
             const res = await updateUserPasswordApi(passOld, passNew);
 
@@ -124,7 +137,7 @@ function HeaderProfilePage({ user, favouriteCount = 0, tourCount = 0, onUserUpda
             console.error('Error changing password:', err);
             message.error(err?.EM || 'Có lỗi xảy ra khi đổi mật khẩu');
         } finally {
-            setLoading(false);
+            setPasswordLoading(false);
         }
     };
 
@@ -216,14 +229,14 @@ function HeaderProfilePage({ user, favouriteCount = 0, tourCount = 0, onUserUpda
                 okText="Cập nhật"
                 cancelText="Hủy"
                 width={500}
-                confirmLoading={loading}
+                confirmLoading={passwordLoading}
                 okButtonProps={{
                     className: cx('ok-btn'),
-                    disabled: !passOld || !passNew || !passNew2 || passNew !== passNew2 || loading,
+                    disabled: !passOld || !passNew || !passNew2 || passNew !== passNew2 || passwordLoading,
                 }}
                 cancelButtonProps={{ className: cx('cancel-btn') }}
             >
-                <Spin>
+                <Spin spinning={passwordLoading} tip="Đang cập nhật mật khẩu...">
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                         <Password
                             placeholder="Mật khẩu hiện tại"
