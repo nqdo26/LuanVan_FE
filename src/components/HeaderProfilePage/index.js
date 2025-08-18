@@ -89,21 +89,40 @@ function HeaderProfilePage({ user, favouriteCount = 0, tourCount = 0, onUserUpda
     };
 
     const handleChangePassword = async () => {
-        if (!passOld || !passNew || !passNew2) return;
-        if (passNew !== passNew2) return;
+        if (!passOld || !passNew || !passNew2) {
+            message.error('Vui lòng điền đầy đủ thông tin');
+            return;
+        }
+
+        if (passNew !== passNew2) {
+            message.error('Mật khẩu mới và xác nhận mật khẩu không khớp');
+            return;
+        }
+
+        if (passNew.length < 8) {
+            message.error('Mật khẩu mới phải có ít nhất 8 ký tự');
+            return;
+        }
+
         setLoading(true);
         try {
-            await updateUserPasswordApi(passOld, passNew);
-            setIsChangePassModalOpen(false);
-            setPassOld('');
-            setPassNew('');
-            setPassNew2('');
-            notification.success({
-                message: 'Đổi mật khẩu thành công',
-                description: 'Mật khẩu của bạn đã được cập nhật.',
-            });
+            const res = await updateUserPasswordApi(passOld, passNew);
+
+            if (res?.EC === 0) {
+                setIsChangePassModalOpen(false);
+                setPassOld('');
+                setPassNew('');
+                setPassNew2('');
+                notification.success({
+                    message: 'Đổi mật khẩu thành công',
+                    description: 'Mật khẩu của bạn đã được cập nhật.',
+                });
+            } else {
+                message.error(res?.EM || 'Có lỗi xảy ra khi đổi mật khẩu');
+            }
         } catch (err) {
-            // handle error
+            console.error('Error changing password:', err);
+            message.error(err?.EM || 'Có lỗi xảy ra khi đổi mật khẩu');
         } finally {
             setLoading(false);
         }
@@ -198,10 +217,13 @@ function HeaderProfilePage({ user, favouriteCount = 0, tourCount = 0, onUserUpda
                 cancelText="Hủy"
                 width={500}
                 confirmLoading={loading}
-                okButtonProps={{ className: cx('ok-btn') }}
+                okButtonProps={{
+                    className: cx('ok-btn'),
+                    disabled: !passOld || !passNew || !passNew2 || passNew !== passNew2 || loading,
+                }}
                 cancelButtonProps={{ className: cx('cancel-btn') }}
             >
-                <Spin spinning={loading} tip="Đang cập nhật...">
+                <Spin>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                         <Password
                             placeholder="Mật khẩu hiện tại"
@@ -210,17 +232,27 @@ function HeaderProfilePage({ user, favouriteCount = 0, tourCount = 0, onUserUpda
                             iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
                         />
                         <Password
-                            placeholder="Mật khẩu mới"
+                            placeholder="Mật khẩu mới (ít nhất 8 ký tự)"
                             value={passNew}
                             onChange={(e) => setPassNew(e.target.value)}
                             iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+                            status={passNew && passNew.length >= 8 ? '' : 'error'}
                         />
                         <Password
                             placeholder="Nhập lại mật khẩu mới"
                             value={passNew2}
                             onChange={(e) => setPassNew2(e.target.value)}
                             iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+                            status={passNew2 && passNew === passNew2 ? '' : 'error'}
                         />
+
+                        {/* Validation hints */}
+                        {passNew && passNew.length < 8 && (
+                            <div style={{ color: '#ff4d4f', fontSize: '12px' }}>Mật khẩu phải có ít nhất 8 ký tự</div>
+                        )}
+                        {passNew2 && passNew !== passNew2 && (
+                            <div style={{ color: '#ff4d4f', fontSize: '12px' }}>Mật khẩu xác nhận không khớp</div>
+                        )}
                     </div>
                 </Spin>
             </Modal>
