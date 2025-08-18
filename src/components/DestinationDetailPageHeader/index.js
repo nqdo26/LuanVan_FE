@@ -11,13 +11,28 @@ function DestinationDetailPageHeader({
     tags = [],
     averageRating = 0,
     comments = [],
+    updated = '',
     handleAddComment,
     handleSave,
     handleShare,
-    destinationType = 'tourist', 
+    destinationType = 'tourist',
 }) {
     const getBadgeClass = () => {
         return destinationType === 'restaurant' ? 'badge-restaurant' : 'badge-tourist';
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return 'Không xác định';
+
+        try {
+            const date = new Date(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        } catch (error) {
+            return 'Không xác định';
+        }
     };
 
     return (
@@ -51,10 +66,10 @@ function DestinationDetailPageHeader({
             <div className={cx('review-section')}>
                 <div className={cx('rating-location')}>
                     <Rate allowHalf disabled defaultValue={averageRating} className={cx('rating')} />
-
                     <span className={cx('review-count')}>
                         {comments.length === 0 ? 'Chưa có đánh giá' : `${comments.length} đánh giá`}
                     </span>
+                    |<span className={cx('review-count')}>Ngày cập nhật gần nhất: {formatDate(updated)}</span>
                 </div>
                 <div onClick={handleAddComment} className={cx('review-btn')}>
                     <EditOutlined />

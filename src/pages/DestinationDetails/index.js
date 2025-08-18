@@ -161,6 +161,7 @@ function DestinationDetails() {
                         averageRating={destinationData.statistics.averageRating}
                         comments={destinationData.comments}
                         destinationType={destinationData.type}
+                        updated={destinationData.updatedAt}
                         handleAddComment={handleAddComment}
                         handleSave={handleSave}
                         handleShare={handleShare}

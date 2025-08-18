@@ -74,6 +74,18 @@ function Admin() {
 
     const topCityStats = [...(cityStats || [])].sort((a, b) => b.totalViews - a.totalViews).slice(0, 5);
 
+    // Tính toán range động cho biểu đồ tổng user
+    const maxUsers = Math.max(...(recentUsers || []).map((item) => item.users), 1);
+    const minUsers = Math.min(...(recentUsers || []).map((item) => item.users), 0);
+    const yAxisDomain = [Math.max(minUsers - 5, 0), maxUsers + 10];
+
+    // Tạo ticks động dựa trên range
+    const range = yAxisDomain[1] - yAxisDomain[0];
+    const tickCount = Math.min(Math.max(Math.ceil(range / 20), 5), 10);
+    const yAxisTicks = Array.from({ length: tickCount }, (_, i) =>
+        Math.round(yAxisDomain[0] + (i * range) / (tickCount - 1)),
+    );
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -152,7 +164,7 @@ function Admin() {
                     </div>
 
                     <div className={cx('chart-item')}>
-                        <h2>Thống kê số tài khoản đăng ký theo ngày</h2>
+                        <h2>Tổng số tài khoản trong hệ thống (7 ngày gần nhất)</h2>
                         <LineChart
                             width={800}
                             height={300}
@@ -161,15 +173,19 @@ function Admin() {
                         >
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="_id" />
-                            <YAxis domain={[0, 10]} ticks={[0, 2, 4, 6, 8, 10]} />
-                            <Tooltip />
+                            <YAxis domain={yAxisDomain} ticks={yAxisTicks} />
+                            <Tooltip
+                                formatter={(value, name) => [`${value} tài khoản`, 'Tổng số user']}
+                                labelFormatter={(label) => `Ngày: ${label}`}
+                            />
                             <Legend />
                             <Line
                                 type="monotone"
                                 dataKey="users"
                                 stroke="#1c1f4a"
                                 activeDot={{ r: 8 }}
-                                name="Số user"
+                                name="Tổng số user"
+                                strokeWidth={2}
                             />
                         </LineChart>
                     </div>
