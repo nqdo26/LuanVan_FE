@@ -67,7 +67,7 @@ function Categories() {
                 <div className={cx('overlay')}>
                     <div className={cx('text-content')}>
                         <h1 className={cx('title')}>{toDisplayName(type)}</h1>
-                        <p className={cx('description')}>Các địa điểm thuộc loại {toDisplayName(type)}</p>
+                        <p className={cx('description')}>Danh sách các thành phố thuộc danh mục du lịch về {toDisplayName(type)} của hệ thống.</p>
                     </div>
                 </div>
             </div>
