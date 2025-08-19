@@ -102,7 +102,7 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
 
     const getMenuItems = (comment) => {
         const items = [];
-        if (auth.isAuthenticated && (auth.user.id === comment.userId._id || auth.user.role === 'admin')) {
+        if (auth.isAuthenticated && (auth.user.id === comment.userId._id || auth.user.isAdmin)) {
             items.push({
                 key: 'delete',
                 label: (
@@ -170,7 +170,7 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
                                         showInfo
                                         strokeColor={{
                                             '0%': '#64c5ff',
-                                            '100%': '#1c1f4a', 
+                                            '100%': '#1c1f4a',
                                         }}
                                         format={() => `${count}`}
                                     />
@@ -221,8 +221,7 @@ function CustomComment({ type = '', destinationId = null, handleAddComment }) {
                                                 </strong>
                                                 <div className={cx('reaction')}>
                                                     {auth.isAuthenticated &&
-                                                        (auth.user.id === item.userId._id ||
-                                                            auth.user.role === 'admin') && (
+                                                        (auth.user.id === item.userId._id || auth.user.isAdmin) && (
                                                             <Dropdown
                                                                 menu={{
                                                                     items: getMenuItems(item),
