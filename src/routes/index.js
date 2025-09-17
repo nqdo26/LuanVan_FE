@@ -1,5 +1,6 @@
 // Layouts
 import { AdminLayout } from '~/components/Layouts';
+import HomeLayout from '~/components/Layouts/HomeLayout';
 
 // Pages
 import AddTrip from '~/pages/AddTrip';
@@ -45,7 +46,7 @@ const privateRoutes = [
 
 // Các route công khai
 const publicRoutes = [
-    { path: '/', component: Home },
+    { path: '/', component: Home, layout: HomeLayout},
     { path: 'search', component: Search },
     { path: '/destination/:slug', component: DestinationDetails },
     { path: 'city/:id', component: CityDetail },

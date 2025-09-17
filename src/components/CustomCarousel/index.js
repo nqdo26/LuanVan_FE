@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import 'swiper/css';
@@ -15,20 +15,6 @@ const cx = classNames.bind(styles);
 function CustomCarousel({ title, destinations = [], loading = false, number = 4 }) {
     const prevRef = useRef(null);
     const nextRef = useRef(null);
-    const [swiperInstance, setSwiperInstance] = useState(null);
-
-    // Manual navigation handlers
-    const handlePrev = () => {
-        if (swiperInstance) {
-            swiperInstance.slidePrev();
-        }
-    };
-
-    const handleNext = () => {
-        if (swiperInstance) {
-            swiperInstance.slideNext();
-        }
-    };
 
     if (loading) {
         return (
@@ -56,15 +42,23 @@ function CustomCarousel({ title, destinations = [], loading = false, number = 4 
         <div className={cx('wrapper')}>
             <h2 className={cx('title')}>{title}</h2>
             <div className={cx('carousel-container')}>
-                <div ref={prevRef} className={cx('custom-nav', 'prev')} onClick={handlePrev}>
+                <div ref={prevRef} className={cx('custom-nav', 'prev')}>
                     <LeftOutlined className={cx('nav-icon')} />
                 </div>
                 <Swiper
                     modules={[Navigation]}
                     spaceBetween={16}
                     slidesPerView={number}
-                    navigation={false}
-                    onSwiper={setSwiperInstance}
+                    navigation={{
+                        prevEl: prevRef.current,
+                        nextEl: nextRef.current,
+                    }}
+                    onInit={(swiper) => {
+                        swiper.params.navigation.prevEl = prevRef.current;
+                        swiper.params.navigation.nextEl = nextRef.current;
+                        swiper.navigation.init();
+                        swiper.navigation.update();
+                    }}
                     breakpoints={{
                         1200: { slidesPerView: 4 },
                         1150: { slidesPerView: 3 },
@@ -81,7 +75,7 @@ function CustomCarousel({ title, destinations = [], loading = false, number = 4 
                         </SwiperSlide>
                     ))}
                 </Swiper>
-                <div ref={nextRef} className={cx('custom-nav', 'next')} onClick={handleNext}>
+                <div ref={nextRef} className={cx('custom-nav', 'next')}>
                     <RightOutlined className={cx('nav-icon')} />
                 </div>
             </div>
