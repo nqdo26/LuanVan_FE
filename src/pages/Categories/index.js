@@ -20,21 +20,28 @@ function Categories() {
     const toDisplayName = (str) => {
         if (str === 'bien') return 'Biển';
         if (str === 'nui') return 'Núi';
-        if (str === 'van-hoa') return 'Văn hóa';
+        if (str === 'vanhoa') return 'Văn hóa';
         return str;
+    };
+
+    // Chuyển đổi từ URL param sang backend type
+    const toBackendType = (str) => {
+        if (str === 'vanhoa') return 'van-hoa';
+        return str; // bien và nui giữ nguyên
     };
 
     const bgMap = {
         bien: '/categories/bien.png',
         nui: '/categories/nui.png',
-        'van-hoa': '/categories/vanhoa.png',
+        vanhoa: '/categories/vanhoa.png',
     };
     const backgroundImageUrl = bgMap[type] || '/categories/bien.png';
 
     useEffect(() => {
         async function fetchCities() {
             setLoading(true);
-            const res = await getCitiesByTypeApi(type);
+            const backendType = toBackendType(type);
+            const res = await getCitiesByTypeApi(backendType);
             console.log('Fetched cities:', res);
             if (res && res.EC === 0) {
                 setCities(res.data.data || []);
@@ -67,7 +74,9 @@ function Categories() {
                 <div className={cx('overlay')}>
                     <div className={cx('text-content')}>
                         <h1 className={cx('title')}>{toDisplayName(type)}</h1>
-                        <p className={cx('description')}>Danh sách các thành phố thuộc danh mục du lịch về {toDisplayName(type)} của hệ thống.</p>
+                        <p className={cx('description')}>
+                            Danh sách các thành phố thuộc danh mục du lịch về {toDisplayName(type)} của hệ thống.
+                        </p>
                     </div>
                 </div>
             </div>

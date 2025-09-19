@@ -6,15 +6,20 @@ import SearchBar from '~/components/SearchBar';
 import DestinationCard from '~/components/DestinationCard';
 import { getDestinationsApi } from '~/utils/api';
 import { Button } from 'antd';
-import { ArrowRightToLine } from 'lucide-react';
+import { ArrowRightToLine, MoveRight } from 'lucide-react';
+import { FaLandmark, FaMountain, FaUmbrellaBeach } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
 function Home() {
+    const navigate = useNavigate();
+
     const [currentSection, setCurrentSection] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [destinations, setDestinations] = useState([]);
     const [isLoadingDestinations, setIsLoadingDestinations] = useState(false);
+    const [hoveredBox, setHoveredBox] = useState(null);
 
     // Refs for each section
     const section1Ref = useRef(null);
@@ -39,6 +44,18 @@ function Home() {
     const transition = {
         duration: 0.2,
         ease: 'easeInOut',
+    };
+
+    const onClickBien = () => {
+        navigate('/categories/bien');
+    };
+
+    const onClickNui = () => {
+        navigate('/categories/nui');
+    };
+
+    const onClickVanHoa = () => {
+        navigate('/categories/vanhoa');
     };
 
     // Load destinations when component mounts
@@ -173,10 +190,23 @@ function Home() {
                         >
                             <div className={cx('section-2-content')}>
                                 <div className={cx('section-2-left')}>
-                                    <h1 className={cx('section-2-title')}>Khám phá những địa điểm du lịch thú vị</h1>
-                                    <Button className={cx('section-2-button')} size="large" href="/destinations">
-                                        Xem tất cả địa điểm <ArrowRightToLine size={18} />
-                                    </Button>
+                                    <motion.h1
+                                        className={cx('section-2-title')}
+                                        initial={{ opacity: 0, x: -100 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ duration: 0.8, delay: 0.3 }}
+                                    >
+                                        Khám phá những địa điểm du lịch thú vị
+                                    </motion.h1>
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 50 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.8, delay: 0.6 }}
+                                    >
+                                        <Button className={cx('section-2-button')} size="large" href="/destinations">
+                                            Xem tất cả địa điểm <ArrowRightToLine size={18} />
+                                        </Button>
+                                    </motion.div>
                                 </div>
                                 <div className={cx('section-2-right')}>
                                     {isLoadingDestinations ? (
@@ -192,8 +222,8 @@ function Home() {
                                                     initial={{ opacity: 0, y: 20 }}
                                                     animate={{ opacity: 1, y: 0 }}
                                                     transition={{
-                                                        duration: 0.5,
-                                                        delay: index * 0.1,
+                                                        duration: 0.6,
+                                                        delay: index * 0.3,
                                                     }}
                                                 >
                                                     <DestinationCard destination={destination} />
@@ -220,13 +250,151 @@ function Home() {
                         transition={transition}
                     >
                         <motion.div
-                            className={cx('section-content')}
+                            className={cx('section-3-content')}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.1, duration: 0.3 }}
                         >
-                            <h2>Section 3</h2>
-                            {/* Thêm nội dung Section 3 ở đây */}
+                            <motion.div
+                                className={cx('section-3-box', 'box-1')}
+                                onMouseEnter={() => setHoveredBox('box-1')}
+                                onMouseLeave={() => setHoveredBox(null)}
+                                onClick={onClickNui}
+                                whileHover={{ scale: 1.05 }}
+                                transition={{ duration: 0.3 }}
+                                style={{
+                                    backgroundImage: `url(${process.env.PUBLIC_URL}/categories/nui.png)`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                    backgroundRepeat: 'no-repeat',
+                                }}
+                            >
+                                <motion.h1
+                                    className={cx('section-3-title')}
+                                    animate={{
+                                        y: hoveredBox === 'box-1' ? -20 : 0,
+                                        opacity: hoveredBox === 'box-1' ? 0.9 : 1,
+                                    }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    <FaMountain /> <p>Thiên nhiên núi rừng</p>
+                                </motion.h1>
+                                <motion.p
+                                    className={cx('section-3-description-wrapper')}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{
+                                        opacity: hoveredBox === 'box-1' ? 1 : 0,
+                                        y: hoveredBox === 'box-1' ? 0 : 20,
+                                    }}
+                                    transition={{ duration: 0.3, delay: 0.1 }}
+                                >
+                                    <p className={cx('section-3-description')}>
+                                        Khám phá vẻ đẹp hoang sơ của núi rừng Việt Nam, nơi thiên nhiên hùng vĩ giao hòa
+                                        cùng bầu không khí trong lành, mát mẻ. Những dãy núi trập trùng, thác nước tung
+                                        bọt trắng xóa và những bản làng bình yên mang đến cho du khách cảm giác vừa
+                                        phiêu lưu, vừa thư thái. Đây là hành trình dành cho những ai yêu thích trekking,
+                                        leo núi, hòa mình vào thiên nhiên và tìm lại sự bình yên trong tâm hồn sau những
+                                        ngày bộn bề.
+                                    </p>
+                                    <p className={cx('section-3-button')}>
+                                        Khám phá ngay <MoveRight />
+                                    </p>
+                                </motion.p>
+                            </motion.div>
+                            <motion.div
+                                className={cx('section-3-box', 'box-2')}
+                                onMouseEnter={() => setHoveredBox('box-2')}
+                                onMouseLeave={() => setHoveredBox(null)}
+                                onClick={onClickVanHoa}
+                                whileHover={{ scale: 1.05 }}
+                                transition={{ duration: 0.3 }}
+                                style={{
+                                    backgroundImage: `url(${process.env.PUBLIC_URL}/categories/vanhoa.png)`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                    backgroundRepeat: 'no-repeat',
+                                }}
+                            >
+                                <motion.h1
+                                    className={cx('section-3-title')}
+                                    animate={{
+                                        y: hoveredBox === 'box-2' ? -20 : 0,
+                                        opacity: hoveredBox === 'box-2' ? 0.9 : 1,
+                                    }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    <FaLandmark />
+                                    <p> Hành trình văn hóa</p>
+                                </motion.h1>
+                                <motion.p
+                                    className={cx('section-3-description-wrapper')}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{
+                                        opacity: hoveredBox === 'box-2' ? 1 : 0,
+                                        y: hoveredBox === 'box-2' ? 0 : 20,
+                                    }}
+                                    transition={{ duration: 0.3, delay: 0.1 }}
+                                >
+                                    <p className={cx('section-3-description')}>
+                                        Trải nghiệm chiều sâu văn hóa độc đáo của Việt Nam thông qua những công trình
+                                        kiến trúc cổ kính, các di sản lịch sử và lễ hội truyền thống rực rỡ sắc màu. Mỗi
+                                        vùng đất là một câu chuyện, một nếp sống riêng, mang đến hành trình khám phá đầy
+                                        ý nghĩa cho những ai yêu thích tìm hiểu văn hóa và bản sắc dân tộc. Đây chính là
+                                        cơ hội để du khách kết nối với con người địa phương, thưởng thức ẩm thực đặc
+                                        trưng và lưu giữ những trải nghiệm tinh thần khó quên.
+                                    </p>
+                                    <p className={cx('section-3-button')}>
+                                        Khám phá ngay <MoveRight />
+                                    </p>
+                                </motion.p>
+                            </motion.div>
+                            <motion.div
+                                className={cx('section-3-box', 'box-3')}
+                                onMouseEnter={() => setHoveredBox('box-3')}
+                                onMouseLeave={() => setHoveredBox(null)}
+                                onClick={onClickBien}
+                                whileHover={{ scale: 1.05 }}
+                                transition={{ duration: 0.3 }}
+                                style={{
+                                    backgroundImage: `url(${process.env.PUBLIC_URL}/categories/bien.png)`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                    backgroundRepeat: 'no-repeat',
+                                }}
+                            >
+                                <motion.h1
+                                    className={cx('section-3-title')}
+                                    animate={{
+                                        y: hoveredBox === 'box-3' ? -20 : 0,
+                                        opacity: hoveredBox === 'box-3' ? 0.9 : 1,
+                                    }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    <FaUmbrellaBeach />
+                                    <p> Biển đảo</p>
+                                </motion.h1>
+                                <motion.p
+                                    className={cx('section-3-description-wrapper')}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{
+                                        opacity: hoveredBox === 'box-3' ? 1 : 0,
+                                        y: hoveredBox === 'box-3' ? 0 : 20,
+                                    }}
+                                    transition={{ duration: 0.3, delay: 0.1 }}
+                                >
+                                    <p className={cx('section-3-description')}>
+                                        Đắm mình trong không gian tươi mát của biển xanh, cát trắng và nắng vàng rực rỡ,
+                                        nơi những bãi biển trải dài và hòn đảo xinh đẹp tạo nên một bức tranh thiên
+                                        nhiên tuyệt mỹ. Du khách có thể lựa chọn những hoạt động đầy hứng khởi như lặn
+                                        ngắm san hô, chèo kayak, hay đơn giản chỉ là thư giãn trên bãi cát mềm mại, tận
+                                        hưởng âm thanh sóng vỗ dịu dàng. Biển đảo là điểm đến lý tưởng để nghỉ dưỡng,
+                                        khám phá và tái tạo năng lượng cho những hành trình mới.
+                                    </p>
+                                    <p className={cx('section-3-button')}>
+                                        Khám phá ngay <MoveRight />
+                                    </p>
+                                </motion.p>
+                            </motion.div>
                         </motion.div>
                     </motion.section>
                 )}
