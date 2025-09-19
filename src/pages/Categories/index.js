@@ -24,10 +24,9 @@ function Categories() {
         return str;
     };
 
-    // Chuyển đổi từ URL param sang backend type
     const toBackendType = (str) => {
         if (str === 'vanhoa') return 'van-hoa';
-        return str; // bien và nui giữ nguyên
+        return str; 
     };
 
     const bgMap = {
