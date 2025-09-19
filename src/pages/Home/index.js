@@ -6,7 +6,7 @@ import SearchBar from '~/components/SearchBar';
 import DestinationCard from '~/components/DestinationCard';
 import { getDestinationsApi } from '~/utils/api';
 import { Button } from 'antd';
-import { ArrowRightToLine, MoveRight } from 'lucide-react';
+import { ArrowRightToLine, MoveRight, Bot, MessageCircle, Sparkles } from 'lucide-react';
 import { FaLandmark, FaMountain, FaUmbrellaBeach } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
@@ -56,6 +56,10 @@ function Home() {
 
     const onClickVanHoa = () => {
         navigate('/categories/vanhoa');
+    };
+
+    const onClickGobot = () => {
+        navigate('/gobot-assistant');
     };
 
     // Load destinations when component mounts
@@ -412,12 +416,72 @@ function Home() {
                         transition={transition}
                     >
                         <motion.div
-                            className={cx('section-content')}
+                            className={cx('section-4-content')}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.1, duration: 0.3 }}
                         >
-                            <h2>Section 4</h2>
+                            <div className={cx('section-4-left')}>
+                                <motion.h1
+                                    className={cx('section-4-title')}
+                                    initial={{ opacity: 0, x: -80 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.6, delay: 0.2 }}
+                                >
+                                    Gặp gỡ Gobot
+                                </motion.h1>
+                                <motion.p
+                                    className={cx('section-4-subtitle')}
+                                    initial={{ opacity: 0, x: -60 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.6, delay: 0.35 }}
+                                >
+                                    Trợ lý du lịch AI giúp bạn lên lịch trình thông minh, gợi ý điểm đến, ăn uống và kế
+                                    hoạch cá nhân hóa chỉ trong vài giây.
+                                </motion.p>
+
+                                <motion.ul
+                                    className={cx('section-4-features')}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.6, delay: 0.5 }}
+                                >
+                                    <li className={cx('feature-item')}>
+                                        <Sparkles size={18} /> Gợi ý địa điểm phù hợp yêu cầu, sở thích
+                                    </li>
+                                    <li className={cx('feature-item')}>
+                                        <MessageCircle size={18} /> Trò chuyện tự nhiên như một hướng dẫn viên du lịch
+                                    </li>
+                                    <li className={cx('feature-item')}>
+                                        <Bot size={18} /> Thông tin địa điểm được cập nhật liên tục 
+                                    </li>
+                                </motion.ul>
+
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.6, delay: 0.65 }}
+                                >
+                                    <Button size="large" className={cx('section-4-button')} onClick={onClickGobot}>
+                                        Trò chuyện với Gobot <MoveRight size={18} />
+                                    </Button>
+                                </motion.div>
+                            </div>
+                            <motion.div
+                                className={cx('section-4-right')}
+                                initial={{ opacity: 0, x: 80 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.6, delay: 0.35 }}
+                            >
+                                <div className={cx('section-4-illustration-wrap')}>
+                                    <img
+                                        src={`${process.env.PUBLIC_URL}/ai-img.png`}
+                                        alt="Gobot AI"
+                                        className={cx('section-4-illustration')}
+                                    />
+                                    <div className={cx('glow')}></div>
+                                </div>
+                            </motion.div>
                         </motion.div>
                     </motion.section>
                 )}
