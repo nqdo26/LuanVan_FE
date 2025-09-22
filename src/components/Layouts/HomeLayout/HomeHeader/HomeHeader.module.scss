@@ -46,6 +46,15 @@
     color: #fff;
 }
 
+.title-modal {
+    font-size: 25px;
+    font-weight: 500;
+    background: linear-gradient(135deg, #64c5ff 0%, #1c1f4a 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
 .menu {
     display: flex;
     gap: 30px;

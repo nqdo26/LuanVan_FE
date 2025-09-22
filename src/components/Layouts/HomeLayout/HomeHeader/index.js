@@ -3,7 +3,7 @@ import { Layout, Flex, Modal, Button, Avatar, Dropdown, Input, message, notifica
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useState, useEffect, useContext } from 'react';
-import styles from './Header.module.scss';
+import styles from './HomeHeader.module.scss';
 import { createUserApi, loginApi } from '~/utils/api';
 import { AuthContext } from '~/components/Context/auth.context';
 
@@ -211,7 +211,7 @@ function HomeHeader() {
                     <span className={cx('title')}>GoOhNo</span>
                 </div>
 
-                <nav className={cx('menu')}>    
+                <nav className={cx('menu')}>
                     {[
                         { label: 'Trang chủ', path: '' },
                         { label: 'Tìm kiếm', path: 'search' },
@@ -299,7 +299,7 @@ function HomeHeader() {
                 >
                     <div className={cx('modal-logo')}>
                         <img className={cx('logo')} src="/logo.png" alt="GoOhNo" />
-                        <span className={cx('title')}>GoOhNo</span>
+                        <span className={cx('title-modal')}>GoOhNo</span>
                     </div>
                     <p className={cx('modal-title')}>Đăng nhập</p>
                     <div className={cx('login-form')}>
@@ -360,7 +360,7 @@ function HomeHeader() {
                 >
                     <div className={cx('modal-logo')}>
                         <img className={cx('logo')} src="/logo.png" alt="GoOhNo" />
-                        <span className={cx('title')}>GoOhNo</span>
+                        <span className={cx('title-modal')}>GoOhNo</span>
                     </div>
                     <p className={cx('register-title')}>Đăng ký</p>
                     <div className={cx('login-form')}>
